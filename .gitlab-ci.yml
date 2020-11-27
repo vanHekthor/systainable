@@ -1,0 +1,61 @@
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/backend/.gradle
+
+frontend-lint-test:
+  stage: test
+  image: node
+  script:
+    - cd frontend
+    - npm install --progress=false
+    - npm run lint
+
+frontend-build:
+  stage: build
+  image: node
+  script:
+    - cd frontend
+    - npm install --progress=false
+    - npm run build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - frontend/dist
+  needs:
+    - "frontend-lint-test"
+
+backend-gradle-test:
+  stage: test
+  image: gradle:6.7.1-jdk11
+  script:
+    - cd backend
+    - gradle check
+
+backend-build:
+  stage: build
+  image: gradle:6.7.1-jdk11
+  script:
+    - cd backend
+    - gradle assemble
+  artifacts:
+    paths:
+      - backend/build/libs/*.jar
+    expire_in: 1 week
+  needs:
+    - "backend-gradle-test"
+
+deploy:
+  stage: deploy
+  script:
+    - echo DEPLOY HERE PLOX
+  when: manual
+  needs:
+    - "backend-build"
+    - "frontend-build"
