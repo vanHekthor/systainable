@@ -8,9 +8,6 @@ variables:
 
 before_script:
   - export GRADLE_USER_HOME=`pwd`/backend/.gradle
-  - apt-get update
-  - apt-get install -y ruby-dev
-  - gem install dpl
 
 frontend-lint-test:
   stage: test
@@ -55,8 +52,12 @@ backend-build:
     - "backend-gradle-test"
 
 deploy:
+  image: debian
   stage: deploy
   script:
+    - apt-get update
+    - apt-get install -y ruby-dev
+    - gem install dpl
     - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
   when: manual
   needs:
