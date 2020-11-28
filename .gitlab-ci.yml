@@ -62,7 +62,7 @@ deploy-frontend:
     - git config user.name "CI durch Paul Glaß"
     - subtree_hash=$(git subtree split --prefix frontend HEAD --)
     - echo "Deploy frontend from subtree hash $subtree_hash"
-    - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_FRONTEND.git" "${subtree_hash}:master"
+    - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_FRONTEND.git" "${subtree_hash}:master" --force
   when: manual
   needs:
     - "frontend-build"
@@ -79,7 +79,7 @@ deploy-backend:
     - git config user.name "CI durch Paul Glaß"
     - subtree_hash=$(git subtree split --prefix backend HEAD --)
     - echo "Deploy backend from subtree hash $subtree_hash"
-    - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_BACKEND.git" "${subtree_hash}:master"
+    - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_BACKEND.git" "${subtree_hash}:master" --force
   when: manual
   needs:
     - "backend-build"
