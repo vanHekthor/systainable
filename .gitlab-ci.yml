@@ -17,6 +17,13 @@ frontend-lint-test:
     - npm install --progress=false
     - npm run lint
 
+backend-gradle-test:
+  stage: test
+  image: gradle:6.7.1-jdk11
+  script:
+    - cd backend
+    - gradle check
+
 frontend-build:
   stage: build
   image: node
@@ -25,18 +32,12 @@ frontend-build:
     - npm install --progress=false
     - npm run build
   artifacts:
-    expire_in: 1 week
+    expire_in: 3 days
     paths:
       - frontend/dist
   needs:
     - "frontend-lint-test"
-
-backend-gradle-test:
-  stage: test
-  image: gradle:6.7.1-jdk11
-  script:
-    - cd backend
-    - gradle check
+    - "backend-gradle-test"
 
 backend-build:
   stage: build
@@ -47,19 +48,41 @@ backend-build:
   artifacts:
     paths:
       - backend/build/libs/*.jar
-    expire_in: 1 week
+    expire_in: 3 days
   needs:
+    - "frontend-lint-test"
     - "backend-gradle-test"
 
-deploy:
+deploy-frontend:
   image: debian
   stage: deploy
   script:
     - apt-get update
-    - apt-get install -y ruby-dev
-    - gem install dpl
-    - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
+    - apt-get install -y git curl
+    - git config user.name "CI durch Paul Glaß"
+    - subtree_hash=$(git subtree split --prefix frontend HEAD --)
+    - echo "Deploy frontend from subtree hash $subtree_hash"
+    - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_FRONTEND.git" "${subtree_hash}:master"
+  when: manual
+  needs:
+    - "frontend-build"
+  only:
+    variables:
+      - ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $GITLAB_USER_ID == "1543")
+
+deploy-backend:
+  image: debian
+  stage: deploy
+  script:
+    - apt-get update
+    - apt-get install -y git curl
+    - git config user.name "CI durch Paul Glaß"
+    - subtree_hash=$(git subtree split --prefix backend HEAD --)
+    - echo "Deploy backend from subtree hash $subtree_hash"
+    - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_BACKEND.git" "${subtree_hash}:master"
   when: manual
   needs:
     - "backend-build"
-    - "frontend-build"
+  only:
+    variables:
+      - ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $GITLAB_USER_ID == "1543")
