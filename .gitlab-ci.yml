@@ -34,10 +34,10 @@ frontend-build:
     - npm install --progress=false
     - npm run build
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
-      when: manual
     - if: $CI_MERGE_REQUEST_ID
       when: never
+    - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
+      when: manual
     - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
       when: always
   artifacts:
@@ -53,10 +53,10 @@ backend-build:
     - cd backend
     - gradle assemble
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
-      when: manual
     - if: $CI_MERGE_REQUEST_ID
       when: never
+    - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
+      when: manual
     - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
       when: always
   artifacts:
