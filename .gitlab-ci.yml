@@ -37,8 +37,9 @@ frontend-build:
     - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
       when: manual
     - if: $CI_MERGE_REQUEST_ID
-    when: never
-   - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
+      when: always
   artifacts:
     expire_in: 1 day
     paths:
@@ -57,6 +58,7 @@ backend-build:
     - if: $CI_MERGE_REQUEST_ID
       when: never
     - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
+      when: always
   artifacts:
     paths:
       - backend/build/libs/*.jar
