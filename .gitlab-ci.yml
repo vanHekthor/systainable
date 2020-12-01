@@ -31,8 +31,11 @@ frontend-build:
     - cd frontend
     - npm install --progress=false
     - npm run build
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+    - when: manual
   artifacts:
-    expire_in: 3 days
+    expire_in: 1 day
     paths:
       - frontend/dist
   needs:
@@ -45,10 +48,13 @@ backend-build:
   script:
     - cd backend
     - gradle assemble
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+    - when: manual
   artifacts:
     paths:
       - backend/build/libs/*.jar
-    expire_in: 3 days
+    expire_in: 1 day
   needs:
     - "frontend-lint-test"
     - "backend-gradle-test"
