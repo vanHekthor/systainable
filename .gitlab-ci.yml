@@ -74,7 +74,7 @@ deploy-frontend:
     - "frontend-build"
   only:
     variables:
-      - ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $GITLAB_USER_ID == "1543")
+      - ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH)
 
 deploy-backend:
   image: debian
@@ -91,4 +91,4 @@ deploy-backend:
     - "backend-build"
   only:
     variables:
-      - ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $GITLAB_USER_ID == "1543")
+      - ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH)
