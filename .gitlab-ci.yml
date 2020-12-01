@@ -16,6 +16,7 @@ frontend-lint-test:
     - cd frontend
     - npm install --progress=false
     - npm run lint
+  interruptible: true
 
 backend-gradle-test:
   stage: test
@@ -23,6 +24,7 @@ backend-gradle-test:
   script:
     - cd backend
     - gradle check
+  interruptible: true
 
 frontend-build:
   stage: build
@@ -41,6 +43,7 @@ frontend-build:
   needs:
     - "frontend-lint-test"
     - "backend-gradle-test"
+  interruptible: true
 
 backend-build:
   stage: build
@@ -49,8 +52,9 @@ backend-build:
     - cd backend
     - gradle assemble
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-    - if: '$CI_PIPELINE_SOURCE == "we"'
+    - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
+      when: manual
+    - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
   artifacts:
     paths:
       - backend/build/libs/*.jar
@@ -58,6 +62,7 @@ backend-build:
   needs:
     - "frontend-lint-test"
     - "backend-gradle-test"
+  interruptible: true
 
 deploy-frontend:
   image: debian
