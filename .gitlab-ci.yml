@@ -50,6 +50,8 @@ frontend-build:
   script:
     - npm run build
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
     - if: '$CI_COMMIT_REF_NAME != "$CI_DEFAULT_BRANCH"'
       when: manual
     - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
@@ -68,6 +70,8 @@ backend-build:
   script:
     - gradle assemble
   rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
     - if: '$CI_COMMIT_REF_NAME != "$CI_DEFAULT_BRANCH"'
       when: manual
     - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
