@@ -3,6 +3,12 @@ stages:
   - build
   - deploy
 
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      when: never
+
+
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
@@ -34,8 +40,6 @@ frontend-build:
     - npm install --progress=false
     - npm run build
   rules:
-    - if: $CI_MERGE_REQUEST_ID
-      when: never
     - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
       when: manual
     - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
@@ -53,8 +57,6 @@ backend-build:
     - cd backend
     - gradle assemble
   rules:
-    - if: $CI_MERGE_REQUEST_ID
-      when: never
     - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
       when: manual
     - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
@@ -70,7 +72,7 @@ deploy-frontend:
   stage: deploy
   script:
     - apt-get update
-    - apt-get install -y git curl
+    - apt-get install -y git
     - git config user.name "CI durch Paul Glaß"
     - subtree_hash=$(git subtree split --prefix frontend HEAD --)
     - echo "Deploy frontend from subtree hash $subtree_hash"
@@ -84,7 +86,7 @@ deploy-backend:
   stage: deploy
   script:
     - apt-get update
-    - apt-get install -y git curl
+    - apt-get install -y git
     - git config user.name "CI durch Paul Glaß"
     - subtree_hash=$(git subtree split --prefix backend HEAD --)
     - echo "Deploy backend from subtree hash $subtree_hash"
