@@ -39,7 +39,6 @@ backend-gradle-test:
   before_script:
     - *install-backend
   script:
-    - cd backend
     - gradle check
   interruptible: true
 
@@ -51,7 +50,7 @@ frontend-build:
   script:
     - npm run build
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
+    - if: '$CI_COMMIT_REF_NAME != "$CI_DEFAULT_BRANCH"'
       when: manual
     - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
       when: always
@@ -69,7 +68,7 @@ backend-build:
   script:
     - gradle assemble
   rules:
-    - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
+    - if: '$CI_COMMIT_REF_NAME != "$CI_DEFAULT_BRANCH"'
       when: manual
     - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
       when: always
