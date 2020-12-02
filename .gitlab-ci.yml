@@ -8,25 +8,36 @@ workflow:
     - if: $CI_MERGE_REQUEST_ID
       when: never
 
+.install-frontend: &install-frontend
+  - cd frontend
+  - npm install --progress=false
+
+.install-backend: &install-backend
+  - cd backend
+  - export GRADLE_USER_HOME=`pwd`/backend/.gradle
+
+.install-deploy: &install-deploy
+  - apt-get update
+  - apt-get install -y git
+  - git config user.name "CI durch Paul Glaß"
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-before_script:
-  - export GRADLE_USER_HOME=`pwd`/backend/.gradle
-
 frontend-lint-test:
   stage: test
   image: node
+  before_script:
+    - *install-frontend
   script:
-    - cd frontend
-    - npm install --progress=false
     - npm run lint
   interruptible: true
 
 backend-gradle-test:
   stage: test
   image: gradle:6.7.1-jdk11
+  before_script:
+    - *install-backend
   script:
     - cd backend
     - gradle check
@@ -35,9 +46,9 @@ backend-gradle-test:
 frontend-build:
   stage: build
   image: node
+  before_script:
+    - *install-frontend
   script:
-    - cd frontend
-    - npm install --progress=false
     - npm run build
   rules:
     - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
@@ -53,8 +64,9 @@ frontend-build:
 backend-build:
   stage: build
   image: gradle:6.7.1-jdk11
+  before_script:
+    - *install-backend
   script:
-    - cd backend
     - gradle assemble
   rules:
     - if: '$CI_PIPELINE_SOURCE != "$CI_DEFAULT_BRANCH"'
@@ -70,10 +82,9 @@ backend-build:
 deploy-frontend:
   image: debian
   stage: deploy
+  before_script:
+    - *install-deploy
   script:
-    - apt-get update
-    - apt-get install -y git
-    - git config user.name "CI durch Paul Glaß"
     - subtree_hash=$(git subtree split --prefix frontend HEAD --)
     - echo "Deploy frontend from subtree hash $subtree_hash"
     - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_FRONTEND.git" "${subtree_hash}:master" --force
@@ -84,10 +95,9 @@ deploy-frontend:
 deploy-backend:
   image: debian
   stage: deploy
+  before_script:
+    - *install-deploy
   script:
-    - apt-get update
-    - apt-get install -y git
-    - git config user.name "CI durch Paul Glaß"
     - subtree_hash=$(git subtree split --prefix backend HEAD --)
     - echo "Deploy backend from subtree hash $subtree_hash"
     - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_BACKEND.git" "${subtree_hash}:master" --force
