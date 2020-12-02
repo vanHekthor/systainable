@@ -5,7 +5,7 @@ stages:
 
 workflow:
   rules:
-    - if: $CI_MERGE_REQUEST_ID
+    - if: '$CI_MERGE_REQUEST_ID == "merge_request_event"'
       when: never
 
 .install-frontend: &install-frontend
