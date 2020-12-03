@@ -3,11 +3,6 @@ stages:
   - build
   - deploy
 
-workflow:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-      when: never
-
 .install-frontend: &install-frontend
   - cd frontend
   - npm install --progress=false
@@ -21,9 +16,6 @@ workflow:
   - apt-get install -y git
   - git config user.name "CI durch Paul Glaß"
 
-variables:
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-
 frontend-lint-test:
   stage: test
   image: node
@@ -36,6 +28,8 @@ frontend-lint-test:
 backend-gradle-test:
   stage: test
   image: gradle:6.7.1-jdk11
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   before_script:
     - *install-backend
   script:
@@ -49,11 +43,7 @@ frontend-build:
     - *install-frontend
   script:
     - npm run build
-  rules:
-    - if: '$CI_COMMIT_REF_NAME != "$CI_DEFAULT_BRANCH"'
-      when: manual
-    - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
-      when: always
+  when: manual
   artifacts:
     expire_in: 1 day
     paths:
@@ -63,15 +53,13 @@ frontend-build:
 backend-build:
   stage: build
   image: gradle:6.7.1-jdk11
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   before_script:
     - *install-backend
   script:
     - gradle assemble
-  rules:
-    - if: '$CI_COMMIT_REF_NAME != "$CI_DEFAULT_BRANCH"'
-      when: manual
-    - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
-      when: always
+  when: manual
   artifacts:
     paths:
       - backend/build/libs/*.jar
@@ -88,8 +76,9 @@ deploy-frontend:
     - echo "Deploy frontend from subtree hash $subtree_hash"
     - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_FRONTEND.git" "${subtree_hash}:master" --force
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
+    - if: '$CI_COMMIT_REF_NAME == "master"'
       when: manual
+    - when: never
 
 deploy-backend:
   image: debian
@@ -101,5 +90,6 @@ deploy-backend:
     - echo "Deploy backend from subtree hash $subtree_hash"
     - git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_BACKEND.git" "${subtree_hash}:master" --force
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "$CI_DEFAULT_BRANCH"'
+    - if: '$CI_COMMIT_REF_NAME == "master"'
       when: manual
+    - when: never
