@@ -2,6 +2,7 @@ package org.swtp2015.models;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class that saves a FeatureModel
@@ -30,8 +31,8 @@ public class FeatureModel {
         this.formulas = formulas;
     }
 
-    public Map<Integer, Feature> getFeatures() {
-        return features;
+    public Set<Feature> getFeatures() {
+        return features.values().stream().collect(Collectors.toSet());
     }
 
     public Set<Set<Integer>> getFormulas() {
