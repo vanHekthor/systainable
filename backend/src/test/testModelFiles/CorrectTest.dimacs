@@ -1,0 +1,5 @@
+c 1 feature1
+c 2 feature2
+p cnf 2 2
+1 0
+-2 1 0
