@@ -19,5 +19,5 @@ public abstract class FeatureModelParser extends FileParser{
      * @param filename file to be parsed
      * @return parsed FeatureModel
      */
-    public abstract FeatureModel parseFeatureModel(String filename);
+    public abstract FeatureModel parseFeatureModel(String filename) throws Exception;
 }

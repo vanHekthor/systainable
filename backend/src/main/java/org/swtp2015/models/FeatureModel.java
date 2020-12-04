@@ -1,8 +1,8 @@
 package org.swtp2015.models;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Class that saves a FeatureModel
@@ -32,7 +32,7 @@ public class FeatureModel {
     }
 
     public Set<Feature> getFeatures() {
-        return features.values().stream().collect(Collectors.toSet());
+        return new HashSet<>(features.values());
     }
 
     public Set<Set<Integer>> getFormulas() {
