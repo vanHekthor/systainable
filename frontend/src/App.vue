@@ -1,16 +1,87 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <ConfigurationTable
+      v-bind:configurationFeatures="configurationFeatures"
+      v-bind:configurations="configurations" v-on:update-feature="updateFeature"/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import ConfigurationTable from './components/ConfigurationTable';
+
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    ConfigurationTable
+  },
+  data() {
+    return {
+      configurationFeatures: [
+        {
+          name: "Feature 1"
+        },
+        {
+          name: "Feature 2"
+        },
+        {
+          name: "Feature 3"
+        },
+        {
+          name: "Feature 4"
+        },
+        {
+          name: "Feature 5"
+        },
+        {
+          name: "Feature 6"
+        },
+        {
+          name: "Feature 7"
+        },
+        {
+          name: "Feature 8"
+        },
+        {
+          name: "Feature 9"
+        },
+        {
+          name: "Feature 10"
+        },
+        {
+          name: "Feature 11"
+        },
+        {
+          name: "Feature 12"
+        }
+      ],
+      configurationProperties: [],
+      configurations: [
+        {
+          name: "Config 1",
+          features: [
+            true, false, false,true, false, false, true, false, false, true, false, false
+          ]
+        },
+        {
+          name: "Config 2",
+          features: [
+            true, true, true,true, false, false, true, false, false,true, false, false
+          ]
+        },
+        {
+          name: "Config 3",
+          features: [
+            false, true, true,true, false, false,true, false, false, true, false, false
+          ]
+        }
+      ]
+    }
+  },
+  methods: {
+    updateFeature(configIndex, featureIndex) {
+      this.configurations[configIndex].features[featureIndex] = !this.configurations[configIndex].features[featureIndex];
+    }
   }
+
 }
 </script>
 
