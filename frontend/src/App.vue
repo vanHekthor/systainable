@@ -95,7 +95,6 @@ export default {
       let names = [];
       let featureName;
       for (featureName of featureNames) {
-        console.log(featureName);
         names.push({name: featureName});
       }
       this.configurationFeatures = names;
