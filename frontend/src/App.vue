@@ -3,6 +3,7 @@
       v-bind:configurationFeatures="configurationFeatures"
       v-bind:configurations="configurations" v-on:update-feature="updateFeature"/>
   <button @click="getFeatures">get features</button>
+  <button @click="getConfigExample">get config example</button>
 </template>
 
 <script>
@@ -17,6 +18,7 @@ export default {
   },
   data() {
     return {
+      featureModel: "",
       configurationFeatures: [
         {
           name: "Feature 1"
@@ -79,16 +81,32 @@ export default {
     }
   },
   methods: {
+    //turns feature in the cell(configIndex, featureIndex) on/off
     updateFeature(configIndex, featureIndex) {
       this.configurations[configIndex].features[featureIndex] = !this.configurations[configIndex].features[featureIndex];
     },
+
+    //requests features from backend
     getFeatures() {
-      api.getFeatures()
-          .catch(error => {
-            this.$log.debug(error)
-            this.error = "Failed to load features"
-          })
-          .finally(() => this.loading = false)
+      try {
+        api.getFeatures();
+      } catch (error) {
+        this.$log.debug(error)
+        this.error = "Failed to load features";
+      }finally {
+        this.loading = false;
+      }
+    },
+
+    getConfigExample() {
+      try {
+        this.featureModel = api.getConfigExample();
+      } catch (error) {
+        this.$log.debug(error)
+        this.error = "Failed to load config example";
+      }finally {
+        this.loading = false;
+      }
     }
   }
 
