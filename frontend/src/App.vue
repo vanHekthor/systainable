@@ -1,10 +1,12 @@
-<template>
+<template id="app">
   <ConfigurationTable
       v-bind:configurationFeatures="configurationFeatures"
       v-bind:configurations="configurations" v-on:update-feature="updateFeature"/>
+  <button @click="getFeatures">get features</button>
 </template>
 
 <script>
+import api from './Api';
 import ConfigurationTable from './components/ConfigurationTable';
 
 
@@ -79,6 +81,14 @@ export default {
   methods: {
     updateFeature(configIndex, featureIndex) {
       this.configurations[configIndex].features[featureIndex] = !this.configurations[configIndex].features[featureIndex];
+    },
+    getFeatures() {
+      api.getFeatures()
+          .catch(error => {
+            this.$log.debug(error)
+            this.error = "Failed to load features"
+          })
+          .finally(() => this.loading = false)
     }
   }
 
