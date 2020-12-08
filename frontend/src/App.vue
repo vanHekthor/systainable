@@ -1,20 +1,48 @@
 <template id="app">
-  <ConfigurationTable
-      v-bind:configurationFeatures="configurationFeatures"
-      v-bind:configurations="configurations" v-on:update-feature="updateFeature"/>
-  <button @click="getFeatures">load features</button>
-  <button @click="getConfigExample">add example config</button>
+
+
+  <Toolbar class="p-mb-4">
+    <template #left>
+      <Button label="Load" class="p-button-success p-button-sm p-mr-2" @click="getFeatures"/>
+    </template>
+
+    <template #right>
+
+    </template>
+  </Toolbar>
+
+  <ConfigTable
+      :configurationFeatures="configurationFeatures"
+      :configurations="configurations"
+      v-on:update-feature="updateFeature"
+      v-on:update-config-name="updateConfigName"
+      class ="p-mb-4"/>
+
+  <Toolbar class="p-mb-4">
+    <template #left>
+      <Button icon="pi pi-plus" class="p-button-sm" @click="getConfigExample"/>
+    </template>
+    <template #right>
+      <Button label="Submit" class="p-button-sm p-mr-2" @click="getFeatures"/>
+    </template>
+  </Toolbar>
+
 </template>
 
 <script>
 import api from './Api';
-import ConfigurationTable from './components/ConfigurationTable';
+import ConfigTable from './components/ConfigTable';
+import Button from 'primevue/button';
+import Toolbar from 'primevue/toolbar';
+
 
 
 export default {
   name: 'App',
   components: {
-    ConfigurationTable
+    ConfigTable,
+    Button,
+    Toolbar
   },
   data() {
     return {
@@ -64,16 +92,22 @@ export default {
   },
   methods: {
     //turns feature in the cell(configIndex, featureIndex) on/off
-    updateFeature(configIndex, featureIndex) {
-      this.configurations[configIndex].features[featureIndex]
-          = !this.configurations[configIndex].features[featureIndex];
+    updateFeature(index, featureName) {
+      this.configurations[index][featureName]
+          = !this.configurations[index][featureName];
+      console.log(featureName + ' ' + this.configurations[index][featureName])
+    },
+
+    updateConfigName(index, configName) {
+      this.configurations[index].name = configName;
+      console.log(configName);
     },
 
     //requests features from backend
     getFeatures() {
       //JSON-Parser is still WIP
       let featureNames = [
-        "root", "compressed_script", "encryption", "crypt_aes", "crypt_blowfish",
+        "name", "root", "compressed_script", "encryption", "crypt_aes", "crypt_blowfish",
         "transaction_control", "txc_mvlocks", "txc_nvcc", "txc_locks", "table_type", "memory_tables",
         "cached_tables", "small_cache", "large_cache", "logging", "detailed_logging", "no_write_delay",
         "small_log"
@@ -103,13 +137,10 @@ export default {
 
     getConfigExample() {
       let exampleConfig = {
-        name: "example",
-        features: {
-          root: true, compressed_script: true, encryption:false, crypt_aes: false,crypt_blowfish: false,
+          name: "example", root: true, compressed_script: true, encryption:false, crypt_aes: false,crypt_blowfish: false,
           transaction_control: true, txc_mvlocks: true, txc_nvcc: true, txc_locks: true, table_type:false,
           memory_tables:false, cached_tables: false, small_cache: false, large_cache: false, logging: true,
           detailed_logging: true, no_write_delay: true, small_log:false
-        }
       };
 
       try {
@@ -135,11 +166,5 @@ export default {
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
 }
 </style>

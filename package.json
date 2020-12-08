@@ -2,5 +2,6 @@
   "name": "swt-p-2020-15",
   "version": "1.0.0",
   "dependencies": {
+    "primevue": "^2.2.2"
   }
 }
