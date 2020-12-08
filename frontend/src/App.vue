@@ -1,13 +1,7 @@
 <template id="app">
-
-
   <Toolbar class="p-mb-4">
     <template #left>
       <Button label="Select" class="p-button-success p-button-sm p-mr-2" @click="getFeatures"/>
-    </template>
-
-    <template #right>
-
     </template>
   </Toolbar>
 
@@ -24,15 +18,17 @@
       <Button icon="pi pi-plus" class="p-button-sm" @click="getConfigExample"/>
     </template>
     <template #right>
-      <Button label="Submit" class="p-button-sm p-mr-2" @click="getFeatures"/>
+      <Button label="Submit" class="p-button-sm p-mr-2" @click="submitConfig"/>
     </template>
   </Toolbar>
 
+  <ChartArea v-if="draw"/>
 </template>
 
 <script>
 import api from './Api';
 import ConfigTable from './components/ConfigTable';
+import ChartArea from './components/ChartArea';
 import Button from 'primevue/button';
 import Toolbar from 'primevue/toolbar';
 
@@ -42,6 +38,7 @@ export default {
   name: 'App',
   components: {
     ConfigTable,
+    ChartArea,
     Button,
     Toolbar
   },
@@ -50,7 +47,8 @@ export default {
       featureModel: "",
       configurationFeatures: [],
       configurationProperties: [],
-      configurations: []
+      configurations: [],
+      draw: false
     }
   },
 
@@ -96,7 +94,7 @@ export default {
       for (featureName of featureNames) {
         names.push({name: featureName});
       }
-      this.configurationFeatures = [...names];
+      this.configurationFeatures = names;
     },
 
     getConfigExample() {
@@ -125,9 +123,15 @@ export default {
     deleteConfig(index) {
       console.log("remove " + index);
       this.configurations.splice(index, 1);
+    },
+
+    submitConfig() {
+      this.drawCharts();
+    },
+
+    drawCharts() {
+      this.draw = true;
     }
-
-
   }
 
 }
