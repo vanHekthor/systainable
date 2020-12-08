@@ -3,7 +3,7 @@
 
   <Toolbar class="p-mb-4">
     <template #left>
-      <Button label="Load" class="p-button-success p-button-sm p-mr-2" @click="getFeatures"/>
+      <Button label="Select" class="p-button-success p-button-sm p-mr-2" @click="getFeatures"/>
     </template>
 
     <template #right>
@@ -16,6 +16,7 @@
       :configurations="configurations"
       v-on:update-feature="updateFeature"
       v-on:update-config-name="updateConfigName"
+      v-on:del-config="deleteConfig"
       class ="p-mb-4"/>
 
   <Toolbar class="p-mb-4">
@@ -47,60 +48,21 @@ export default {
   data() {
     return {
       featureModel: "",
-      configurationFeatures: [
-        {
-          name: "Feature 1"
-        },
-        {
-          name: "Feature 2"
-        },
-        {
-          name: "Feature 3"
-        },
-        {
-          name: "Feature 4"
-        },
-        {
-          name: "Feature 5"
-        },
-        {
-          name: "Feature 6"
-        },
-        {
-          name: "Feature 7"
-        },
-        {
-          name: "Feature 8"
-        },
-        {
-          name: "Feature 9"
-        },
-        {
-          name: "Feature 10"
-        },
-        {
-          name: "Feature 11"
-        },
-        {
-          name: "Feature 12"
-        }
-      ],
+      configurationFeatures: [],
       configurationProperties: [],
-      configurations: [
-      ]
+      configurations: []
     }
   },
+
   methods: {
     //turns feature in the cell(configIndex, featureIndex) on/off
     updateFeature(index, featureName) {
       this.configurations[index][featureName]
           = !this.configurations[index][featureName];
-      console.log(featureName + ' ' + this.configurations[index][featureName])
     },
 
     updateConfigName(index, configName) {
       this.configurations[index].name = configName;
-      console.log(configName);
     },
 
     //requests features from backend
@@ -123,16 +85,18 @@ export default {
       }finally {
         this.loading = false;
       }
+      if (this.configurations.length == 0) {
+        this.getConfigExample();
+      }
     },
 
     updateFeatureNames(featureNames) {
       let names = [];
       let featureName;
       for (featureName of featureNames) {
-        console.log(featureName);
         names.push({name: featureName});
       }
-      this.configurationFeatures = names;
+      this.configurationFeatures = [...names];
     },
 
     getConfigExample() {
@@ -156,6 +120,11 @@ export default {
 
     addConfiguration(config) {
       this.configurations.push(config);
+    },
+
+    deleteConfig(index) {
+      console.log("remove " + index);
+      this.configurations.splice(index, 1);
     }
 
 

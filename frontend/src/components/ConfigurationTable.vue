@@ -14,7 +14,7 @@
             <th>{{configuration.name}}</th>
             <td v-for="(feature, featureIndex) in configuration.features" :key="featureIndex" >
               <label>
-                <input type="checkbox" :checked="feature" value="val" @change="$emit('update-feature', configIndex, featureIndex)">
+                <input type="checkbox" :checked="feature" @change="$emit('update-feature', configIndex, featureIndex)">
               </label>
             </td>
           </tr>

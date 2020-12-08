@@ -1,27 +1,42 @@
 <template>
-  <DataTable rowHover="true" autoLayout="true" :value="configurations" editMode="cell" @cell-edit-complete="onCellEditComplete" class="editable-cells-table">
-    <Column v-for="feature of configurationFeatures" :field="feature.name" :header="feature.name"
-            :key="feature.name" bodyStyle="text-align:center">
-      <template v-if="feature.name == 'name'" #editor="slotProps">
-        <InputText :modelValue="slotProps.data[feature.name]"
-                   @update:modelValue="$emit('update-config-name', slotProps.index,$event)"
-                   class="p-inputtext" />
-<!--        <p v-if="feature.name == 'name'">{{slotProps.data.name}}</p>-->
-      </template>
-      <template v-else #body="slotProps">
-        <label>
-          <input v-if="feature.name != 'name'" type="checkbox" :checked="slotProps.data[feature.name]"
-                 @change="$emit('update-feature', slotProps.index, feature.name)"/>
-        </label>
-      </template>
-    </Column>
-  </DataTable>
+  <Panel header="Configurations" v-if="configurationFeatures.length > 0">
+    <DataTable rowHover="true" autoLayout="false" :value="configurations"
+               editMode="cell" @cell-edit-complete="onCellEditComplete" class="editable-cells-table">
+      <Column v-for="feature of configurationFeatures" :field="feature.name" :header="feature.name"
+              :key="feature.name" bodyStyle="text-align:center">
+        <template v-if="feature.name == 'name'" #editor="slotProps">
+          <div class="p-grid" @mouseover="hover=true" @mouseleave="hover=false">
+
+            <InputText :modelValue="slotProps.data[feature.name]"
+                       @update:modelValue="$emit('update-config-name', slotProps.index,$event)"
+                       class="p-inputtext-sm" />
+            <Button label="Delete" icon="pi pi-times" class="p-button-danger p-button-sm p-mt-2"
+                    @click="$emit('del-config', slotProps.index)"/>
+          </div>
+  <!--        <p v-if="feature.name == 'name'">{{slotProps.data.name}}</p>-->
+        </template>
+        <template v-else #body="slotProps">
+          <label>
+            <input type="checkbox" :checked="slotProps.data[feature.name]"
+                   @change="$emit('update-feature', slotProps.index, feature.name)"/>
+          </label>
+        </template>
+      </Column>
+    </DataTable>
+  </Panel>
+  <Panel v-else header="Empty">
+    Please select a software system.
+  </Panel>
 </template>
 
 <script>
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
+import Panel from 'primevue/panel';
+import Button from 'primevue/button';
+
+
 
 
 export default {
@@ -29,7 +44,9 @@ export default {
   components: {
     DataTable,
     Column,
-    InputText
+    InputText,
+    Panel,
+    Button
   },
   props: ["configurationFeatures", "configurations"],
 
@@ -38,6 +55,7 @@ export default {
       columns: null,
       editingCellRows: {},
       editingRows: [],
+      hover: false,
     }
   },
 
@@ -56,34 +74,7 @@ export default {
       if (!this.editingCellRows[event.index]) {
         return;
       }
-
-      const editingCellValue = this.editingCellRows[event.index][event.field];
-
-      switch (event.field) {
-        case 'quantity':
-        case 'price':
-          if (this.isPositiveInteger(editingCellValue))
-            this.products2[event.index] = {...this.editingCellRows[event.index]};
-          else
-            event.preventDefault();
-          break;
-
-        default:
-          if (editingCellValue.trim().length > 0)
-            this.products2[event.index] = {...this.editingCellRows[event.index]};
-          else
-            event.preventDefault();
-          break;
-      }
     },
-    onCellEdit(newValue, props) {
-      console.log('haha' + newValue);
-      if (!this.editingCellRows[props.index]) {
-        this.editingCellRows[props.index] = {...props.data};
-      }
-
-      this.editingCellRows[props.index][props.column.props.field] = newValue;
-    }
   },
 }
 </script>
