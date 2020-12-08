@@ -1,7 +1,7 @@
 <template id="app">
   <Toolbar class="p-mb-4">
     <template #left>
-      <Button label="Select" class="p-button-success p-button-sm p-mr-2" @click="getFeatures"/>
+      <Dropdown v-model="selectedSoftSystem" :options="softSystems" optionLabel="name" placeholder="Select a system" @change="getFeatures"/>
     </template>
   </Toolbar>
 
@@ -31,6 +31,8 @@ import ConfigTable from './components/ConfigTable';
 import ChartArea from './components/ChartArea';
 import Button from 'primevue/button';
 import Toolbar from 'primevue/toolbar';
+import Dropdown from 'primevue/dropdown';
+
 
 
 
@@ -40,7 +42,8 @@ export default {
     ConfigTable,
     ChartArea,
     Button,
-    Toolbar
+    Toolbar,
+    Dropdown
   },
   data() {
     return {
@@ -48,7 +51,15 @@ export default {
       configurationFeatures: [],
       configurationProperties: [],
       configurations: [],
-      draw: false
+      draw: false,
+      selectedSoftSystem: null,
+      softSystems: [
+        {name: 'KrasseSoft'},
+        {name: 'HyperSoft'},
+        {name: 'Macrosoft'},
+        {name: 'Peach'},
+        {name: 'Sungsam'}
+      ]
     }
   },
 
