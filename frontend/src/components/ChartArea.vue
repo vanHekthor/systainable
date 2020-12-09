@@ -60,7 +60,7 @@ export default {
           {
             label: 'My Second dataset',
             backgroundColor: '#FFA726',
-            data: [28, 48, 40]
+            data: [0.5, 89.3, 5]
           }
         ]
       },
@@ -68,24 +68,24 @@ export default {
         labels: ['Energy', 'CPU', 'Time'],
         datasets: [
           {
-            label: 'My First dataset',
+            label: 'first configuration',
             backgroundColor: 'rgba(179,181,198,0.2)',
             borderColor: 'rgba(179,181,198,1)',
             pointBackgroundColor: 'rgba(179,181,198,1)',
             pointBorderColor: '#fff',
             pointHoverBackgroundColor: '#fff',
             pointHoverBorderColor: 'rgba(179,181,198,1)',
-            data: [65, 59, 90]
+            data: [0.5, 1, 0.35]
           },
           {
-            label: 'My Second dataset',
+            label: 'second configuration',
             backgroundColor: 'rgba(255,99,132,0.2)',
             borderColor: 'rgba(255,99,132,1)',
             pointBackgroundColor: 'rgba(255,99,132,1)',
             pointBorderColor: '#fff',
             pointHoverBackgroundColor: '#fff',
             pointHoverBorderColor: 'rgba(255,99,132,1)',
-            data: [28, 48, 40]
+            data: [0.3, 0.63, 0.4]
           }
         ]
       }
@@ -95,5 +95,7 @@ export default {
 </script>
 
 <style scoped>
-
+  html {
+    font-size: 12px;
+  }
 </style>

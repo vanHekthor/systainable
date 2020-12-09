@@ -1,17 +1,18 @@
 <template id="app">
   <Toolbar class="p-mb-4">
     <template #left>
-      <Dropdown v-model="selectedSoftSystem" :options="softSystems" optionLabel="name" placeholder="Select a system" @change="getFeatures"/>
+      <Dropdown v-model="selectedSoftSystem" :options="softSystems" optionLabel="name" placeholder="Select a system"
+                @change="getFeatures"/>
     </template>
   </Toolbar>
 
   <ConfigTable
-      :configurationFeatures="configurationFeatures"
-      :configurations="configurations"
-      v-on:update-feature="updateFeature"
-      v-on:update-config-name="updateConfigName"
-      v-on:del-config="deleteConfig"
-      class ="p-mb-4"/>
+    :configurationFeatures="configurationFeatures"
+    :configurations="configurations"
+    v-on:update-feature="updateFeature"
+    v-on:update-config-name="updateConfigName"
+    v-on:del-config="deleteConfig"
+    class ="p-mb-4"/>
 
   <Toolbar class="p-mb-4">
     <template #left>
@@ -110,10 +111,10 @@ export default {
 
     getConfigExample() {
       let exampleConfig = {
-          name: "example", root: true, compressed_script: true, encryption:false, crypt_aes: false,crypt_blowfish: false,
-          transaction_control: true, txc_mvlocks: true, txc_nvcc: true, txc_locks: true, table_type:false,
-          memory_tables:false, cached_tables: false, small_cache: false, large_cache: false, logging: true,
-          detailed_logging: true, no_write_delay: true, small_log:false
+          name: "example", root: true, compressed_script: true, encryption:false, crypt_aes: false,
+          crypt_blowfish: false, transaction_control: true, txc_mvlocks: true, txc_nvcc: true, txc_locks: true,
+          table_type:false, memory_tables:false, cached_tables: false, small_cache: false, large_cache: false,
+          logging: true, detailed_logging: true, no_write_delay: true, small_log:false
       };
 
       try {
