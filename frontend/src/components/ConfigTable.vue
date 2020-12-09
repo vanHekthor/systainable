@@ -13,7 +13,6 @@
             <Button label="Delete" icon="pi pi-times" class="p-button-danger p-button-sm p-mt-2"
                     @click="$emit('del-config', slotProps.index)"/>
           </div>
-  <!--        <p v-if="feature.name == 'name'">{{slotProps.data.name}}</p>-->
         </template>
         <template v-else #body="slotProps">
           <label>
