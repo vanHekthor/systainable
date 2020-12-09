@@ -1,27 +1,31 @@
 <template id="app">
-  <Toolbar class="p-mb-4">
-    <template #left>
-      <Dropdown v-model="selectedSoftSystem" :options="softSystems" optionLabel="name" placeholder="Select a system"
-                @change="getFeatures"/>
+  <Card class="p-shadow-1 p-m-0">
+    <template #title>
+      <p>Green Configurator</p>
     </template>
-  </Toolbar>
-
-  <ConfigTable
-    :configurationFeatures="configurationFeatures"
-    :configurations="configurations"
-    v-on:update-feature="updateFeature"
-    v-on:update-config-name="updateConfigName"
-    v-on:del-config="deleteConfig"
-    class ="p-mb-4"/>
-
-  <Toolbar class="p-mb-4">
-    <template #left>
-      <Button icon="pi pi-plus" class="p-button-sm" @click="getConfigExample"/>
+    <template #content>
+      <div class="p-d-flex p-jc-center p-mb-4">
+        <span class="p-float-label">
+          <Dropdown id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems" optionLabel="name"
+                    @change="getFeatures"/>
+          <label for="selectDropdown">Select a system</label>
+        </span>
+      </div>
+      <ConfigTable
+          :configurationFeatures="configurationFeatures"
+          :configurations="configurations"
+          v-on:update-feature="updateFeature"
+          v-on:update-config-name="updateConfigName"
+          v-on:del-config="deleteConfig"/>
     </template>
-    <template #right>
-      <Button label="Submit" class="p-button-sm p-mr-2" @click="submitConfig"/>
+    <template #footer>
+      <div class="p-d-flex p-jc-center">
+        <Button class="p-button-sm p-mr-2" icon="pi pi-plus" @click="getConfigExample"/>
+        <Button v-if="configurations.length < 1" class="p-button-sm p-mr-2" label="Submit" disabled="disabled"/>
+        <Button v-else class="p-button-sm p-mr-2" label="Submit"  @click="submitConfig"/>
+      </div>
     </template>
-  </Toolbar>
+  </Card>
 
   <ChartArea v-if="draw"/>
 </template>
@@ -31,8 +35,8 @@ import api from './Api';
 import ConfigTable from './components/ConfigTable';
 import ChartArea from './components/ChartArea';
 import Button from 'primevue/button';
-import Toolbar from 'primevue/toolbar';
 import Dropdown from 'primevue/dropdown';
+import Card from 'primevue/card';
 
 
 
@@ -43,8 +47,8 @@ export default {
     ConfigTable,
     ChartArea,
     Button,
-    Toolbar,
-    Dropdown
+    Dropdown,
+    Card
   },
   data() {
     return {
@@ -95,7 +99,7 @@ export default {
       }finally {
         this.loading = false;
       }
-      if (this.configurations.length == 0) {
+      if (this.configurations.length < 1) {
         this.getConfigExample();
       }
     },
