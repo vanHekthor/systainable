@@ -27,7 +27,7 @@
     </template>
   </Card>
 
-  <ChartArea v-if="draw"/>
+  <ChartArea v-if="draw & configurations.length > 0"/>
 </template>
 
 <script>
