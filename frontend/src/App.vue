@@ -20,7 +20,8 @@
     </template>
     <template #footer>
       <div class="p-d-flex p-jc-center">
-        <Button class="p-button-sm p-mr-2" icon="pi pi-plus" @click="getConfigExample"/>
+        <Button v-if="softSystemLoaded" class="p-button-sm p-mr-2" icon="pi pi-plus" @click="getConfigExample"/>
+        <Button v-else class="p-button-sm p-mr-2" icon="pi pi-plus" disabled="disabled"/>
         <Button v-if="configurations.length < 1" class="p-button-sm p-mr-2" label="Submit" disabled="disabled"/>
         <Button v-else class="p-button-sm p-mr-2" label="Submit"  @click="submitConfig"/>
       </div>
@@ -58,6 +59,7 @@ export default {
       configurations: [],
       draw: false,
       selectedSoftSystem: null,
+      softSystemLoaded: false,
       softSystems: [
         {name: 'KrasseSoft'},
         {name: 'HyperSoft'},
@@ -111,6 +113,7 @@ export default {
         names.push({name: featureName});
       }
       this.configurationFeatures = names;
+      this.softSystemLoaded = true;
     },
 
     getConfigExample() {
@@ -139,6 +142,9 @@ export default {
     deleteConfig(index) {
       console.log("remove " + index);
       this.configurations.splice(index, 1);
+      if (this.configurations.length < 1) {
+        this.draw = false;
+      }
     },
 
     submitConfig() {
