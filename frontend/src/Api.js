@@ -9,8 +9,8 @@ const instance = axios.create({
 export default {
     // GET
     // example functions
-    getFeatures:
-        function getFeatures() {
+    getFeatureNamesExample:
+        function getFeatureNamesExample() {
             instance.get('featuremodels/example/featuremodel1')
                 .then((response) => {
                     console.log(response.data);

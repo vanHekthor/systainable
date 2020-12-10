@@ -13,21 +13,21 @@
     </div>
 
     <div class="p-grid">
-      <div class="card p-col-12 p-md-6 p-lg-4">
+      <div class="p-col-12 p-md-6 p-lg-4">
         <Card>
           <template #content>
             <Chart type="bar" :data="energyData" :options="options"/>
           </template>
         </Card>
       </div>
-      <div class="card p-col-12 p-md-6 p-lg-4">
+      <div class="p-col-12 p-md-6 p-lg-4">
         <Card>
           <template #content>
             <Chart type="bar" :data="cpuData" :options="options"/>
           </template>
         </Card>
       </div>
-      <div class="card p-col-12 p-md-6 p-lg-4">
+      <div class="p-col-12 p-md-6 p-lg-4">
         <Card>
           <template #content>
             <Chart type="bar" :data="timeData" :options="options"/>
@@ -127,7 +127,5 @@ export default {
 </script>
 
 <style scoped>
-  html {
-    font-size: 12px;
-  }
+
 </style>
