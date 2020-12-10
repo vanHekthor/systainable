@@ -8,7 +8,7 @@
         <span class="p-float-label">
           <Dropdown id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems" optionLabel="name"
                     @change="getFeatures"/>
-          <label for="selectDropdown">Select a system</label>
+          <label for="selectDropdown">Select</label>
         </span>
       </div>
       <ConfigTable
@@ -22,8 +22,8 @@
       <div class="p-d-flex p-jc-center">
         <Button v-if="softSystemLoaded" class="p-button-sm p-mr-2" icon="pi pi-plus" @click="getConfigExample"/>
         <Button v-else class="p-button-sm p-mr-2" icon="pi pi-plus" disabled="disabled"/>
-        <Button v-if="configurations.length < 1" class="p-button-sm p-mr-2" label="Submit" disabled="disabled"/>
-        <Button v-else class="p-button-sm p-mr-2" label="Submit"  @click="submitConfig"/>
+        <Button v-if="configurations.length < 1" class="p-button p-mr-2" label="Submit" disabled="disabled"/>
+        <Button v-else class="p-button p-mr-2" label="Submit"  @click="submitConfig"/>
       </div>
     </template>
   </Card>
@@ -93,7 +93,7 @@ export default {
 
       //request itself works
       try {
-        api.getFeatures();
+        api.getFeatureNamesExample();
         this.updateFeatureNames(featureNames);
       } catch (error) {
         this.$log.debug(error)
@@ -126,7 +126,7 @@ export default {
 
       try {
         this.featureModel = api.getConfigExample();
-        this.addConfiguration(exampleConfig);
+        this.addConfig(exampleConfig);
       } catch (error) {
         this.$log.debug(error)
         this.error = "Failed to load config example";
@@ -135,7 +135,7 @@ export default {
       }
     },
 
-    addConfiguration(config) {
+    addConfig(config) {
       this.configurations.push(config);
     },
 
@@ -160,6 +160,10 @@ export default {
 </script>
 
 <style>
-#app {
+#app{
+  background-color: #f8f9fa;
+}
+html {
+  font-size: 14px;
 }
 </style>

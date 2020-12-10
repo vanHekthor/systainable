@@ -10,7 +10,7 @@ export default {
     // GET
     // example functions
     getFeatures:
-        function getFeatures() {
+        function getFeatureNamesExample() {
             instance.get('featuremodels/example/featuremodel1')
                 .then((response) => {
                     console.log(response.data);
