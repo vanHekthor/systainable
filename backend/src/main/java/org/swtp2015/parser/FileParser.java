@@ -15,7 +15,7 @@ public abstract class FileParser {
      * @param filename file to be read
      * @return List of lines as strings
      */
-    protected final List<String> readFile(String filename) {
+    public static List<String> readFile(String filename) {
         List<String> lines = new ArrayList<>();
         try(FileReader fr = new FileReader(filename);
             BufferedReader br = new BufferedReader(fr))
