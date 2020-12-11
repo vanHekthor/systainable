@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Abstract class for a FileParser
+ * Class for a FileParser
  */
 public abstract class FileParser {
 

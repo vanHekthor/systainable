@@ -25,7 +25,7 @@ public class PerformanceModelParser extends FileParser {
      *
      * @return A Set of instances of {@link FeatureInfluence} (representing all non-headlines of .csv-file)
      */
-    public Set<FeatureInfluence> parseModel(String filename, Set<Feature> referenceFeatures)
+    public static Set<FeatureInfluence> parseModel(String filename, Set<Feature> referenceFeatures)
     throws IllegalArgumentException {
 
         Set<FeatureInfluence> featureInfluences = new HashSet<>();
@@ -83,7 +83,7 @@ public class PerformanceModelParser extends FileParser {
      * @return Map with Features in headline in consecutive order, mapped to Integer-keys which represent their position
      * in the headline
      */
-    private Map<Integer, Feature> mapFeatures(String headline) {
+    private static Map<Integer, Feature> mapFeatures(String headline) {
         String[] wordsInHeadline = splitLine(headline);
         Map<Integer, Feature> featureMap = new HashMap<>();
         for (int i = 0; i < wordsInHeadline.length; i++) {
@@ -104,7 +104,7 @@ public class PerformanceModelParser extends FileParser {
      * @return Map with Properties in headline in consecutive order, mapped to Integer-keys which represent their
      * position in the headline
      */
-    private Map<Integer, Property> mapProperties(String headline) throws IllegalArgumentException {
+    private static Map<Integer, Property> mapProperties(String headline) throws IllegalArgumentException {
         String[] wordsInHeadline = splitLine(headline);
         Map<Integer, Property> propertyMap = new HashMap<>();
         for (int i = 0; i < wordsInHeadline.length; i++) {
@@ -139,7 +139,7 @@ public class PerformanceModelParser extends FileParser {
      *
      * @return the {@link FeatureInfluence}-instance represented by the current line
      */
-    private FeatureInfluence createFeatureInfluence(String currentLine, Map<Integer, Feature> featureMap,
+    private static FeatureInfluence createFeatureInfluence(String currentLine, Map<Integer, Feature> featureMap,
                                                     Map<Integer, Property> propertyMap)
     throws IllegalArgumentException {
 
@@ -176,7 +176,7 @@ public class PerformanceModelParser extends FileParser {
      *
      * @return true if the String is parsable to a Double, false else
      */
-    private boolean isDouble(String str) {
+    private static boolean isDouble(String str) {
         try {
             Double.parseDouble(str);
             return true;
@@ -192,7 +192,7 @@ public class PerformanceModelParser extends FileParser {
      *
      * @return String Array with trimmed values between commas
      */
-    private String[] splitLine(String line) {
+    private static String[] splitLine(String line) {
         String[] splitted = line.split(",");
         for (int i = 0; i < splitted.length; i++) {
             splitted[i] = splitted[i].trim();
@@ -207,7 +207,7 @@ public class PerformanceModelParser extends FileParser {
      *
      * @return a String[] with the following structure: [property_name, unit, optimizationDirection]
      */
-    private String[] splitPropertyString(String propertyString) {
+    private static String[] splitPropertyString(String propertyString) {
         String[] splitted = propertyString.split("[();]");
         for (int i = 0; i < splitted.length; i++) {
             splitted[i] = splitted[i].trim();
