@@ -3,10 +3,7 @@ package org.swtp2015.parser;
 import org.swtp2015.models.Feature;
 import org.swtp2015.models.FeatureModel;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Class, that parses a Dimacs file into a Feature-Model
@@ -41,7 +38,7 @@ public class DimacsFeatureModelParser extends FeatureModelParser {
                     controlLine = line;
                     break;
                 default:
-                    var formula = parseFormulaLine(line, features);
+                    Set<Integer> formula = parseFormulaLine(line, features);
                     if (formula == null) {
                         throw new Exception("There is at least one literal without a belonging feature.");
                     }
@@ -55,7 +52,9 @@ public class DimacsFeatureModelParser extends FeatureModelParser {
         if (!numbersOfFeaturesAndFormulasAreCorrect(controlLine, features.size(), formulas.size())) {
             throw new Exception("Number of read features or formulas does not equal the given number in the Dimacs-File");
         }
-        return new FeatureModel(features, formulas);
+        FeatureModel resultingModel = new FeatureModel(features, formulas);
+        resultingModel.setName(filename.substring(filename.lastIndexOf("/")).replace(".dimacs", ""));
+        return resultingModel;
     }
 
     /**
