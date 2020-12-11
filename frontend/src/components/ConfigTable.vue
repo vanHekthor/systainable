@@ -1,9 +1,9 @@
 <template>
   <Panel header="Configurations" v-if="configurationFeatures.length > 0">
-    <DataTable rowHover="true" autoLayout="false" :value="configurations"
+    <DataTable :rowHover="true" :autoLayout="true" :value="configurations"
                editMode="cell" @cell-edit-complete="onCellEditComplete" class="editable-cells-table">
       <Column v-for="feature of configurationFeatures" :field="feature.name" :header="feature.name"
-              :key="feature.name" bodyStyle="text-align:center">
+              :key="feature.name" bodyStyle="">
         <template v-if="feature.name == 'name'" #editor="slotProps">
           <div class="p-grid" @mouseover="hover=true" @mouseleave="hover=false">
 
@@ -59,13 +59,6 @@ export default {
   },
 
   created() {
-    let feature;
-    let columns = []
-    for (feature of this.configurationFeatures) {
-      columns.push({field: feature.name, header: feature.name});
-      console.log(feature.name);
-    }
-    this.columns = columns;
   },
 
   methods: {
