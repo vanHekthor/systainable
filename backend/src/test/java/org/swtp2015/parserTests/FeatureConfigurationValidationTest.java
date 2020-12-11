@@ -3,7 +3,7 @@ package org.swtp2015.parserTests;
 import org.junit.jupiter.api.Test;
 import org.swtp2015.models.FeatureConfiguration;
 import org.swtp2015.models.FeatureModel;
-import org.swtp2015.parser.DimacsFeatureModelParser;
+import org.swtp2015.parser.FeatureModelParser;
 import org.swtp2015.parser.FeatureConfigurationParser;
 import org.swtp2015.parser.FileParser;
 import org.swtp2015.parser.ParserExceptions;
@@ -13,8 +13,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FeatureConfigurationValidationTest {
-
-    private final DimacsFeatureModelParser dfmp = new DimacsFeatureModelParser();
 
     private String getJsonString(String filename) {
         return String.join("\n", FileParser.readFile("src/test/testFiles/jsons/" + filename));
@@ -53,7 +51,7 @@ public class FeatureConfigurationValidationTest {
     @Test
     void validInvalidNonmatchingConfigurations() {
         try {
-            FeatureModel model = dfmp.parseFeatureModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
+            FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
             String json = this.getJsonString("correctTest.dimacs/2Valid1Invalid1NotMatching.json");
             List<FeatureConfiguration> featureConfigurationList = FeatureConfigurationParser.parseConfigurations(json);
             if (featureConfigurationList == null) {
@@ -76,7 +74,7 @@ public class FeatureConfigurationValidationTest {
     @Test
     void validConfiguration() {
         try {
-            FeatureModel model = dfmp.parseFeatureModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
+            FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
             String json = this.getJsonString("correctTest.dimacs/1Valid.json");
             FeatureConfiguration conf = FeatureConfigurationParser.parseConfiguration(json);
             assertNotNull(conf);

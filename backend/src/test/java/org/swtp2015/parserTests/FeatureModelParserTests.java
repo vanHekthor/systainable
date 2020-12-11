@@ -1,23 +1,13 @@
 package org.swtp2015.parserTests;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.swtp2015.gcbackend.GreenConfiguratorBackendApplication;
-import org.swtp2015.parser.DimacsFeatureModelParser;
+import org.swtp2015.parser.FeatureModelParser;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DimacsFeatureModelParserTests {
-    private final DimacsFeatureModelParser dfmp = new DimacsFeatureModelParser();
-
-    private Set<String> getExpectedFeatureNamesSet() {
-        Set<String> featureSet = new HashSet<>();
-        featureSet.add("feature1");
-        featureSet.add("feature2");
-        return featureSet;
-    }
+public class FeatureModelParserTests {
 
     private Set<Set<Integer>> getExpectedFormula() {
         Set<Set<Integer>> formula = new HashSet<>();
@@ -33,18 +23,18 @@ public class DimacsFeatureModelParserTests {
 
     @Test
     void canParseFileCorrectFormat() {
-        assertTrue(dfmp.canParseFile("test.dimacs"));
+        assertTrue(FeatureModelParser.canParseFile("test.dimacs"));
     }
 
     @Test
     void canParseFileWrongFormat() {
-        assertFalse(dfmp.canParseFile("test.txt"));
+        assertFalse(FeatureModelParser.canParseFile("test.txt"));
     }
 
     @Test
     void parseFileCorrect() {
         try {
-            var featureModel = dfmp.parseFeatureModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
+            var featureModel = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
             var readFeatures = featureModel.getFeatures();
             boolean featuresEqual = readFeatures.size() == 2;
             for (var feature : readFeatures) {
@@ -64,7 +54,7 @@ public class DimacsFeatureModelParserTests {
     @Test
     void parseFileMissingControlLine() {
         try {
-            dfmp.parseFeatureModel("src/test/testFiles/dimacs/MissingControlLine.dimacs");
+            FeatureModelParser.parseModel("src/test/testFiles/dimacs/MissingControlLine.dimacs");
             fail("Exception not thrown");
         } catch (Exception ex) {
             assertEquals("Missing Controlline in Dimacs-File", ex.getMessage());
@@ -74,7 +64,7 @@ public class DimacsFeatureModelParserTests {
     @Test
     void parseFileNotMatchingFeatureNumber() {
         try {
-            dfmp.parseFeatureModel("src/test/testFiles/dimacs/NotMatchingFeatureNumber.dimacs");
+            FeatureModelParser.parseModel("src/test/testFiles/dimacs/NotMatchingFeatureNumber.dimacs");
             fail("Exception not thrown");
         } catch (Exception ex) {
             assertEquals("Number of read features or formulas does not equal the given number in the Dimacs-File", ex.getMessage());
@@ -84,7 +74,7 @@ public class DimacsFeatureModelParserTests {
     @Test
     void parseFileOccuringLiteralWithoutFeature() {
         try {
-            dfmp.parseFeatureModel("src/test/testFiles/dimacs/OccuringLiteralWithoutFeature.dimacs");
+            FeatureModelParser.parseModel("src/test/testFiles/dimacs/OccuringLiteralWithoutFeature.dimacs");
             fail("Exception not thrown");
         } catch (Exception ex) {
             assertEquals("There is at least one literal without a belonging feature.", ex.getMessage());
