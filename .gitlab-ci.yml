@@ -93,3 +93,16 @@ deploy-backend:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: manual
     - when: never
+
+pages:
+  image: gradle:6.7.1-jdk11
+  stage: build
+  before_script:
+    - *install-backend
+  script:
+    - gradle javadoc
+    - mkdir ../public
+    - mv build/docs/javadoc/* ../public
+  artifacts:
+    paths:
+      - public

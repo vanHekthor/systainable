@@ -7,6 +7,7 @@ plugins {
 group = 'org.swtp20-15'
 version = '1.0.0'
 sourceCompatibility = '11'
+apply plugin: 'java'
 
 configurations {
 	compileOnly {
@@ -32,4 +33,8 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+javadoc {
+	source = sourceSets.main.allJava
 }
