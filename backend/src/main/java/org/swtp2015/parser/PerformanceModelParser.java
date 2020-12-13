@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * Class that parses a Performance-Influence-Model (csv-file) to a Set of instances of {@link FeatureInfluence} (data
  * structure to describe a line of the .csv-file by a Set of the active Features an a Map displaying the influence on
- * Properties)
+ * Properties).
  */
 public class PerformanceModelParser extends FileParser {
 
@@ -140,7 +140,7 @@ public class PerformanceModelParser extends FileParser {
      * @return the {@link FeatureInfluence}-instance represented by the current line
      */
     private static FeatureInfluence createFeatureInfluence(String currentLine, Map<Integer, Feature> featureMap,
-                                                    Map<Integer, Property> propertyMap)
+                                                           Map<Integer, Property> propertyMap)
     throws IllegalArgumentException {
 
         String[] valuesInLine = splitLine(currentLine);
@@ -170,7 +170,7 @@ public class PerformanceModelParser extends FileParser {
     }
 
     /**
-     * Method to check if the given String represents a Double
+     * Method to check if the given String represents a Double.
      *
      * @param str the given String
      *
@@ -186,7 +186,7 @@ public class PerformanceModelParser extends FileParser {
     }
 
     /**
-     * method to split a line of a csv-file at commas and trim
+     * Splits a line of a csv-file at commas and trims it.
      *
      * @param line the line to split
      *
@@ -201,7 +201,7 @@ public class PerformanceModelParser extends FileParser {
     }
 
     /**
-     * Method to extract the relevant Information from a Property-related headline String
+     * Extracts the relevant information from a Property-related headline String.
      *
      * @param propertyString the Property-related headline String
      *

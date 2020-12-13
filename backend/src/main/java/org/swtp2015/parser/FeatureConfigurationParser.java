@@ -12,7 +12,7 @@ import java.util.*;
 public final class FeatureConfigurationParser {
 
     /**
-     * Parses a list of configurations
+     * Parses a list of configurations.
      *
      * @param json JSON string to be parsed
      *
@@ -30,11 +30,11 @@ public final class FeatureConfigurationParser {
     }
 
     /**
-     * Parses a single {@link FeatureConfiguration}
+     * Parses a single configurations.
      *
      * @param json JSON string to be parsed
      *
-     * @return Feature Configuration parsed from the string (or first Configuration if input was a list of
+     * @return {@link FeatureConfiguration} parsed from the string (or first Configuration if input was a list of
      * configurations)
      *
      * @throws IllegalArgumentException If the configuration contains unrecoverable syntax errors in the JSON

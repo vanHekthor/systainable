@@ -73,7 +73,7 @@ public class FeatureConfiguration {
     }
 
     /**
-     * Converts the current configuration into its respective JSON format
+     * Converts the current configuration into its respective JSON format.
      *
      * @return JSON representation of the configuration
      */
