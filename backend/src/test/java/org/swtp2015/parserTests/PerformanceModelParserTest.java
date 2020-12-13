@@ -20,7 +20,7 @@ public class PerformanceModelParserTest {
 
 
     /**
-     * represents the expected reference-featureSet from the FeatureModel
+     * represents the expected reference-featureSet from the FeatureModel.
      */
     private Set<Feature> getExpectedFeatureSet() {
         Set<Feature> features = new HashSet<>();
@@ -74,7 +74,8 @@ public class PerformanceModelParserTest {
     @Test
     void parseInconsistentWithFmFile() {
         try {
-            PerformanceModelParser.parseModel("src/test/testFiles/csv/InconsistentWithFeatureModel.csv", getExpectedFeatureSet());
+            PerformanceModelParser
+                    .parseModel("src/test/testFiles/csv/InconsistentWithFeatureModel.csv", getExpectedFeatureSet());
             fail("Exception not thrown");
         } catch (Exception ex) {
             assertEquals(".csv-file is not consistent with given reference-FeatureSet (.dimacs file)",
@@ -86,7 +87,8 @@ public class PerformanceModelParserTest {
     @Test
     void parseInconsistentFeatureValuesFile() {
         try {
-            PerformanceModelParser.parseModel("src/test/testFiles/csv/InconsistentFeatureValues.csv", getExpectedFeatureSet());
+            PerformanceModelParser
+                    .parseModel("src/test/testFiles/csv/InconsistentFeatureValues.csv", getExpectedFeatureSet());
             fail("Exception not thrown");
         } catch (Exception ex) {
             assertEquals(
@@ -98,7 +100,8 @@ public class PerformanceModelParserTest {
     @Test
     void parseInconsistentPropertyValuesFile() {
         try {
-            PerformanceModelParser.parseModel("src/test/testFiles/csv/InconsistentPropertyValues.csv", getExpectedFeatureSet());
+            PerformanceModelParser
+                    .parseModel("src/test/testFiles/csv/InconsistentPropertyValues.csv", getExpectedFeatureSet());
             fail("Exception not thrown");
         } catch (Exception ex) {
             assertEquals(
@@ -110,7 +113,8 @@ public class PerformanceModelParserTest {
     @Test
     void parseUnallowedOptimizationSymbol() {
         try {
-            PerformanceModelParser.parseModel("src/test/testFiles/csv/UnallowedOptimizationSymbol.csv", getExpectedFeatureSet());
+            PerformanceModelParser
+                    .parseModel("src/test/testFiles/csv/UnallowedOptimizationSymbol.csv", getExpectedFeatureSet());
             fail("Exception not thrown");
         } catch (Exception ex) {
             assertEquals(
@@ -123,7 +127,8 @@ public class PerformanceModelParserTest {
     void parseSimpleCorrectFile() {
         try {
             var featureInfluences =
-                    PerformanceModelParser.parseModel("src/test/testFiles/csv/SimpleCorrectTest.csv", getExpectedFeatureSet());
+                    PerformanceModelParser
+                            .parseModel("src/test/testFiles/csv/SimpleCorrectTest.csv", getExpectedFeatureSet());
 
             // only one Object should be created for this file ...
             for (var featureInfluence : featureInfluences) {
@@ -149,7 +154,8 @@ public class PerformanceModelParserTest {
     void parseCorrectFile() {
         try {
             var featureInfluences =
-                    PerformanceModelParser.parseModel("src/test/testFiles/csv/CorrectTest.csv", getExpectedFeatureSet());
+                    PerformanceModelParser
+                            .parseModel("src/test/testFiles/csv/CorrectTest.csv", getExpectedFeatureSet());
             if (!(featureInfluences.size() == 4)) {
                 fail("Size of featureInfluences doesn't correlate with valueLines in csv-file!");
             }

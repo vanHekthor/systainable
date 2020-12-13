@@ -18,7 +18,7 @@ public class Property {
     private final boolean toMinimize;
 
     /**
-     * Instantiates a property
+     * Instantiates a Property.
      *
      * @param name       The property's name
      * @param unit       The property's unit

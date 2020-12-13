@@ -15,11 +15,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Class that saves a FeatureModel
+ * Class that saves a FeatureModel.
  */
 public class FeatureModel {
     /**
-     * Mapping from Integers to Features
+     * Mapping from Integers to Features.
      */
     private final Map<Integer, Feature> featureMap;
 
@@ -33,7 +33,7 @@ public class FeatureModel {
     /**
      * Representation of a logical formula in conjunctive normal form of a FeatureModel as Set of Set of Integers (Set
      * of clauses where every clause is a set of literals) literal is an integer (negative if negated) literal refers to
-     * a {@link Feature}
+     * a {@link Feature}.
      */
     @Getter
     private final Set<Set<Integer>> formulas;
@@ -43,7 +43,7 @@ public class FeatureModel {
     private final Set<Set<Integer>> models;
 
     /**
-     * Instantiates a FeatureModel
+     * Instantiates a FeatureModel.
      *
      * @param featureMap list of all features
      * @param formulas   set of logical clauses of the feature model
@@ -118,7 +118,7 @@ public class FeatureModel {
 
 
     /**
-     * Checks whether all given features are contained in this feature model
+     * Checks whether all given features are contained in this feature model.
      *
      * @param features Set of feature names which are active
      *
@@ -129,7 +129,7 @@ public class FeatureModel {
     }
 
     /**
-     * Checks whether a specific Set of features is matching a valid allocation of features given by the contraints
+     * Checks whether a specific Set of features is matching a valid allocation of features given by the constraints.
      *
      * @param features Set of feature names which are active
      *
@@ -145,7 +145,7 @@ public class FeatureModel {
     /**
      * Checks whether the given {@link FeatureConfiguration} is valid within this feature model. This both includes all
      * features being included in the model as well as whether the set of active features in the configuration are
-     * allowed by the constraints of the model
+     * allowed by the constraints of the model.
      *
      * @param configuration The configuration which should be checked for validity
      *

@@ -3,7 +3,7 @@ package org.swtp2015.models;
 import lombok.Getter;
 
 /**
- * Class that saves one Feature of a FeatureModel
+ * Class that saves one Feature of a FeatureModel.
  */
 public class Feature {
 
@@ -11,7 +11,7 @@ public class Feature {
     private final String name;
 
     /**
-     * Instantiates a Feature
+     * Instantiates a Feature.
      *
      * @param name feature name
      */

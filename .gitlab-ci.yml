@@ -16,13 +16,25 @@ stages:
   - apt-get install -y git
   - git config user.name "CI durch Paul Glaß"
 
-frontend-lint-test:
+frontend-lint-check:
   stage: test
   image: node
   before_script:
     - *install-frontend
   script:
     - npm run lint
+  interruptible: true
+
+backend-style-check:
+  stage: test
+  image: gradle:6.7.1-jdk11
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  before_script:
+    - *install-backend
+  script:
+    - gradle checkstyleMain
+    - gradle checkstyleTest
   interruptible: true
 
 backend-gradle-test:
@@ -33,7 +45,7 @@ backend-gradle-test:
   before_script:
     - *install-backend
   script:
-    - gradle check
+    - gradle test
   interruptible: true
 
 frontend-build:

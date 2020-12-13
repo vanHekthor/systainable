@@ -6,13 +6,15 @@ import org.swtp2015.models.FeatureModel;
 import java.util.*;
 
 /**
- * Class, that parses a Dimacs file into a Feature-Model
+ * Class, that parses a '.dimacs' file into a Feature-Model.
  */
 public class FeatureModelParser extends FileParser {
 
     /**
-     * checks, if a file has the right file format to be parsed into a FeatureModel
+     * Checks if a file has the right file format to be parsed into a {@link FeatureModel}.
+     *
      * @param filename file to be parsed
+     *
      * @return true/false
      */
     public static boolean canParseFile(String filename) {
@@ -20,9 +22,10 @@ public class FeatureModelParser extends FileParser {
     }
 
     /**
-     * parses file into FeatureModel
+     * Prases file into {@link FeatureModel}.
      *
      * @param filename file to be parsed
+     *
      * @return parsed FeatureModel
      */
     public static FeatureModel parseModel(String filename) throws Exception {
@@ -53,7 +56,8 @@ public class FeatureModelParser extends FileParser {
             throw new Exception("Missing Controlline in Dimacs-File");
         }
         if (!numbersOfFeaturesAndFormulasAreCorrect(controlLine, features.size(), formulas.size())) {
-            throw new Exception("Number of read features or formulas does not equal the given number in the Dimacs-File");
+            throw new Exception(
+                    "Number of read features or formulas does not equal the given number in the Dimacs-File");
         }
         FeatureModel resultingModel = new FeatureModel(features, formulas);
         resultingModel.setName(filename.substring(filename.lastIndexOf("/")).replace(".dimacs", ""));
@@ -61,9 +65,9 @@ public class FeatureModelParser extends FileParser {
     }
 
     /**
-     * creates a Feature from a dimacs file line an puts it into the given Map
+     * Creates a {@link Feature} from a dimacs file line an puts it into the given Map.
      *
-     * @param line line to be parsed
+     * @param line Line to be parsed
      */
     private static void parseFeatureLineAndAddToFeaturesMap(String line, Map<Integer, Feature> features) {
         var featureLineItems = line.split(" ");
@@ -71,9 +75,11 @@ public class FeatureModelParser extends FileParser {
     }
 
     /**
-     * creates a propositional logical clause from a dimacs file line and checks if every occuring literal is contained in FeatureMap
+     * Create a propositional logical clause from a dimacs file line and checks if every occurring literal is contained
+     * in the feature map.
      *
-     * @param line line to be parsed
+     * @param line Line to be parsed
+     *
      * @return clause as set of integers (literals)
      */
     private static Set<Integer> parseFormulaLine(String line, Map<Integer, Feature> features) {
@@ -91,14 +97,16 @@ public class FeatureModelParser extends FileParser {
     }
 
     /**
-     * checks, if the given number of features and formulas in a Dimacs equal the read numbers
+     * Checks if the given number of features and formulas in a dimacs equal the read numbers.
      *
      * @param controlLine      line that contains expected number of features and formulas
      * @param numberOfFeatures read number of features
      * @param numberOfFormulas read number of formulas
+     *
      * @return true/false
      */
-    private static boolean numbersOfFeaturesAndFormulasAreCorrect(String controlLine, int numberOfFeatures, int numberOfFormulas) {
+    private static boolean numbersOfFeaturesAndFormulasAreCorrect(String controlLine, int numberOfFeatures,
+                                                                  int numberOfFormulas) {
         var controlLineItems = controlLine.split(" ");
         // ControlLine consists of 4 elements, 3rd element is number of features, 4th is number of formulas, these 2 elements are being compared
         boolean correctNumberOfFeatures = Integer.parseInt(controlLineItems[2]) == numberOfFeatures;
