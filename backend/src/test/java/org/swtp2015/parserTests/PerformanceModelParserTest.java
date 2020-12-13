@@ -8,7 +8,6 @@ import org.swtp2015.models.Property;
 import org.swtp2015.parser.ParserExceptions;
 import org.swtp2015.parser.PerformanceModelParser;
 
-import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,7 +28,12 @@ public class PerformanceModelParserTest {
         return features;
     }
 
-    // TODO Use this method
+    /**
+     * Method provides codeBlock for most Tests for the PerformanceModelParser.
+     *
+     * @param testFile Name and file-type-ending of the test-file. File must be contained in 'src/test/testFiles/csv/'
+     * @param ex       The expected Exception
+     */
     private void loadFileAndAssertException(String testFile, Exception ex) {
         try {
             PerformanceModelParser.parseModel("src/test/testFiles/csv/" + testFile, getExpectedFeatureSet());
@@ -41,94 +45,52 @@ public class PerformanceModelParserTest {
 
     @Test
     void parseFileWrongFiletype() {
-        try {
-            PerformanceModelParser.parseModel("src/test/testFiles/csv/test.txt", getExpectedFeatureSet());
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals(ex, ParserExceptions.PROPERTY_INFLUENCE_MODEL_NOT_CSV_EXTENSION);
-        }
+        loadFileAndAssertException("test.txt", ParserExceptions.PROPERTY_INFLUENCE_MODEL_NOT_CSV_EXTENSION);
+
     }
 
     @Test
     void parseToShortFile() {
-        try {
-            PerformanceModelParser.parseModel("src/test/testFiles/csv/toShort.csv", getExpectedFeatureSet());
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals(".csv-file must contain at least one headline and one value-line",
-                         ex.getMessage());
-        }
+        loadFileAndAssertException("toShort.csv", ParserExceptions.PROPERTY_INFLUENCE_MODEL_LESS_THAN_2_LINES);
     }
 
     @Test
     void parseFileWithDifferentLineSizes() {
-        try {
-            PerformanceModelParser.parseModel("src/test/testFiles/csv/DifferentLineSize.csv", getExpectedFeatureSet());
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals("Lines in .csv-file do not contain same amount of values!",
-                         ex.getMessage());
-        }
+        loadFileAndAssertException("DifferentLineSize.csv",
+                ParserExceptions.PROPERTY_INFLUENCE_MODEL_DIFFERENT_AMOUNT_OF_VALUES_IN_LINES);
     }
 
     @Test
     void parseInconsistentWithFmFile() {
-        try {
-            PerformanceModelParser
-                    .parseModel("src/test/testFiles/csv/InconsistentWithFeatureModel.csv", getExpectedFeatureSet());
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals(".csv-file is not consistent with given reference-FeatureSet (.dimacs file)",
-                         ex.getMessage());
-        }
+        loadFileAndAssertException("InconsistentWithFeatureModel.csv",
+                ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCONSISTENT_WITH_DIMACS);
     }
 
 
     @Test
     void parseInconsistentFeatureValuesFile() {
-        try {
-            PerformanceModelParser
-                    .parseModel("src/test/testFiles/csv/InconsistentFeatureValues.csv", getExpectedFeatureSet());
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals(
-                    "A Column which have been identified by its headline as Feature-related does not contain 0 or 1!",
-                    ex.getMessage());
-        }
+        loadFileAndAssertException("InconsistentFeatureValues.csv",
+                ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCORRECT_FEATURE_COLUMN_VALUE);
     }
 
     @Test
     void parseInconsistentPropertyValuesFile() {
-        try {
-            PerformanceModelParser
-                    .parseModel("src/test/testFiles/csv/InconsistentPropertyValues.csv", getExpectedFeatureSet());
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals(
-                    "A Column which have been identified by its headline as Property-related does not contain a Double value!",
-                    ex.getMessage());
-        }
+        loadFileAndAssertException("InconsistentPropertyValues.csv",
+                ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCORRECT_PROPERTY_COLUMN_VALUE);
     }
 
     @Test
     void parseUnallowedOptimizationSymbol() {
-        try {
-            PerformanceModelParser
-                    .parseModel("src/test/testFiles/csv/UnallowedOptimizationSymbol.csv", getExpectedFeatureSet());
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals(
-                    "Unallowed symbol for a Property's optimization problem, only '<' or '>' are allowed. Please check format of csv-file!",
-                    ex.getMessage());
-        }
+        loadFileAndAssertException("UnallowedOptimizationSymbol.csv",
+                ParserExceptions.PROPERTY_INFLUENCE_MODEL_UNALLOWED_OPTIMIZATION_SYMBOL);
     }
 
     @Test
     void parseSimpleCorrectFile() {
         try {
             var featureInfluences =
-                    PerformanceModelParser
-                            .parseModel("src/test/testFiles/csv/SimpleCorrectTest.csv", getExpectedFeatureSet());
+                    PerformanceModelParser.parseModel("src/test/testFiles/csv/SimpleCorrectTest.csv",
+                            getExpectedFeatureSet());
 
             // only one Object should be created for this file ...
             for (var featureInfluence : featureInfluences) {
@@ -138,11 +100,11 @@ public class PerformanceModelParserTest {
                         .map(Property::getName).collect(Collectors.toSet());
                 Set<String> propertyUnits = featureInfluence.getPropertyInfluence().keySet().parallelStream()
                         .map(Property::getUnit).collect(Collectors.toSet());
-                assertTrue(featureNames.equals(Set.of("feature1")) &&
-                           propertyNames.equals(Set.of("property1", "property2", "property3")) &&
-                           propertyUnits.equals(Set.of("a", "b", "c")) &&
-                           featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.1, 0.2, -0.3)) &&
-                           featureInfluence.getPropertyInfluence().values().size() == 3);
+                assertEquals(Set.of("feature1"), featureNames);
+                assertEquals(Set.of("property1", "property2", "property3"), propertyNames);
+                assertEquals(Set.of("a", "b", "c"), propertyUnits);
+                assertTrue(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.1, 0.2, -0.3)));
+                assertEquals(featureInfluence.getPropertyInfluence().values().size(), 3);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -154,8 +116,8 @@ public class PerformanceModelParserTest {
     void parseCorrectFile() {
         try {
             var featureInfluences =
-                    PerformanceModelParser
-                            .parseModel("src/test/testFiles/csv/CorrectTest.csv", getExpectedFeatureSet());
+                    PerformanceModelParser.parseModel("src/test/testFiles/csv/CorrectTest.csv",
+                            getExpectedFeatureSet());
             if (!(featureInfluences.size() == 4)) {
                 fail("Size of featureInfluences doesn't correlate with valueLines in csv-file!");
             }
@@ -177,23 +139,23 @@ public class PerformanceModelParserTest {
                         .collect(Collectors.toSet());
                 if (featureNames.isEmpty()) {
                     if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.0, 0.2, -0.3)) &&
-                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                            featureInfluence.getPropertyInfluence().values().size() == 3)) {
                         fail("Error in valueLine 1");
                     }
                 } else if (featureNames.equals(Set.of("feature1"))) {
                     if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.3, 0.2, 0.1)) &&
-                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                            featureInfluence.getPropertyInfluence().values().size() == 3)) {
                         fail("Error in valueLine 2");
                     }
                 } else if (featureNames.equals(Set.of("feature2"))) {
                     if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.1, -0.245, 0.3)) &&
-                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                            featureInfluence.getPropertyInfluence().values().size() == 3)) {
                         fail("Error in valueLine 3");
                     }
                 } else if (featureNames.equals(Set.of("feature1", "feature2"))) {
                     if (!(featureInfluence.getPropertyInfluence().values()
-                                  .containsAll(Set.of(1.0, -1.1, 1.2342245214)) &&
-                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                            .containsAll(Set.of(1.0, -1.1, 1.2342245214)) &&
+                            featureInfluence.getPropertyInfluence().values().size() == 3)) {
                         fail("Error in valueLine 4");
                     }
                 } else {

@@ -2,6 +2,7 @@ package org.swtp2015.parserTests;
 
 import org.junit.jupiter.api.Test;
 import org.swtp2015.parser.FeatureModelParser;
+import org.swtp2015.parser.ParserExceptions;
 
 import java.util.*;
 
@@ -21,6 +22,21 @@ public class FeatureModelParserTests {
         return formula;
     }
 
+    /**
+     * Method provides codeBlock for most Tests for the FeatureModelParser.
+     *
+     * @param testFile Name and file-type-ending of the test-file. File must be contained in 'src/test/testFiles/dimacs/'
+     * @param ex       The expected Exception
+     */
+    private void loadFileAndAssertException(String testFile, Exception ex) {
+        try {
+            FeatureModelParser.parseModel("src/test/testFiles/dimacs/" + testFile);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals(e, ex);
+        }
+    }
+
     @Test
     void canParseFileCorrectFormat() {
         assertTrue(FeatureModelParser.canParseFile("test.dimacs"));
@@ -34,7 +50,8 @@ public class FeatureModelParserTests {
     @Test
     void parseFileCorrect() {
         try {
-            var featureModel = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
+            var featureModel = FeatureModelParser.parseModel(
+                    "src/test/testFiles/dimacs/CorrectTest.dimacs");
             var readFeatures = featureModel.getFeatures();
             boolean featuresEqual = readFeatures.size() == 2;
             for (var feature : readFeatures) {
@@ -53,31 +70,18 @@ public class FeatureModelParserTests {
 
     @Test
     void parseFileMissingControlLine() {
-        try {
-            FeatureModelParser.parseModel("src/test/testFiles/dimacs/MissingControlLine.dimacs");
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals("Missing Controlline in Dimacs-File", ex.getMessage());
-        }
+        loadFileAndAssertException("MissingControlLine.dimacs", ParserExceptions.FEATURE_MODEL_MISSING_CONTROL_LINE);
     }
 
     @Test
     void parseFileNotMatchingFeatureNumber() {
-        try {
-            FeatureModelParser.parseModel("src/test/testFiles/dimacs/NotMatchingFeatureNumber.dimacs");
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals("Number of read features or formulas does not equal the given number in the Dimacs-File", ex.getMessage());
-        }
+        loadFileAndAssertException("NotMatchingFeatureNumber.dimacs",
+                ParserExceptions.FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS);
     }
 
     @Test
-    void parseFileOccuringLiteralWithoutFeature() {
-        try {
-            FeatureModelParser.parseModel("src/test/testFiles/dimacs/OccuringLiteralWithoutFeature.dimacs");
-            fail("Exception not thrown");
-        } catch (Exception ex) {
-            assertEquals("There is at least one literal without a belonging feature.", ex.getMessage());
-        }
+    void parseFileOccurringLiteralWithoutFeature() {
+        loadFileAndAssertException("OccurringLiteralWithoutFeature.dimacs",
+                ParserExceptions.FEATURE_MODEL_UNASSIGNED_LITERAL);
     }
 }
