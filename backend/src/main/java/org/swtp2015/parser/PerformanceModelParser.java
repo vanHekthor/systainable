@@ -37,12 +37,12 @@ public class PerformanceModelParser extends FileParser {
         List<String> csvLines = readFile(filename);
 
         if (csvLines.size() == 0 || csvLines.size() == 1) {
-            throw new IllegalArgumentException(".csv-file must contain at least one headline and one value-line");
+            throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_LESS_THAN_2_LINES;
         }
 
         for (int i = 0; i < csvLines.size() - 1; i++) {
             if (splitLine(csvLines.get(i + 1)).length != splitLine(csvLines.get(i)).length) {
-                throw new IllegalArgumentException("Lines in .csv-file do not contain same amount of values!");
+                throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_DIFFERENT_AMOUNT_OF_VALUES_IN_LINES;
             }
         }
 
@@ -50,10 +50,10 @@ public class PerformanceModelParser extends FileParser {
         Map<Integer, Property> propertyMap = mapProperties(csvLines.get(0));
 
         if (featureMap.isEmpty()) {
-            throw new IllegalArgumentException("featureMap is empty!");
+            throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_EMPTY_FEATURE_MAP;
         }
         if (propertyMap.isEmpty()) {
-            throw new IllegalArgumentException("propertyMap is empty");
+            throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_EMPTY_PROPERTY_MAP;
         }
 
         Set<String> referenceFeaturesNames = referenceFeatures.parallelStream().map(Feature::getName)
@@ -62,8 +62,7 @@ public class PerformanceModelParser extends FileParser {
                 .collect(Collectors.toSet());
 
         if (!referenceFeaturesNames.equals(mappedFeaturesNames)) {
-            throw new IllegalArgumentException(
-                    ".csv-file is not consistent with given reference-FeatureSet (.dimacs file)");
+            throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCONSISTENT_WITH_DIMACS;
         }
 
         // create a Set of FeatureInfluence's from all non-headline lines in .csv-file
@@ -113,13 +112,10 @@ public class PerformanceModelParser extends FileParser {
                 String[] propertyAttributes = splitPropertyString(wordsInHeadline[i]);
 
                 if (propertyAttributes.length != 3) {
-                    throw new IllegalArgumentException(
-                            "More than 3 Property attributes identified. Make sure Properties in csv-headline " +
-                            "have correct format");
+                    throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_WRONG_AMOUNT_OF_PROPERTIES;
                 }
                 if (!(propertyAttributes[2].equals("<") || propertyAttributes[2].equals(">"))) {
-                    throw new IllegalArgumentException(
-                            "Unallowed symbol for a Property's optimization problem, only '<' or '>' are allowed. Please check format of csv-file!");
+                    throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_UNALLOWED_OPTIMIZATION_SYMBOL;
                 }
 
                 propertyMap.put(i, new Property(propertyAttributes[0], propertyAttributes[1],
@@ -151,8 +147,7 @@ public class PerformanceModelParser extends FileParser {
         for (int i = 0; i < currentLine.length(); i++) {
             if (featureMap.containsKey(i)) {
                 if (!(valuesInLine[i].equals("0") || valuesInLine[i].equals("1"))) {
-                    throw new IllegalArgumentException(
-                            "A Column which have been identified by its headline as Feature-related does not contain 0 or 1!");
+                    throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCORRECT_FEATURE_COLUMN_VALUE;
                 }
                 if (valuesInLine[i].equals("1")) {
                     activeFeatures.add(featureMap.get(i));
@@ -160,8 +155,7 @@ public class PerformanceModelParser extends FileParser {
             }
             if (propertyMap.containsKey(i)) {
                 if (!isDouble(valuesInLine[i])) {
-                    throw new IllegalArgumentException(
-                            "A Column which have been identified by its headline as Property-related does not contain a Double value!");
+                    throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCORRECT_PROPERTY_COLUMN_VALUE;
                 }
                 propertyInfluence.put(propertyMap.get(i), Double.parseDouble(valuesInLine[i]));
             }

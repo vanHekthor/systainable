@@ -22,18 +22,18 @@ public class FeatureModelParser extends FileParser {
     }
 
     /**
-     * Prases file into {@link FeatureModel}.
+     * Parses file into {@link FeatureModel}.
      *
      * @param filename file to be parsed
      *
      * @return parsed FeatureModel
      */
-    public static FeatureModel parseModel(String filename) throws Exception {
+    public static FeatureModel parseModel(String filename) throws IllegalArgumentException {
         Map<Integer, Feature> features = new HashMap<>();
         Set<Set<Integer>> formulas = new HashSet<>();
         String controlLine = null;
         if (!canParseFile(filename)) {
-            throw new Exception("Delivered file is not a .dimacs file");
+            throw ParserExceptions.FEATURE_MODEL_WRONG_FILETYPE;
         }
         for (String line : FileParser.readFile(filename)) {
             switch (line.charAt(0)) {
@@ -46,18 +46,17 @@ public class FeatureModelParser extends FileParser {
                 default:
                     Set<Integer> formula = parseFormulaLine(line, features);
                     if (formula == null) {
-                        throw new Exception("There is at least one literal without a belonging feature.");
+                        throw ParserExceptions.FEATURE_MODEL_UNASSIGNED_LITERAL;
                     }
                     formulas.add(formula);
                     break;
             }
         }
         if (controlLine == null) {
-            throw new Exception("Missing Controlline in Dimacs-File");
+            throw ParserExceptions.FEATURE_MODEL_MISSING_CONTROL_LINE;
         }
         if (!numbersOfFeaturesAndFormulasAreCorrect(controlLine, features.size(), formulas.size())) {
-            throw new Exception(
-                    "Number of read features or formulas does not equal the given number in the Dimacs-File");
+            throw ParserExceptions.FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS;
         }
         FeatureModel resultingModel = new FeatureModel(features, formulas);
         resultingModel.setName(filename.substring(filename.lastIndexOf("/")).replace(".dimacs", ""));
@@ -102,13 +101,15 @@ public class FeatureModelParser extends FileParser {
      * @param controlLine      line that contains expected number of features and formulas
      * @param numberOfFeatures read number of features
      * @param numberOfFormulas read number of formulas
-     *
      * @return true/false
      */
     private static boolean numbersOfFeaturesAndFormulasAreCorrect(String controlLine, int numberOfFeatures,
                                                                   int numberOfFormulas) {
         var controlLineItems = controlLine.split(" ");
-        // ControlLine consists of 4 elements, 3rd element is number of features, 4th is number of formulas, these 2 elements are being compared
+        /*
+         * ControlLine consists of 4 elements, 3rd element is number of features, 4th is number of formulas,
+         * these 2 elements are being compared
+         */
         boolean correctNumberOfFeatures = Integer.parseInt(controlLineItems[2]) == numberOfFeatures;
         boolean correctNumberOfFormulas = Integer.parseInt(controlLineItems[3]) == numberOfFormulas;
         return correctNumberOfFeatures && correctNumberOfFormulas;
