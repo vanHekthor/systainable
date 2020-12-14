@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "start": "vue-clie-service serve --mode heroku"
+    "start": "vue-cli-service serve --mode heroku"
   },
   "dependencies": {
     "axios": "^0.21.0",
