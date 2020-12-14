@@ -80,8 +80,10 @@ public class FeatureConfiguration {
     @SuppressWarnings("unchecked")
     @Override
     public String toString() {
-        JSONObject root = new JSONObject(), conf = new JSONObject(), properties = new JSONObject();
-        JSONArray features = new JSONArray();
+        final JSONObject root = new JSONObject();
+        final JSONObject conf = new JSONObject();
+        final JSONObject properties = new JSONObject();
+        final JSONArray features = new JSONArray();
 
         root.put("featureConfiguration", conf);
         conf.put("featureModel", this.featureModelName);

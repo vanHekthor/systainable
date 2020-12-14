@@ -27,6 +27,8 @@ public class FeatureModelParser extends FileParser {
      * @param filename file to be parsed
      *
      * @return parsed FeatureModel
+     *
+     * @throws IllegalArgumentException If there is any syntax error while parsing a dimacs file
      */
     public static FeatureModel parseModel(String filename) throws IllegalArgumentException {
         Map<Integer, Feature> features = new HashMap<>();
@@ -101,14 +103,15 @@ public class FeatureModelParser extends FileParser {
      * @param controlLine      line that contains expected number of features and formulas
      * @param numberOfFeatures read number of features
      * @param numberOfFormulas read number of formulas
+     *
      * @return true/false
      */
     private static boolean numbersOfFeaturesAndFormulasAreCorrect(String controlLine, int numberOfFeatures,
                                                                   int numberOfFormulas) {
         var controlLineItems = controlLine.split(" ");
         /*
-         * ControlLine consists of 4 elements, 3rd element is number of features, 4th is number of formulas,
-         * these 2 elements are being compared
+        ControlLine consists of 4 elements, 3rd element is number of features, 4th is number of formulas, these 2
+        elements are being compared
          */
         boolean correctNumberOfFeatures = Integer.parseInt(controlLineItems[2]) == numberOfFeatures;
         boolean correctNumberOfFormulas = Integer.parseInt(controlLineItems[3]) == numberOfFormulas;

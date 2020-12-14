@@ -20,9 +20,11 @@ public final class ParserExceptions {
             "Property value is not a Double");
 
     // Exceptions for csv-file or PerformanceModelParser
-    public static final IllegalArgumentException PROPERTY_INFLUENCE_MODEL_NOT_CSV_EXTENSION = new IllegalArgumentException(
+    public static final IllegalArgumentException PROPERTY_INFLUENCE_MODEL_NOT_CSV_EXTENSION
+            = new IllegalArgumentException(
             "Delivered file for Performance-Influence-Model is not a .csv file");
-    public static final IllegalArgumentException PROPERTY_INFLUENCE_MODEL_LESS_THAN_2_LINES = new IllegalArgumentException(
+    public static final IllegalArgumentException PROPERTY_INFLUENCE_MODEL_LESS_THAN_2_LINES
+            = new IllegalArgumentException(
             "Csv-file must contain at least one headline and one value-line");
     public static final IllegalArgumentException PROPERTY_INFLUENCE_MODEL_DIFFERENT_AMOUNT_OF_VALUES_IN_LINES =
             new IllegalArgumentException("Lines in .csv-file do not contain same amount of values!");
@@ -34,16 +36,16 @@ public final class ParserExceptions {
             new IllegalArgumentException("Csv-file is not consistent with given reference-FeatureSet (.dimacs file)");
     public static final IllegalArgumentException PROPERTY_INFLUENCE_MODEL_WRONG_AMOUNT_OF_PROPERTIES =
             new IllegalArgumentException("More or less than 3 Property attributes identified. " +
-                    "Make sure Properties in csv-headline have correct format");
+                                         "Make sure Properties in csv-headline have correct format");
     public static final IllegalArgumentException PROPERTY_INFLUENCE_MODEL_UNALLOWED_OPTIMIZATION_SYMBOL =
             new IllegalArgumentException("Unallowed symbol for a Property's optimization problem, only '<' or '>' " +
-                    "are allowed. Please check format of csv-file!");
+                                         "are allowed. Please check format of csv-file!");
     public static final IllegalArgumentException PROPERTY_INFLUENCE_MODEL_INCORRECT_FEATURE_COLUMN_VALUE =
             new IllegalArgumentException("A Column which have been identified by its headline as Feature-related " +
-                    "does not contain 0 or 1!");
+                                         "does not contain 0 or 1!");
     public static final IllegalArgumentException PROPERTY_INFLUENCE_MODEL_INCORRECT_PROPERTY_COLUMN_VALUE =
             new IllegalArgumentException("A Column which have been identified by its headline as Property-related " +
-                    "does not contain a Double value!");
+                                         "does not contain a Double value!");
 
     // Exceptions for dimacs-file FeatureModelParser
     public static final IllegalArgumentException FEATURE_MODEL_MISSING_CONTROL_LINE = new IllegalArgumentException(
@@ -54,7 +56,7 @@ public final class ParserExceptions {
             "There is at least one literal without a belonging feature.");
     public static final IllegalArgumentException FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS =
             new IllegalArgumentException("Number of read features or formulas does not equal the given " +
-                    "number in the Dimacs-File");
+                                         "number in the Dimacs-File");
 
 }
 

@@ -1,8 +1,6 @@
 package org.swtp2015.parserTests;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.swtp2015.gcbackend.GreenConfiguratorBackendApplication;
 import org.swtp2015.models.Feature;
 import org.swtp2015.models.Property;
 import org.swtp2015.parser.ParserExceptions;
@@ -14,7 +12,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = GreenConfiguratorBackendApplication.class)
 public class PerformanceModelParserTest {
 
 

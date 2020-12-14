@@ -32,6 +32,9 @@ public class Property {
         this.toMinimize = toMinimize;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "Property: " + name;

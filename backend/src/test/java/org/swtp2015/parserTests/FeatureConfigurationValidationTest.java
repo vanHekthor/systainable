@@ -30,17 +30,20 @@ public class FeatureConfigurationValidationTest {
 
     @Test
     void missingFeaturesArray() {
-        this.loadJsonAndExpectException("correctTest.dimacs/MissingFeaturesArray.json", ParserExceptions.MISSING_FEATURES_ARRAY_IN_JSON);
+        this.loadJsonAndExpectException("correctTest.dimacs/MissingFeaturesArray.json",
+                                        ParserExceptions.MISSING_FEATURES_ARRAY_IN_JSON);
     }
 
     @Test
     void missingPropertyEntries() {
-        this.loadJsonAndExpectException("correctTest.dimacs/MissingPropertyEntries.json", ParserExceptions.MISSING_PROPERTIES_IN_MAP_IN_JSON);
+        this.loadJsonAndExpectException("correctTest.dimacs/MissingPropertyEntries.json",
+                                        ParserExceptions.MISSING_PROPERTIES_IN_MAP_IN_JSON);
     }
 
     @Test
     void invalidPropertyType() {
-        this.loadJsonAndExpectException("correctTest.dimacs/InvalidPropertyType.json", ParserExceptions.PROPERTY_VALUE_NOT_A_DOUBLE_IN_JSON);
+        this.loadJsonAndExpectException("correctTest.dimacs/InvalidPropertyType.json",
+                                        ParserExceptions.PROPERTY_VALUE_NOT_A_DOUBLE_IN_JSON);
     }
 
     @Test

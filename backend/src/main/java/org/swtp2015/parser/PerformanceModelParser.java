@@ -24,6 +24,8 @@ public class PerformanceModelParser extends FileParser {
      *                          features in the .csv-file
      *
      * @return A Set of instances of {@link FeatureInfluence} (representing all non-headlines of .csv-file)
+     *
+     * @throws IllegalArgumentException If there is any syntax error while parsing a csv file body
      */
     public static Set<FeatureInfluence> parseModel(String filename, Set<Feature> referenceFeatures)
     throws IllegalArgumentException {

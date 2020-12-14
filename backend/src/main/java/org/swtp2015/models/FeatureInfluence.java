@@ -1,5 +1,7 @@
 package org.swtp2015.models;
 
+import lombok.Getter;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -8,7 +10,10 @@ import java.util.Set;
  * "model.csv" file.
  */
 public class FeatureInfluence {
+
+    @Getter
     private final Set<Feature> activeFeatures;
+    @Getter
     private final Map<Property, Double> propertyInfluence;
 
     /**
@@ -19,13 +24,5 @@ public class FeatureInfluence {
     public FeatureInfluence(Set<Feature> activeFeatures, Map<Property, Double> propertyInfluence) {
         this.activeFeatures    = activeFeatures;
         this.propertyInfluence = propertyInfluence;
-    }
-
-    public Set<Feature> getActiveFeatures() {
-        return activeFeatures;
-    }
-
-    public Map<Property, Double> getPropertyInfluence() {
-        return propertyInfluence;
     }
 }
