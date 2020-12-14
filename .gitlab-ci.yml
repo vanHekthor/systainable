@@ -28,8 +28,6 @@ frontend-lint-check:
 backend-style-check:
   stage: test
   image: gradle:6.7.1-jdk11
-  variables:
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   before_script:
     - *install-backend
   script:
@@ -40,8 +38,6 @@ backend-style-check:
 backend-gradle-test:
   stage: test
   image: gradle:6.7.1-jdk11
-  variables:
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   before_script:
     - *install-backend
   script:
@@ -65,8 +61,6 @@ frontend-build:
 backend-build:
   stage: build
   image: gradle:6.7.1-jdk11
-  variables:
-    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   before_script:
     - *install-backend
   script:

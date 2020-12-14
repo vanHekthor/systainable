@@ -25,7 +25,8 @@ public class FeatureModelParserTests {
     /**
      * Method provides codeBlock for most Tests for the FeatureModelParser.
      *
-     * @param testFile Name and file-type-ending of the test-file. File must be contained in 'src/test/testFiles/dimacs/'
+     * @param testFile Name and file-type-ending of the test-file. File must be contained in
+     *                 'src/test/testFiles/dimacs/'
      * @param ex       The expected Exception
      */
     private void loadFileAndAssertException(String testFile, Exception ex) {
@@ -76,12 +77,12 @@ public class FeatureModelParserTests {
     @Test
     void parseFileNotMatchingFeatureNumber() {
         loadFileAndAssertException("NotMatchingFeatureNumber.dimacs",
-                ParserExceptions.FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS);
+                                   ParserExceptions.FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS);
     }
 
     @Test
     void parseFileOccurringLiteralWithoutFeature() {
         loadFileAndAssertException("OccurringLiteralWithoutFeature.dimacs",
-                ParserExceptions.FEATURE_MODEL_UNASSIGNED_LITERAL);
+                                   ParserExceptions.FEATURE_MODEL_UNASSIGNED_LITERAL);
     }
 }

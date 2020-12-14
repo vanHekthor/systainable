@@ -20,6 +20,9 @@ public class Feature {
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return "Feature: " + name;

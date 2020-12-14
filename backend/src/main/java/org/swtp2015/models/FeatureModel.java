@@ -58,6 +58,11 @@ public class FeatureModel {
         this.modelGeneratorThread.start();
     }
 
+    /**
+     * Checks whether there has been an error during the calculation of all valid models.
+     *
+     * @return Whether the model generation thread stopped by error.
+     */
     public boolean isModelCalculationFailed() {
         return this.errorInThread;
     }
@@ -72,14 +77,15 @@ public class FeatureModel {
      * constraints
      */
     private void generateModels() {
-        ISolver solver = SolverFactory.newDefault();
+        final ISolver solver = SolverFactory.newDefault();
         solver.setTimeout(30);
         solver.newVar(featureMap.size());
         solver.setExpectedNumberOfClauses(this.formulas.size());
         solver.setTimeout(1800);
 
+        int[] convertedClause;
         for (Set<Integer> clause : formulas) {
-            int[] convertedClause = clause.parallelStream().mapToInt(i -> (i == null ? 0 : i)).toArray();
+            convertedClause = clause.parallelStream().mapToInt(i -> (i == null ? 0 : i)).toArray();
             try {
                 solver.addClause(new VecInt(convertedClause));
             } catch (ContradictionException e) {
@@ -89,11 +95,11 @@ public class FeatureModel {
                 return;
             }
         }
-        ModelIterator mi = new ModelIterator(solver);
+        final ModelIterator mi = new ModelIterator(solver);
         try {
             while (mi.isSatisfiable()) {
-                Set<Integer> model = Arrays.stream(mi.model()).boxed().filter(i -> i > 0).collect(Collectors.toSet());
-                System.out.println(model);
+                final Set<Integer> model =
+                        Arrays.stream(mi.model()).boxed().filter(i -> i > 0).collect(Collectors.toSet());
                 this.models.add(model);
             }
         } catch (TimeoutException e) {
@@ -108,7 +114,7 @@ public class FeatureModel {
      * This method only does something, if the Thread has been interrupted or failed from an internal exception
      */
     public void restartModelCalculation() {
-        boolean threadFailedByItself = this.errorInThread && !this.modelGeneratorThread.isAlive();
+        final boolean threadFailedByItself = this.errorInThread && !this.modelGeneratorThread.isAlive();
         if (this.modelGeneratorThread.isInterrupted() || threadFailedByItself) {
             this.errorInThread = false;
             this.models.clear();
@@ -156,7 +162,7 @@ public class FeatureModel {
      */
     public boolean isValidConfiguration(@NonNull FeatureConfiguration configuration) throws IllegalArgumentException,
                                                                                             InterruptedException {
-        Set<String> activeFeatures = configuration.getActiveFeatures();
+        final Set<String> activeFeatures = configuration.getActiveFeatures();
         if (!this.isModelCalculationFailed()) {
             if (this.allFeaturesInModel(activeFeatures)) {
                 this.modelGeneratorThread.join();
