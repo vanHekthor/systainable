@@ -1,0 +1,53 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "org.swtp15"
+    },
+    "jhipsterVersion": "6.10.3",
+    "applicationType": "monolith",
+    "baseName": "test",
+    "packageName": "org.swtp15",
+    "packageFolder": "org/swtp15",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
+    "enableHibernateCache": false,
+    "websocket": false,
+    "databaseType": "no",
+    "devDatabaseType": "no",
+    "prodDatabaseType": "no",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "gradle",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "NzJjM2JhOTQ0NjA2YWEwNGIwMDJjMDA4ZDYzOGIzNWQ2ODFmYjliNzQ2NzYyMzQ1ZTA3M2FkNjc5NDZhYzA1ZjcwMjFmZjliNDFmZjliNGYzNGUzYTVmMzg4ZTY3MTMxYzYzODU4OTgwODY1OWJlMTJhNWMyYjcyMWYxYTQ3N2E=",
+    "embeddableLaunchScript": false,
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "vue",
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "creationTimestamp": 1608040175752,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [
+      {
+        "name": "generator-jhipster-vuejs",
+        "version": "1.9.2"
+      }
+    ],
+    "enableTranslation": false,
+    "blueprints": [
+      {
+        "name": "generator-jhipster-vuejs",
+        "version": "1.9.2"
+      }
+    ],
+    "herokuAppName": "green-configurator-frontend",
+    "herokuDeployType": "git",
+    "herokuJavaVersion": "11"
+  }
+}

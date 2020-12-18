@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <suppress checks=".*" files="org[\\/]swtp15[\\/]aop.*$"/>
+    <suppress checks=".*" files="org[\\/]swtp15[\\/]config.*$"/>
+    <suppress checks=".*" files="org[\\/]swtp15[\\/]domain.*$"/>
+    <suppress checks=".*" files="org[\\/]swtp15[\\/]repository.*$"/>
+    <suppress checks=".*" files="org[\\/]swtp15[\\/]security.*$"/>
+    <suppress checks=".*" files="org[\\/]swtp15[\\/]web.*$"/>
+    <suppress checks=".*" files="org[\\/]swtp15[\\/]service.*$"/>
+
+    <suppress checks=".*" files="GreenConfigurator15App.java"/>
+    <suppress checks=".*" files="ApplicationWebXml.java"/>
+</suppressions>
