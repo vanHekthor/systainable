@@ -1,11 +1,15 @@
 <template>
     <div class="p-p-3">
         <div class="p-grid">
-            <div class="p-col-12 p-md-6 p-lg-4">
+            <div v-for="(chartData, index) in chartDataArray" :key="index"
+                 class="p-col-12 p-md-6 p-lg-4">
                 <Card>
                     <template #title>
                         <div class="p-d-flex p-jc-between">
-                            <div><h5 class="p-m-0">Property 1</h5></div>
+                            <div v-if="chartData.datasets[0].data.length === 1">
+                                <h5 class="p-m-0">{{chartData.datasets[0].label + ': ' + chartData.datasets[0].data[0].toFixed(2)}}</h5>
+                            </div>
+                            <div v-else><h5 class="p-m-0">{{chartData.datasets[0].label}}</h5></div>
                             <div>
                                 <Button icon="pi pi-filter"
                                         class="p-button-rounded p-button-text p-button-plain" />
@@ -15,43 +19,7 @@
                         </div>
                     </template>
                     <template #content>
-                        <Chart type="horizontalBar" :data="energyData" :options="options"/>
-                    </template>
-                </Card>
-            </div>
-            <div class="p-col-12 p-md-6 p-lg-4">
-                <Card>
-                    <template #title>
-                        <div class="p-d-flex p-jc-between">
-                            <div><h5 class="p-m-0">Property 2</h5></div>
-                            <div>
-                                <Button icon="pi pi-filter"
-                                        class="p-button-rounded p-button-text p-button-plain" />
-                                <Button type="button" icon="pi pi-cog"
-                                        class="p-button-rounded p-button-secondary p-button-text"/>
-                            </div>
-                        </div>
-                    </template>
-                    <template #content>
-                        <Chart type="horizontalBar" :data="cpuData" :options="options"/>
-                    </template>
-                </Card>
-            </div>
-            <div class="p-col-12 p-md-6 p-lg-4">
-                <Card>
-                    <template #title>
-                        <div class="p-d-flex p-jc-between">
-                            <div><h5 class="p-m-0">Property 3</h5></div>
-                            <div>
-                                <Button icon="pi pi-filter"
-                                        class="p-button-rounded p-button-text p-button-plain" />
-                                <Button type="button" icon="pi pi-cog"
-                                        class="p-button-rounded p-button-secondary p-button-text"/>
-                            </div>
-                        </div>
-                    </template>
-                    <template #content>
-                        <Chart type="horizontalBar" :data="timeData" :options="options"/>
+                        <Chart type="horizontalBar" :data="chartData" :options="options"/>
                     </template>
                 </Card>
             </div>
@@ -59,7 +27,7 @@
                 <Card>
                     <template #title>
                         <div class="p-d-flex p-jc-between">
-                            <div><h5 class="p-m-0">Normalized Values</h5></div>
+                            <div><h5 class="p-m-0">normalized values</h5></div>
                             <div>
                                 <Button icon="pi pi-filter"
                                         class="p-button-rounded p-button-text p-button-plain" />
@@ -69,7 +37,7 @@
                         </div>
                     </template>
                     <template #content>
-                        <Chart type="radar" :data="chartData" :options="radarOptions" />
+                        <Chart type="radar" :data="radarData" :options="radarOptions" />
                     </template>
                 </Card>
             </div>
@@ -77,7 +45,7 @@
                 <Card>
                     <template #title>
                         <div class="p-d-flex p-jc-between">
-                            <div><h5 class="p-m-0">Absolute Differences</h5></div>
+                            <div><h5 class="p-m-0">absolute differences</h5></div>
                             <div>
                                 <Button icon="pi pi-filter"
                                         class="p-button-rounded p-button-text p-button-plain" />
@@ -133,66 +101,15 @@ export default {
         Button,
         Knob
     },
+    props: [
+        "chartDataArray",
+        "radarData"
+    ],
     data() {
         return {
-            energyData: {
-                labels: ['Config 1', 'Config 2'],
-                datasets: [
-                    {
-                        label: 'Property 1',
-                        backgroundColor: '#9c27b0',
-                        data: [2345, 1245]
-                    },
-                ]
-            },
-            cpuData: {
-                labels: ['config 1', 'config 2'],
-                datasets: [
-                    {
-                        label: 'Property 2',
-                        backgroundColor: '#0288D1',
-                        data: [321, 243]
-                    },
-                ]
-            },
-            timeData: {
-                labels: ['config 1', 'config 2'],
-                datasets: [
-                    {
-                        label: 'Property 3',
-                        backgroundColor: '#D32F2F',
-                        data: [401, 506]
-                    },
-                ]
-            },
             deltaEnergy: 2345-1245,
             deltaCpu: 321-243,
             deltaTime: 401-506,
-            chartData: {
-                labels: ['Property 1', 'Property 2', 'Property 3'],
-                datasets: [
-                    {
-                        label: 'config 1',
-                        backgroundColor: 'rgba(0,255,60,0.2)',
-                        borderColor: 'rgba(61,164,91,0.7)',
-                        pointBackgroundColor: 'rgb(32,171,65)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: 'rgb(27,215,78)',
-                        pointHoverBorderColor: 'rgba(27,215,78,1)',
-                        data: [1, 1, 401/506]
-                    },
-                    {
-                        label: 'config 2',
-                        backgroundColor: 'rgb(255,102,0,0.5)',
-                        borderColor: 'rgb(255,102,0)',
-                        pointBackgroundColor: 'rgba(255,102,0,1)',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: 'rgba(255,102,0,1)',
-                        pointHoverBorderColor: 'rgba(255,99,132,1)',
-                        data: [1245/2345, 243/321, 1]
-                    }
-                ]
-            },
             differenceEnergyData: {
                 labels: ['Delta Energy'],
                 datasets: [
@@ -241,11 +158,12 @@ export default {
                 },
                 ticks: {
                     min: 0.0,
-                    max: 1.0
+                    max: 1.0,
                 }
             },
         }
     }
+
 }
 </script>
 
