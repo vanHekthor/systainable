@@ -10,11 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class FeatureConfiguration {
-
-    @Setter
-    @Getter
-    private FeatureModel featureModel = null;
-
     @Getter
     @Setter
     private String featureModelName;

@@ -85,12 +85,12 @@ public class PerformanceModelParserTest {
     @Test
     void parseSimpleCorrectFile() {
         try {
-            var featureInfluences =
+            var performanceInfluenceModel =
                     PerformanceModelParser.parseModel("src/test/testFiles/csv/SimpleCorrectTest.csv",
                             getExpectedFeatureSet());
 
             // only one Object should be created for this file ...
-            for (var featureInfluence : featureInfluences) {
+            for (var featureInfluence : performanceInfluenceModel.getFeatureInfluences()) {
                 Set<String> featureNames = featureInfluence.getActiveFeatures().parallelStream().map(Feature::getName)
                         .collect(Collectors.toSet());
                 Set<String> propertyNames = featureInfluence.getPropertyInfluence().keySet().parallelStream()
@@ -112,9 +112,10 @@ public class PerformanceModelParserTest {
     @Test
     void parseCorrectFile() {
         try {
-            var featureInfluences =
+            var performanceInfluenceModel =
                     PerformanceModelParser.parseModel("src/test/testFiles/csv/CorrectTest.csv",
                             getExpectedFeatureSet());
+            var featureInfluences = performanceInfluenceModel.getFeatureInfluences();
             if (!(featureInfluences.size() == 4)) {
                 fail("Size of featureInfluences doesn't correlate with valueLines in csv-file!");
             }
@@ -135,7 +136,7 @@ public class PerformanceModelParserTest {
                 Set<String> featureNames = featureInfluence.getActiveFeatures().parallelStream().map(Feature::getName)
                         .collect(Collectors.toSet());
                 if (featureNames.isEmpty()) {
-                    if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.0, 0.2, -0.3)) &&
+                    if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.0, 0.2, -0.1)) &&
                             featureInfluence.getPropertyInfluence().values().size() == 3)) {
                         fail("Error in valueLine 1");
                     }

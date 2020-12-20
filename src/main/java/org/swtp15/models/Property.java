@@ -2,6 +2,8 @@ package org.swtp15.models;
 
 import lombok.Getter;
 
+import java.util.Objects;
+
 /**
  * Class to describe a system-property by its name.
  */
@@ -38,5 +40,28 @@ public class Property {
     @Override
     public String toString() {
         return "Property: " + name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode(){
+        return Objects.hash(name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o){
+        if(o == null){
+            return false;
+        }
+        if(o instanceof Property){
+            Property other = (Property) o;
+            return this.name.equals(other.getName());
+        }
+        return false;
     }
 }

@@ -1,10 +1,7 @@
 package org.swtp15.parser;
 
 
-import org.swtp15.models.Feature;
-import org.swtp15.models.FeatureInfluence;
-import org.swtp15.models.Property;
-import org.swtp15.models.FeatureModel;
+import org.swtp15.models.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,7 +26,7 @@ public class PerformanceModelParser extends FileParser {
      * @throws IllegalArgumentException
      *         If there is any syntax error while parsing a csv file body
      */
-    public static Set<FeatureInfluence> parseModel(String filename, Set<Feature> referenceFeatures)
+    public static PerformanceInfluenceModel parseModel(String filename, Set<Feature> referenceFeatures)
     throws IllegalArgumentException {
 
         Set<FeatureInfluence> featureInfluences = new HashSet<>();
@@ -52,6 +49,7 @@ public class PerformanceModelParser extends FileParser {
 
         Map<Integer, Feature> featureMap = mapFeatures(csvLines.get(0));
         Map<Integer, Property> propertyMap = mapProperties(csvLines.get(0));
+        Set<Property> properties = new HashSet<>(propertyMap.values());
 
         if (featureMap.isEmpty()) {
             throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_EMPTY_FEATURE_MAP;
@@ -75,7 +73,7 @@ public class PerformanceModelParser extends FileParser {
             String line = csvLines.get(i);
             featureInfluences.add(createFeatureInfluence(line, featureMap, propertyMap));
         }
-        return featureInfluences;
+        return new PerformanceInfluenceModel(properties, featureInfluences);
     }
 
     /**
