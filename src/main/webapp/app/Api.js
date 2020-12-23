@@ -18,7 +18,7 @@ export default {
       console.log(response.config);
     });
 
-    //dummy data
+    // dummy data
     let featureNames = [
       'name',
       'root',
@@ -53,7 +53,7 @@ export default {
       console.log(response.config);
     });
 
-    //dummy data
+    // dummy data
     let exampleConfig = {
       name: 'config',
       root: true,
@@ -101,7 +101,7 @@ export default {
       console.log(response.config);
     });
 
-    //dummy data
+    // dummy data
     let energy = Math.random() * 100;
     let time = Math.random() * 1000;
     let cpu = Math.random() * 10;
