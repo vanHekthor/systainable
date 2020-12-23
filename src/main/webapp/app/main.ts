@@ -26,10 +26,19 @@ import '../content/scss/vendor.scss';
 import AlertService from '@/shared/alert/alert.service';
 import ConfigurationService from '@/admin/configuration/configuration.service';
 
+// PrimeVue imports
 import 'primevue/resources/themes/saga-blue/theme.css';
 import 'primevue/resources/primevue.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
+
+// Bootstrap-Vue imports
+import { BButton } from 'bootstrap-vue';
+import { VBToggle } from 'bootstrap-vue';
+import { BListGroup } from 'bootstrap-vue';
+import { BListGroupItem } from 'bootstrap-vue';
+import { BDropdown } from 'bootstrap-vue';
+import { BDropdownItemButton } from 'bootstrap-vue';
 
 /* tslint:disable */
 
@@ -45,6 +54,16 @@ Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('jhi-item-count', JhiItemCountComponent);
 Vue.component('jhi-sort-indicator', JhiSortIndicatorComponent);
 Vue.component('infinite-loading', InfiniteLoading);
+
+// Bootstrap-Vue components
+Vue.component('b-button', BButton);
+Vue.component('b-list-group', BListGroup);
+Vue.component('b-list-group-item', BListGroupItem);
+Vue.component('b-dropdown', BDropdown);
+Vue.component('b-dropdown-item-button', BDropdownItemButton);
+
+// Note: Vue automatically prefixes the directive name with 'v-'
+Vue.directive('b-toggle', VBToggle);
 
 const store = config.initVueXStore(Vue);
 

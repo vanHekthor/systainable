@@ -25,7 +25,7 @@
             </Dialog>
         </div>
 
-        <ConfigTable
+        <ConfigArea
             :configurationFeatures="configurationFeatures"
             :configurations="configurations"
             :softSystemLoaded="softSystemLoaded"
@@ -33,7 +33,8 @@
             v-on:update-config-name="updateConfigName"
             v-on:del-config="deleteConfig"
             v-on:submit-configs="checkValidity"
-            v-on:get-config-example="getConfigExample"/>
+            v-on:get-config-example="getConfigExample"
+        />
 
         <ChartArea
             v-if="draw & configurations.length > 0"
@@ -46,7 +47,7 @@
 <script>
 import api from './Api';
 import chartDataBuilder from './ChartDataBuilder'
-import ConfigTable from './components/ConfigTable';
+import ConfigArea from './components/ConfigArea';
 import ChartArea from './components/ChartArea';
 import Dropdown from 'primevue/dropdown';
 import Button from 'primevue/button';
@@ -58,7 +59,7 @@ import Dialog from 'primevue/dialog';
 export default {
     name: 'App',
     components: {
-        ConfigTable,
+        ConfigArea,
         ChartArea,
         Dropdown,
         Button,
@@ -92,7 +93,6 @@ export default {
         updateFeature(index, featureName) {
             this.configurations[index][featureName]
                 = !this.configurations[index][featureName];
-
         },
 
         updateConfigName(index, configName) {
@@ -105,7 +105,6 @@ export default {
             // request itself works
             try {
                 let featureNames = api.getFeatureNamesExample();
-                console.log(featureNames);
                 this.updateFeatureNames(featureNames);
             } catch (error) {
                 this.$log.debug(error)
@@ -226,5 +225,28 @@ html, body {
 
 .top-bar {
     background-color: white;
+}
+
+.dropdown:active .dropdown:focus .dropdown-menu .dropdown-item {
+    outline: none;
+    box-shadow: none;
+}
+
+.p-overlaypanel {
+    box-shadow: none !important;
+    border: 1px rgba(0, 0, 0, 0.15) !important;
+    border-style: solid !important;
+    border-radius: 1px;
+    --overlayArrowLeft: none !important;
+    margin: 0.125rem;
+}
+
+.p-overlaypanel-content {
+    padding: 0.5rem 0 !important;
+}
+
+.list-group-item {
+    border: none !important;
+    padding: 0.25rem 1.5rem !important;
 }
 </style>
