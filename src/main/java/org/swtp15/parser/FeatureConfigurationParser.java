@@ -1,5 +1,6 @@
 package org.swtp15.parser;
 
+
 import lombok.NonNull;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -47,6 +48,7 @@ public final class FeatureConfigurationParser {
             return null;
         }
     }
+
 
     /**
      * @param root Root node of the JSON

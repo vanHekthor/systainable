@@ -16,9 +16,8 @@ public class ResourceReader {
      * the application is packaged to a jar. This method however can only read internal resources, although it makes it
      * work both for development as well as production.
      *
-     * @param filename
-     *         File to be read. If you want to have `src/main/resources` as root of the path, use a `/` in front of the
-     *         filename.
+     * @param filename File to be read. If you want to have `src/main/resources` as root of the path, use a `/` in front
+     *                 of the filename.
      *
      * @return List of lines as strings
      */

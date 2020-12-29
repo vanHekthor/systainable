@@ -12,26 +12,28 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class EvaluationTests {
 
-    private final FeatureSystem getExampleFeatureSystem(){
+    private FeatureSystem getExampleFeatureSystem() {
         FeatureModel fm = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
-        PerformanceInfluenceModel pm = PerformanceModelParser.parseModel("src/test/testFiles/csv/CorrectTest.csv", fm.getFeatures());
+        PerformanceInfluenceModel pm = PerformanceModelParser
+                .parseModel("src/test/testFiles/csv/CorrectTest.csv", fm.getFeatures());
         return new FeatureSystem("test", fm, pm);
     }
 
-    private final FeatureConfiguration getExampleFeatureConfiguration1(){
+    private FeatureConfiguration getExampleFeatureConfiguration1() {
         Set<String> activeFeatures = new HashSet<>();
         activeFeatures.add("feature1");
         return new FeatureConfiguration("test", activeFeatures);
     }
 
-    private final FeatureConfiguration getExampleFeatureConfiguration2(){
+    private FeatureConfiguration getExampleFeatureConfiguration2() {
         Set<String> activeFeatures = new HashSet<>();
         activeFeatures.add("feature1");
         activeFeatures.add("feature2");
         return new FeatureConfiguration("test", activeFeatures);
     }
+
     @Test
-    void evaluateConfiguration1(){
+    void evaluateConfiguration1() {
         FeatureSystem featureSystem = getExampleFeatureSystem();
         var result = featureSystem.evaluateFeatureConfiguration(getExampleFeatureConfiguration1());
         assertEquals(result.size(), 3);
@@ -41,7 +43,7 @@ public class EvaluationTests {
     }
 
     @Test
-    void evaluateConfiguration2(){
+    void evaluateConfiguration2() {
         FeatureSystem featureSystem = getExampleFeatureSystem();
         var result = featureSystem.evaluateFeatureConfiguration(getExampleFeatureConfiguration2());
         assertEquals(result.size(), 3);
