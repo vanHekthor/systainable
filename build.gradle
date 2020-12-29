@@ -173,6 +173,7 @@ dependencies {
     // to use a SNAPSHOT release instead of a stable release
     implementation 'org.sat4j:org.sat4j.core:2.3.1'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'org.projectlombok:lombok:1.18.16'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 

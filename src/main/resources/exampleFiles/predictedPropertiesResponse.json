@@ -1,0 +1,15 @@
+{
+  "featureConfiguration": {
+    "featureModel": "testmodel-1",
+    "features": {
+      "feature1": true,
+      "feature2": false,
+      "feature3": true
+    },
+    "properties": {
+      "cpu-usage": 13.4,
+      "runtime": 25.6,
+      "energy_usage": 4.13
+    }
+  }
+}

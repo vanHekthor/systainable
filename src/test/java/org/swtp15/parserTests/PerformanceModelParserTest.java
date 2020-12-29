@@ -54,32 +54,32 @@ public class PerformanceModelParserTest {
     @Test
     void parseFileWithDifferentLineSizes() {
         loadFileAndAssertException("DifferentLineSize.csv",
-                ParserExceptions.PROPERTY_INFLUENCE_MODEL_DIFFERENT_AMOUNT_OF_VALUES_IN_LINES);
+                                   ParserExceptions.PROPERTY_INFLUENCE_MODEL_DIFFERENT_AMOUNT_OF_VALUES_IN_LINES);
     }
 
     @Test
     void parseInconsistentWithFmFile() {
         loadFileAndAssertException("InconsistentWithFeatureModel.csv",
-                ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCONSISTENT_WITH_DIMACS);
+                                   ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCONSISTENT_WITH_DIMACS);
     }
 
 
     @Test
     void parseInconsistentFeatureValuesFile() {
         loadFileAndAssertException("InconsistentFeatureValues.csv",
-                ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCORRECT_FEATURE_COLUMN_VALUE);
+                                   ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCORRECT_FEATURE_COLUMN_VALUE);
     }
 
     @Test
     void parseInconsistentPropertyValuesFile() {
         loadFileAndAssertException("InconsistentPropertyValues.csv",
-                ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCORRECT_PROPERTY_COLUMN_VALUE);
+                                   ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCORRECT_PROPERTY_COLUMN_VALUE);
     }
 
     @Test
     void parseUnallowedOptimizationSymbol() {
         loadFileAndAssertException("UnallowedOptimizationSymbol.csv",
-                ParserExceptions.PROPERTY_INFLUENCE_MODEL_UNALLOWED_OPTIMIZATION_SYMBOL);
+                                   ParserExceptions.PROPERTY_INFLUENCE_MODEL_UNALLOWED_OPTIMIZATION_SYMBOL);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class PerformanceModelParserTest {
         try {
             var performanceInfluenceModel =
                     PerformanceModelParser.parseModel("src/test/testFiles/csv/SimpleCorrectTest.csv",
-                            getExpectedFeatureSet());
+                                                      getExpectedFeatureSet());
 
             // only one Object should be created for this file ...
             for (var featureInfluence : performanceInfluenceModel.getFeatureInfluences()) {
@@ -114,7 +114,7 @@ public class PerformanceModelParserTest {
         try {
             var performanceInfluenceModel =
                     PerformanceModelParser.parseModel("src/test/testFiles/csv/CorrectTest.csv",
-                            getExpectedFeatureSet());
+                                                      getExpectedFeatureSet());
             var featureInfluences = performanceInfluenceModel.getFeatureInfluences();
             if (!(featureInfluences.size() == 4)) {
                 fail("Size of featureInfluences doesn't correlate with valueLines in csv-file!");
@@ -137,23 +137,23 @@ public class PerformanceModelParserTest {
                         .collect(Collectors.toSet());
                 if (featureNames.isEmpty()) {
                     if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.0, 0.2, -0.1)) &&
-                            featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
                         fail("Error in valueLine 1");
                     }
                 } else if (featureNames.equals(Set.of("feature1"))) {
                     if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.3, 0.2, 0.1)) &&
-                            featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
                         fail("Error in valueLine 2");
                     }
                 } else if (featureNames.equals(Set.of("feature2"))) {
                     if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.1, -0.245, 0.3)) &&
-                            featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
                         fail("Error in valueLine 3");
                     }
                 } else if (featureNames.equals(Set.of("feature1", "feature2"))) {
                     if (!(featureInfluence.getPropertyInfluence().values()
-                            .containsAll(Set.of(1.0, -1.1, 1.2342245214)) &&
-                            featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                                  .containsAll(Set.of(1.0, -1.1, 1.2342245214)) &&
+                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
                         fail("Error in valueLine 4");
                     }
                 } else {

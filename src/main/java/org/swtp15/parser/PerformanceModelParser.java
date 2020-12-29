@@ -15,16 +15,13 @@ import java.util.stream.Collectors;
 public class PerformanceModelParser extends FileParser {
 
     /**
-     * @param filename
-     *         the name of the .csv-file to parse
-     * @param referenceFeatures
-     *         The Set of all Features from the {@link FeatureModel},  which should correspond to the features in the
-     *         .csv-file
+     * @param filename          the name of the .csv-file to parse
+     * @param referenceFeatures The Set of all Features from the {@link FeatureModel},  which should correspond to the
+     *                          features in the .csv-file
      *
      * @return A Set of instances of {@link FeatureInfluence} (representing all non-headlines of .csv-file)
      *
-     * @throws IllegalArgumentException
-     *         If there is any syntax error while parsing a csv file body
+     * @throws IllegalArgumentException If there is any syntax error while parsing a csv file body
      */
     public static PerformanceInfluenceModel parseModel(String filename, Set<Feature> referenceFeatures)
     throws IllegalArgumentException {
@@ -80,8 +77,7 @@ public class PerformanceModelParser extends FileParser {
      * Method to identify all Features by their name in the headline of .csv-file. FeatureNames and PropertyNames are
      * distinguished by the existence of a ";" in a Property-related space between commas.
      *
-     * @param headline
-     *         the first line of the .csv-file, already delivered as a String
+     * @param headline the first line of the .csv-file, already delivered as a String
      *
      * @return Map with Features in headline in consecutive order, mapped to Integer-keys which represent their position
      * in the headline
@@ -102,8 +98,7 @@ public class PerformanceModelParser extends FileParser {
      * Method to identify all Properties by their name in the headline of .csv-file. FeatureNames and PropertyNames are
      * distinguished by the existence of a ";" in a Property-related space between commas.
      *
-     * @param headline
-     *         the first line of the .csv-file, already delivered as a String
+     * @param headline the first line of the .csv-file, already delivered as a String
      *
      * @return Map with Properties in headline in consecutive order, mapped to Integer-keys which represent their
      * position in the headline
@@ -131,14 +126,12 @@ public class PerformanceModelParser extends FileParser {
     }
 
     /**
-     * @param currentLine
-     *         the line of the .csv-file which is currently translated into an instance of {@link FeatureInfluence}
-     * @param featureMap
-     *         Map with Features in headline in consecutive order, mapped to Integer-keys which represent their position
-     *         in the headline
-     * @param propertyMap
-     *         Map with Properties in headline in consecutive order, mapped to Integer-keys which represent their
-     *         position in the headline
+     * @param currentLine the line of the .csv-file which is currently translated into an instance of {@link
+     *                    FeatureInfluence}
+     * @param featureMap  Map with Features in headline in consecutive order, mapped to Integer-keys which represent
+     *                    their position in the headline
+     * @param propertyMap Map with Properties in headline in consecutive order, mapped to Integer-keys which represent
+     *                    their position in the headline
      *
      * @return the {@link FeatureInfluence}-instance represented by the current line
      */
@@ -173,8 +166,7 @@ public class PerformanceModelParser extends FileParser {
     /**
      * Method to check if the given String represents a Double.
      *
-     * @param str
-     *         the given String
+     * @param str the given String
      *
      * @return true if the String is parsable to a Double, false else
      */
@@ -190,8 +182,7 @@ public class PerformanceModelParser extends FileParser {
     /**
      * Splits a line of a csv-file at commas and trims it.
      *
-     * @param line
-     *         the line to split
+     * @param line the line to split
      *
      * @return String Array with trimmed values between commas
      */
@@ -206,8 +197,7 @@ public class PerformanceModelParser extends FileParser {
     /**
      * Extracts the relevant information from a Property-related headline String.
      *
-     * @param propertyString
-     *         the Property-related headline String
+     * @param propertyString the Property-related headline String
      *
      * @return a String[] with the following structure: [property_name, unit, optimizationDirection]
      */

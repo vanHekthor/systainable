@@ -46,7 +46,7 @@ public class Property {
      * {@inheritDoc}
      */
     @Override
-    public int hashCode(){
+    public int hashCode() {
         return Objects.hash(name);
     }
 
@@ -54,11 +54,11 @@ public class Property {
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object o){
-        if(o == null){
+    public boolean equals(Object o) {
+        if (o == null) {
             return false;
         }
-        if(o instanceof Property){
+        if (o instanceof Property) {
             Property other = (Property) o;
             return this.name.equals(other.getName());
         }

@@ -23,7 +23,7 @@ public class DirectoryReaderTests {
         try {
             updater.updateSystemCache("src/test/testFiles/modelsDirectories");
             assertTrue(updater.getSystemCache().getCurrentlyKnownSystems().containsAll(getExpectedSystems())
-                && getExpectedSystems().containsAll(updater.getSystemCache().getCurrentlyKnownSystems()));
+                       && getExpectedSystems().containsAll(updater.getSystemCache().getCurrentlyKnownSystems()));
         } catch (Exception e) {
             fail("Unexpected Exception thrown");
         }
