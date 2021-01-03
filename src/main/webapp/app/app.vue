@@ -162,7 +162,6 @@ export default {
                 propertyValueMaps.push(api.getProperties());
             }
 
-
             this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, propertyValueMaps);
 
             this.radarData = chartDataBuilder.buildRadarData(configNames, propertyValueMaps);
@@ -208,45 +207,23 @@ export default {
 </script>
 
 <style>
-#app{
-}
-.logo {
-    height: 1.5rem;
-}
+    #app{
+    }
 
-html {
-    font-size: 14px;
-}
+    .logo {
+        height: 1.5rem;
+    }
 
-html, body {
-    padding: 0 !important;
-    margin: 0 !important;
-}
+    html {
+        font-size: 14px;
+    }
 
-.top-bar {
-    background-color: white;
-}
+    html, body {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
 
-.dropdown:active .dropdown:focus .dropdown-menu .dropdown-item {
-    outline: none;
-    box-shadow: none;
-}
-
-.p-overlaypanel {
-    box-shadow: none !important;
-    border: 1px rgba(0, 0, 0, 0.15) !important;
-    border-style: solid !important;
-    border-radius: 1px;
-    --overlayArrowLeft: none !important;
-    margin: 0.125rem;
-}
-
-.p-overlaypanel-content {
-    padding: 0.5rem 0 !important;
-}
-
-.list-group-item {
-    border: none !important;
-    padding: 0.25rem 1.5rem !important;
-}
+    .top-bar {
+        background-color: white;
+    }
 </style>
