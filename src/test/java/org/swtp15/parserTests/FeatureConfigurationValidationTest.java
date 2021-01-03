@@ -30,8 +30,14 @@ public class FeatureConfigurationValidationTest {
 
     @Test
     void missingFeaturesArray() {
-        this.loadJsonAndExpectException("correctTest.dimacs/MissingFeaturesArray.json",
-                                        ParserExceptions.MISSING_FEATURES_ARRAY_IN_JSON);
+        this.loadJsonAndExpectException("correctTest.dimacs/MissingFeaturesMap.json",
+                                        ParserExceptions.MISSING_FEATURES_MAP_IN_JSON);
+    }
+
+    @Test
+    void invalidFeaturesStatusType() {
+        this.loadJsonAndExpectException("correctTest.dimacs/InvalidFeatureStatusType.json",
+            ParserExceptions.FEATURE_VALUE_NOT_A_BOOLEAN_IN_JSON);
     }
 
     @Test

@@ -3,10 +3,11 @@
     "featureModel": "testmodel-1",
     "features": {
       "feature1": true,
-      "feature2": false
+      "feature2": false,
+      "feature3": "jibbish"
     },
     "properties": {
-      "cpu-usage": 1,
+      "cpu-usage": 17.54898,
       "runtime": 4.77845,
       "energy_usage": 0.45878
     }

@@ -4,6 +4,7 @@ package org.swtp15.parser;
 import org.swtp15.models.Feature;
 import org.swtp15.models.FeatureModel;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -62,7 +63,7 @@ public class FeatureModelParser extends FileParser {
             throw ParserExceptions.FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS;
         }
         FeatureModel resultingModel = new FeatureModel(features, formulas);
-        resultingModel.setName(filename.substring(filename.lastIndexOf("/")).replace(".dimacs", ""));
+        resultingModel.setName(new File(filename).getName().replace(".dimacs", ""));
         return resultingModel;
     }
 

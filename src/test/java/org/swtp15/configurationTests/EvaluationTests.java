@@ -5,8 +5,8 @@ import org.swtp15.models.*;
 import org.swtp15.parser.FeatureModelParser;
 import org.swtp15.parser.PerformanceModelParser;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,16 +20,17 @@ public class EvaluationTests {
     }
 
     private FeatureConfiguration getExampleFeatureConfiguration1() {
-        Set<String> activeFeatures = new HashSet<>();
-        activeFeatures.add("feature1");
-        return new FeatureConfiguration("test", activeFeatures);
+        Map<String, Boolean> features = new HashMap<>();
+        features.put("feature1", true);
+        features.put("feature2", false);
+        return new FeatureConfiguration("test", features);
     }
 
     private FeatureConfiguration getExampleFeatureConfiguration2() {
-        Set<String> activeFeatures = new HashSet<>();
-        activeFeatures.add("feature1");
-        activeFeatures.add("feature2");
-        return new FeatureConfiguration("test", activeFeatures);
+        Map<String, Boolean> features = new HashMap<>();
+        features.put("feature1", true);
+        features.put("feature2", true);
+        return new FeatureConfiguration("test", features);
     }
 
     @Test
