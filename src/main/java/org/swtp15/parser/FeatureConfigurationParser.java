@@ -39,14 +39,11 @@ public final class FeatureConfigurationParser {
      * configurations)
      *
      * @throws IllegalArgumentException If the configuration contains unrecoverable syntax errors in the JSON
+     * @throws ParseException           If error occurres while parsing the string to JSON
      */
-    public static FeatureConfiguration parseConfiguration(String json) throws IllegalArgumentException {
-        try {
-            return FeatureConfigurationParser.parseConfiguration((JSONObject) new JSONParser().parse(json));
-        } catch (ParseException ignored) {
-            // Will never happen, as reading a String will not cause this exception
-            return null;
-        }
+    public static FeatureConfiguration parseConfiguration(String json) throws IllegalArgumentException,
+                                                                              ParseException {
+        return FeatureConfigurationParser.parseConfiguration((JSONObject) new JSONParser().parse(json));
     }
 
 
@@ -90,13 +87,18 @@ public final class FeatureConfigurationParser {
 
         String featureModelName = root.get("featureModel") == null ? "" : (String) root.get("featureModel");
 
-        JSONArray features;
-        if ((features = (JSONArray) root.get("features")) == null) {
-            throw ParserExceptions.MISSING_FEATURES_ARRAY_IN_JSON;
+        JSONObject featuresRoot;
+        if ((featuresRoot = (JSONObject) root.get("features")) == null) {
+            throw ParserExceptions.MISSING_FEATURES_MAP_IN_JSON;
         }
-        Set<String> activeFeatures = new HashSet<>();
-        for (Object featureName : features) {
-            activeFeatures.add((String) featureName);
+        Map<String, Boolean> features = new HashMap<>();
+        for (Object featureName : featuresRoot.keySet()) {
+            String featureNameString = (String) featureName;
+            if (featuresRoot.get(featureNameString) instanceof Boolean) {
+                features.put(featureNameString, (Boolean) featuresRoot.get((featureNameString)));
+            } else {
+                throw ParserExceptions.FEATURE_VALUE_NOT_A_BOOLEAN_IN_JSON;
+            }
         }
         Map<String, Double> properties = new HashMap<>();
         JSONObject propertiesRoot;
@@ -113,7 +115,7 @@ public final class FeatureConfigurationParser {
                 }
             }
         }
-        return new FeatureConfiguration(featureModelName, activeFeatures, properties);
+        return new FeatureConfiguration(featureModelName, features, properties);
     }
 
 }

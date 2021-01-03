@@ -1,6 +1,9 @@
 {
   "featureConfiguration": {
     "featureModel": "testmodel-1",
-    "features": ["feature1", "feature2"]
+    "features": {
+      "feature1": true,
+      "feature2": true
+    }
   }
 }

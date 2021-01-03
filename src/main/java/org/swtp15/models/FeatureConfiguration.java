@@ -3,11 +3,11 @@ package org.swtp15.models;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class FeatureConfiguration {
     @Getter
@@ -15,7 +15,7 @@ public class FeatureConfiguration {
     private String featureModelName;
 
     @Getter
-    private final Set<String> activeFeatures;
+    private Map<String, Boolean> features;
 
     @Getter
     @Setter
@@ -28,43 +28,53 @@ public class FeatureConfiguration {
      * useless instances of those classes.
      *
      * @param featureModelName Name of the FeatureModel this configuration should belong to
-     * @param activeFeatures   Set of the features currently set as active
+     * @param features         Map of features with active status
      * @param properties       Map from the Properties of the FeatureSystem to the respective values
      */
-    public FeatureConfiguration(String featureModelName, @NonNull Set<String> activeFeatures,
+    public FeatureConfiguration(String featureModelName, @NonNull Map<String, Boolean> features,
                                 Map<String, Double> properties) {
         this.featureModelName = featureModelName;
-        this.activeFeatures   = activeFeatures;
+        this.features         = features;
         this.propertyValues   = properties;
     }
 
     /**
      * @param featureModelName Name of the FeatureModel this configuration should belong to
-     * @param activeFeatures   Set of the features currently set as active
+     * @param features         Map of features with active status
      *
-     * @see FeatureConfiguration#FeatureConfiguration(String, Set, Map)
+     * @see FeatureConfiguration#FeatureConfiguration(String, Map, Map)
      */
-    public FeatureConfiguration(String featureModelName, @NonNull Set<String> activeFeatures) {
-        this(featureModelName, activeFeatures, null);
+    public FeatureConfiguration(String featureModelName, @NonNull Map<String, Boolean> features) {
+        this(featureModelName, features, null);
     }
 
     /**
-     * @param activeFeatures Set of the features currently set as active
-     * @param properties     Map from the Properties of the FeatureSystem to the respective values
+     * @param features   Map of features with active status
+     * @param properties Map from the Properties of the FeatureSystem to the respective values
      *
-     * @see FeatureConfiguration#FeatureConfiguration(String, Set, Map)
+     * @see FeatureConfiguration#FeatureConfiguration(String, Map, Map)
      */
-    public FeatureConfiguration(@NonNull Set<String> activeFeatures, Map<String, Double> properties) {
-        this("", activeFeatures, properties);
+    public FeatureConfiguration(@NonNull Map<String, Boolean> features, Map<String, Double> properties) {
+        this("", features, properties);
     }
 
     /**
-     * @param activeFeatures Set of the features currently set as active
+     * @param features Map of features with active status
      *
-     * @see FeatureConfiguration#FeatureConfiguration(String, Set, Map)
+     * @see FeatureConfiguration#FeatureConfiguration(String, Map, Map)
      */
-    public FeatureConfiguration(@NonNull Set<String> activeFeatures) {
-        this("", activeFeatures, null);
+    public FeatureConfiguration(@NonNull Map<String, Boolean> features) {
+        this("", features, null);
+    }
+
+    /**
+     * Returns all features currently active in this configuration.
+     *
+     * @return Set of active features
+     */
+    public Set<String> getActiveFeatures() {
+        return features.keySet().stream().
+                filter(f -> this.features.get(f)).collect(Collectors.toSet());
     }
 
     /**
@@ -78,12 +88,14 @@ public class FeatureConfiguration {
         final JSONObject root = new JSONObject();
         final JSONObject conf = new JSONObject();
         final JSONObject properties = new JSONObject();
-        final JSONArray features = new JSONArray();
+        final JSONObject features = new JSONObject();
 
         root.put("featureConfiguration", conf);
         conf.put("featureModel", this.featureModelName);
         conf.put("features", features);
-        features.addAll(this.activeFeatures);
+        for (String featureName : this.features.keySet()) {
+            features.put(featureName, this.features.get(featureName));
+        }
         if (this.propertyValues != null) {
             conf.put("properties", properties);
             for (String property : this.propertyValues.keySet()) {

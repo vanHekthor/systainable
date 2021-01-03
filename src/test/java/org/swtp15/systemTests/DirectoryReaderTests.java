@@ -15,6 +15,7 @@ public class DirectoryReaderTests {
     private Set<String> getExpectedSystems() {
         Set<String> expectedSystems = new HashSet<>();
         expectedSystems.add("system1");
+        expectedSystems.add("system2");
         return expectedSystems;
     }
 
@@ -22,10 +23,11 @@ public class DirectoryReaderTests {
     void readCorrectFiles() {
         try {
             updater.updateSystemCache("src/test/testFiles/modelsDirectories");
-            assertTrue(updater.getSystemCache().getCurrentlyKnownSystems().containsAll(getExpectedSystems())
-                       && getExpectedSystems().containsAll(updater.getSystemCache().getCurrentlyKnownSystems()));
+            assertTrue(updater.getSystemCache().getCurrentlyKnownSystems().keySet().containsAll(getExpectedSystems())
+                       &&
+                       getExpectedSystems().containsAll(updater.getSystemCache().getCurrentlyKnownSystems().keySet()));
         } catch (Exception e) {
-            fail("Unexpected Exception thrown");
+            fail(e.getMessage());
         }
     }
 
