@@ -14,8 +14,10 @@
                                 @click="$emit('get-config-example')">
                             </SplitButton>
                         </div>
-    <!--                    <div class="p-mr-2"><Button class="p-button-danger" label="Delete" icon="pi pi-times"/></div>-->
-                        <div class="p-mr-2"><Button label="Export" icon="pi pi-external-link" class="p-button-outlined"/></div>
+                        <div class="p-mr-2">
+                            <Button class="p-button-outlined" label="Export" icon="pi pi-external-link"
+                                    @click="makeToast('info')"/>
+                        </div>
                     </div>
                     <div class="p-ml-auto"><SelectButton v-model="selectedViewOption" :options="options"/></div>
                 </div>
@@ -27,13 +29,13 @@
                     <div class="p-d-flex">
                         <div v-for="(config, index) in configurations" :key="index"
                              class="config-card p-shadow-1"
-                             style="width: 16rem;">
+                             style="width: 18rem">
                             <div class="config-card-header p-p-1">
                                 <div class="p-d-flex p-ai-center p-jc-between">
                                     <h6 class="p-my-0 p-ml-3">{{config.name}}</h6>
                                     <div>
                                         <b-button class="p-1 no-outline" variant="link"
-                                                  @click="toggle($event, index)">
+                                                  @click.stop="toggle($event, index)">
                                             <font-awesome-icon icon="plus" :style="{ color: '#6c757d' }" fixed-width/>
                                         </b-button>
                                         <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" no-caret
@@ -57,8 +59,8 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="config-card-content p-p-1">
+                            <div class="config-card-content p-p-1"
+                                 style="max-height: 16rem; overflow-y: auto">
                                 <div class="badges p-d-flex p-flex-wrap p-jc-center">
                                     <template v-for="(value, featureName) in config">
                                         <Chip v-if="featureName !== 'name' && value"
@@ -72,15 +74,21 @@
                         </div>
                     </div>
                 </div>
-                <DataTable v-if="selectedViewOption==='extended'" class="editable-cells-table panel-content" :rowHover="true" :autoLayout="true" :value="configurations"
+                <DataTable v-if="selectedViewOption==='extended'"
+                           class="editable-cells-table panel-content"
+                           :rowHover="true"
+                           :autoLayout="true"
+                           :value="configurations"
                            editMode="cell">
-                    <Column v-for="feature of configurationFeatures" :field="feature.name" :header="feature.name"
-                            :key="feature.name" bodyStyle="">
+                    <Column v-for="feature of configurationFeatures"
+                            :field="feature.name"
+                            :header="feature.name"
+                            :key="feature.name">
                         <template v-if="feature.name === 'name'" #editor="slotProps">
                             <div class="p-grid">
                                 <InputText v-model="slotProps.data[feature.name]"
                                            class="p-inputtext-sm" />
-                                <Button label="Delete" icon="pi pi-times" class="p-button-danger p-button-sm p-mt-2"
+                                <Button class="p-button-danger p-button-sm p-mt-2" label="Delete" icon="pi pi-times"
                                         @click="$emit('del-config', slotProps.index)"/>
                             </div>
                         </template>
@@ -107,15 +115,25 @@
             </template>
             Please select a software system.
         </Panel>
-        <OverlayPanel class="no-shadow" ref="op">
-            <template v-for="featureName in unselectedFeatures">
-                <b-list-group>
-                    <b-list-group-item
-                        button @click="$emit('update-feature', configIndex, featureName); untoggle($event)">
-                        {{featureName}}
-                    </b-list-group-item>
-                </b-list-group>
-            </template>
+        <OverlayPanel class="no-shadow" ref="op" v-click-outside="untoggle">
+            <b-input-group size="sm">
+                <b-form-input
+                    id="filter-input"
+                    v-model="featureFilter"
+                    type="search"
+                    placeholder="Type to Search"
+                    class="mx-2 mb-2"
+                ></b-form-input>
+            </b-input-group>
+            <b-table class="m-0"
+                     borderless
+                     hover :items="unselectedFeatures"
+                     thead-class="hidden-header"
+                     :filter="featureFilter"
+                     :filter-included-fields="featureFilterOn"
+                     @filtered="onFiltered"
+                     @row-clicked="addFeatureToConfig"
+            ></b-table>
         </OverlayPanel>
     </div>
 </template>
@@ -157,28 +175,33 @@ export default {
 
     data() {
         return {
-            columns: null,
-            hover: false,
             selectedViewOption: 'simple',
             options: ['simple', 'extended'],
-            renamedConfigString: 'hallo',
+            renamedConfigString: '',
             collapseButtonIcon: 'pi pi-chevron-up',
             visible: true,
             configIndex: 0,
             unselectedFeatures: [],
+            totalRows: 1,
+            currentPage: 1,
+            featureFilter: null,
+            featureFilterOn: [],
             items: [
                 {
                     label: 'Load',
                     icon: 'pi pi-upload',
+                    command: () => {
+                        this.makeToast('info');
+                    }
                 },
                 {
                     label: 'Optimize',
                     icon: 'pi pi-compass',
                     command: () => {
-                        this.$toast.add({ severity: 'warn', summary: 'Delete', detail: 'Data Deleted', life: 3000});
+                        this.makeToast('info');
                     }
                 }
-            ]
+            ],
         }
     },
 
@@ -201,13 +224,31 @@ export default {
                 if (featureName==="name")
                     continue;
                 if (!this.configurations[index][featureName]) {
-                    this.unselectedFeatures.push(featureName);
+                    this.unselectedFeatures.push({feature: featureName});
                 }
             }
             this.$refs.op.toggle(event);
         },
         untoggle() {
+            this.featureFilter=null;
             this.$refs.op.hide();
+            console.log('Overlay was hid');
+        },
+        onFiltered(filteredItems) {
+            // Trigger pagination to update the number of buttons/pages due to filtering
+            this.totalRows = filteredItems.length
+            this.currentPage = 1
+        },
+        addFeatureToConfig(item) {
+            this.$emit('update-feature', this.configIndex, item.feature);
+            this.untoggle();
+        },
+        makeToast(variant = null) {
+            this.$bvToast.toast('Function is not implemented yet.', {
+                title: 'Unsupported function',
+                variant: variant,
+                solid: true
+            })
         }
 
     },
@@ -242,5 +283,32 @@ export default {
     .no-outline:focus,.no-outline:active {
         outline: none !important;
         box-shadow: none !important;
+    }
+</style>
+<style>
+    .dropdown:active .dropdown:focus .dropdown-menu .dropdown-item {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .p-overlaypanel {
+        box-shadow: none !important;
+        border: 1px rgba(0, 0, 0, 0.15) !important;
+        border-style: solid !important;
+        border-radius: 1px;
+        --overlayArrowLeft: none !important;
+        margin: 0.125rem;
+    }
+
+    .p-overlaypanel-content {
+        padding: 0.5rem 0 !important;
+    }
+
+    .table tr, .table td {
+        padding: 0.25rem 1.5rem !important;
+    }
+
+    .hidden-header {
+        display: none;
     }
 </style>

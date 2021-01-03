@@ -26,7 +26,9 @@ import {
   BInputGroupPrepend,
 
   // added
+  TablePlugin,
   ModalPlugin,
+  ToastPlugin,
 } from 'bootstrap-vue';
 
 export function initBootstrapVue(vue) {
@@ -58,5 +60,7 @@ export function initBootstrapVue(vue) {
   vue.component('b-input-group-prepend', BInputGroupPrepend);
 
   // added
+  vue.use(TablePlugin);
   vue.use(ModalPlugin);
+  vue.use(ToastPlugin);
 }

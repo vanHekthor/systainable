@@ -12,9 +12,11 @@
                             <div v-else><h5 class="p-m-0">{{chartData.datasets[0].label}}</h5></div>
                             <div>
                                 <Button icon="pi pi-filter"
-                                        class="p-button-rounded p-button-text p-button-plain" />
-                                <Button type="button" icon="pi pi-cog"
-                                        class="p-button-rounded p-button-secondary p-button-text"/>
+                                        class="p-button-rounded p-button-text p-button-plain"
+                                        @click="makeToast('info')"/>
+                                <Button icon="pi pi-cog"
+                                        class="p-button-rounded p-button-secondary p-button-text"
+                                        @click="makeToast('info')"/>
                             </div>
                         </div>
                     </template>
@@ -30,9 +32,11 @@
                             <div><h5 class="p-m-0">normalized values</h5></div>
                             <div>
                                 <Button icon="pi pi-filter"
-                                        class="p-button-rounded p-button-text p-button-plain" />
+                                        class="p-button-rounded p-button-text p-button-plain"
+                                        @click="makeToast('info')"/>
                                 <Button type="button" icon="pi pi-cog"
-                                        class="p-button-rounded p-button-secondary p-button-text"/>
+                                        class="p-button-rounded p-button-secondary p-button-text"
+                                        @click="makeToast('info')"/>
                             </div>
                         </div>
                     </template>
@@ -48,9 +52,11 @@
                             <div><h5 class="p-m-0">absolute differences</h5></div>
                             <div>
                                 <Button icon="pi pi-filter"
-                                        class="p-button-rounded p-button-text p-button-plain" />
+                                        class="p-button-rounded p-button-text p-button-plain"
+                                        @click="makeToast('info')"/>
                                 <Button type="button" icon="pi pi-cog"
-                                        class="p-button-rounded p-button-secondary p-button-text"/>
+                                        class="p-button-rounded p-button-secondary p-button-text"
+                                        @click="makeToast('info')"/>
                             </div>
                         </div>
                     </template>
@@ -161,6 +167,15 @@ export default {
                     max: 1.0,
                 }
             },
+        }
+    },
+    methods: {
+        makeToast(variant = null) {
+            this.$bvToast.toast('Function is not implemented yet.', {
+                title: 'Unsupported function',
+                variant: variant,
+                solid: true
+            })
         }
     }
 
