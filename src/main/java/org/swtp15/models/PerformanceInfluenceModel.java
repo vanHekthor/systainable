@@ -2,9 +2,9 @@ package org.swtp15.models;
 
 import lombok.Getter;
 
-import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -31,14 +31,17 @@ public class PerformanceInfluenceModel {
      * Evaluates the property values for a list of active features. Iterates over the featureInfluences and adds their
      * value if their set of activeFeatures is contained in the given set of activeFeatures.
      *
-     * @param activeFeatures Set of activeFeatures.
+     * @param featureConfiguration the featureConfiguration to be evaluated.
      *
      * @return The evaluated property values as a map.
      */
-    public Map<Property, Double> evaluateConfiguration(Set<String> activeFeatures) {
-        Map<Property, Double> evaluation = new HashMap<>();
+    public Map<Property, Double> evaluateConfiguration(FeatureConfiguration featureConfiguration) {
+        Set<String> activeFeatures = featureConfiguration.getActiveFeatures();
+        Map<Property, Double> returnEvaluation = new HashMap<>();
+        Map<String, Double> evaluation = new HashMap<>();
         for (Property property : properties) {
-            evaluation.put(property, 0.0);
+            returnEvaluation.put(property, 0.0);
+            evaluation.put(property.getName(), 0.0);
         }
         Set<FeatureInfluence> relatedInfluences = featureInfluences.stream().parallel()
                 .filter(x -> activeFeatures.containsAll(x.getActiveFeatures().stream().map(Feature::getName)
@@ -46,9 +49,11 @@ public class PerformanceInfluenceModel {
                 .collect(Collectors.toSet());
         for (FeatureInfluence featureInfluence : relatedInfluences) {
             for (Map.Entry<Property, Double> entry : featureInfluence.getPropertyInfluence().entrySet()) {
-                evaluation.put(entry.getKey(), evaluation.get(entry.getKey()) + entry.getValue());
+                returnEvaluation.put(entry.getKey(), returnEvaluation.get(entry.getKey()) + entry.getValue());
+                evaluation.put(entry.getKey().getName(), evaluation.get(entry.getKey().getName()) + entry.getValue());
             }
         }
-        return evaluation;
+        featureConfiguration.setPropertyValues(evaluation);
+        return returnEvaluation;
     }
 }

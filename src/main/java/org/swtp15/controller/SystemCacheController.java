@@ -35,8 +35,7 @@ public class SystemCacheController {
      */
     @GetMapping("/example")
     public ResponseEntity<String> getAllSystemsExample() {
-        String systems = SystemParser.parseSystemNamesToJson(getExampleSystemNames());
-        return new ResponseEntity<>(systems, HttpStatus.OK);
+        return new ResponseEntity<>(SystemParser.parseSystemNamesToJson(getExampleSystemNames()), HttpStatus.OK);
     }
 
     /**
@@ -45,8 +44,8 @@ public class SystemCacheController {
      * @return ResponseEntity containing JSON containing Array of system names
      */
     @GetMapping
-    public ResponseEntity<Set<String>> getAllSystems() {
+    public ResponseEntity<String> getAllSystems() {
         Set<String> systems = systemCache.getCurrentlyKnownSystems().keySet();
-        return new ResponseEntity<>(systems, HttpStatus.OK);
+        return new ResponseEntity<>(SystemParser.parseSystemNamesToJson(systems), HttpStatus.OK);
     }
 }

@@ -40,6 +40,17 @@ public class SystemCache {
     }
 
     /**
+     * Returns the feature system with the given name.
+     *
+     * @param name The name of the feature system
+     *
+     * @return A feature system with given name
+     */
+    public FeatureSystem getFeatureSystemByName(String name) {
+        return currentlyKnownSystems.get(name);
+    }
+
+    /**
      * @param featureConfiguration The configuration that should be checked for validity
      *
      * @return Whether the given configuration is valid

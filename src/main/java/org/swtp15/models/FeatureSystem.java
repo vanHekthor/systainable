@@ -2,7 +2,10 @@ package org.swtp15.models;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class FeatureSystem {
 
@@ -17,7 +20,6 @@ public class FeatureSystem {
     @Getter
     @Setter
     private FeatureModel featureModel;
-
 
 
     /**
@@ -41,22 +43,42 @@ public class FeatureSystem {
      *
      * @return Whether the given configuration is valid
      *
-     * @throws InterruptedException If the thread calculating was interrupted before it could finish gracefully
+     * @throws InterruptedException     If the thread calculating was interrupted before it could finish gracefully
      * @throws IllegalArgumentException If the given configuration contains features not included in the feature model
      */
     public Boolean configurationIsValid(FeatureConfiguration featureConfiguration) throws InterruptedException,
-            IllegalArgumentException {
+                                                                                          IllegalArgumentException {
         return this.featureModel.isValidConfiguration(featureConfiguration);
     }
 
     /**
-     * Evaluates a FeatureConfiguration.
+     * Evaluates a {@link FeatureConfiguration}. It sets the Map of the FeatureConfiguration to the evaluated values,
+     * but also returns this Map because we will probably need this later, wenn trying to optimize a Config.
      *
      * @param featureConfiguration The Configuration to be evaluated.
      *
      * @return The evaluated Property values as a Map.
      */
     public Map<Property, Double> evaluateFeatureConfiguration(FeatureConfiguration featureConfiguration) {
-        return performanceModel.evaluateConfiguration(featureConfiguration.getActiveFeatures());
+        return performanceModel.evaluateConfiguration(featureConfiguration);
+    }
+
+    /**
+     * Returns a Set containing the names of this feature system as String.
+     *
+     * @return A Set of feature names
+     */
+    public Set<String> getFeatureNames() {
+        return featureModel.getFeatures().stream().parallel().map(Feature::getName).collect(
+                Collectors.toSet());
+    }
+
+    /**
+     * Returns a Set containing the names of this feature system as String.
+     *
+     * @return A Set of feature names
+     */
+    public Set<Property> getProperties() {
+        return performanceModel.getProperties();
     }
 }
