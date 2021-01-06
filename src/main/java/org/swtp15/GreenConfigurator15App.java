@@ -1,17 +1,17 @@
 package org.swtp15;
 
-import org.swtp15.config.ApplicationProperties;
-
 import io.github.jhipster.config.DefaultProfileUtil;
 import io.github.jhipster.config.JHipsterConstants;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.Environment;
+import org.swtp15.config.ApplicationProperties;
+import org.swtp15.system.SystemCacheUpdater;
 
 import javax.annotation.PostConstruct;
 import java.net.InetAddress;
@@ -27,12 +27,16 @@ public class GreenConfigurator15App {
 
     private final Environment env;
 
-    public GreenConfigurator15App(Environment env) {
+    @Autowired
+    private final SystemCacheUpdater systemCacheUpdater;
+
+    public GreenConfigurator15App(Environment env, SystemCacheUpdater systemCacheUpdater) {
         this.env = env;
+        this.systemCacheUpdater = systemCacheUpdater;
     }
 
     /**
-     * Initializes test.
+     * Initializes the application.
      * <p>
      * Spring profiles can be configured with a program argument --spring.profiles.active=your-active-profile
      * <p>
@@ -49,6 +53,8 @@ public class GreenConfigurator15App {
             log.error("You have misconfigured your application! It should not " +
                 "run with both the 'dev' and 'cloud' profiles at the same time.");
         }
+
+        systemCacheUpdater.initialize("src/main/resources/featureSystems");
     }
 
     /**

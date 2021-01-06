@@ -1,6 +1,8 @@
 package org.swtp15.system;
 
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.swtp15.models.FeatureModel;
 import org.swtp15.models.FeatureSystem;
 import org.swtp15.models.PerformanceInfluenceModel;
@@ -11,6 +13,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Component
 public class SystemCacheUpdater {
 
     @Getter
@@ -21,24 +24,23 @@ public class SystemCacheUpdater {
      *
      * @param systemCache the {@link SystemCache} to be updated.
      */
+    @Autowired
     public SystemCacheUpdater(SystemCache systemCache) {
         this.systemCache = systemCache;
     }
 
-    /*
-     * ToDo: this method will also take care of other updates such as parsing the actual models that were read out of
-     *   the directory
-     */
-
     /**
-     * Updates the {@link SystemCache}.
+     * Initializes the {@link SystemCache}.
      *
      * @param pathToModels Path to read {@link FeatureSystem} from.
-     *
-     * @throws Exception If called methods throw Exceptions.
      */
-    public void updateSystemCache(String pathToModels) throws Exception {
-        updateCurrentlyKnownSystems(pathToModels);
+    public void initialize(String pathToModels) {
+        try {
+            readSystemsFromDirectory(pathToModels);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //ToDo: here a method should be started that regularly updates the SystemCache
     }
 
     /**
@@ -49,7 +51,7 @@ public class SystemCacheUpdater {
      *
      * @throws Exception invalid path or path does not contains subdirectories for dimacs and csv.
      */
-    private void updateCurrentlyKnownSystems(String path) throws Exception {
+    public void readSystemsFromDirectory(String path) throws Exception {
         File modelsDirectory = new File(path);
         if (!(modelsDirectory.exists() && modelsDirectory.isDirectory())) {
             throw new Exception("Given directory path does not exist.");

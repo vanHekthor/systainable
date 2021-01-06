@@ -22,7 +22,7 @@ public class DirectoryReaderTests {
     @Test
     void readCorrectFiles() {
         try {
-            updater.updateSystemCache("src/test/testFiles/modelsDirectories");
+            updater.readSystemsFromDirectory("src/test/testFiles/modelsDirectories");
             assertTrue(updater.getSystemCache().getCurrentlyKnownSystems().keySet().containsAll(getExpectedSystems())
                        &&
                        getExpectedSystems().containsAll(updater.getSystemCache().getCurrentlyKnownSystems().keySet()));
@@ -34,7 +34,7 @@ public class DirectoryReaderTests {
     @Test
     void nonExistingPath() {
         try {
-            updater.updateSystemCache("test");
+            updater.readSystemsFromDirectory("test");
             fail("Exception not thrown");
         } catch (Exception e) {
             assertEquals("Given directory path does not exist.", e.getMessage());

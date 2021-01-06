@@ -7,8 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.swtp15.models.FeatureConfiguration;
+import org.swtp15.models.FeatureSystem;
 import org.swtp15.parser.FeatureConfigurationParser;
 import org.swtp15.parser.ResourceReader;
+import org.swtp15.parser.SystemParser;
 import org.swtp15.system.SystemCache;
 
 
@@ -19,21 +21,29 @@ public class FeatureSystemController {
     @Autowired
     private SystemCache systemCache;
 
-    /*
-  ToDo: This is only hardcoded for now. ...
-   */
     private String getFeatureModelJson() {
         return StringUtils.join(new ResourceReader()
                                         .readFileFromResources("/exampleFiles/featureModelByNameResponse.json"), "");
     }
 
-    @GetMapping()
+    /**
+     * Returns a specific featureSystem as a JSON containing the features as a list and the properties as a map with the
+     * property name as key and its unit as value.
+     *
+     * @param name The name of the Model/System to be returned.
+     *
+     * @return The JSON String.
+     */
+    @GetMapping
     public @ResponseBody
-    ResponseEntity<String> getFeatureModelByName(@RequestParam String featuresystem) {
-        if (featuresystem.equals("example")) {
+    ResponseEntity<String> getFeatureModelByName(@RequestParam String name) {
+        //ToDo: Delete this if statement when the example is no longer needed
+        if (name.equals("example")) {
             return new ResponseEntity<>(getFeatureModelJson(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        FeatureSystem featureSystem = systemCache.getFeatureSystemByName(name);
+        return featureSystem == null ? new ResponseEntity<>(HttpStatus.NOT_FOUND) :
+               new ResponseEntity<>(SystemParser.parseSystemToJson(featureSystem), HttpStatus.OK);
     }
 
     /**
@@ -47,14 +57,18 @@ public class FeatureSystemController {
     public ResponseEntity<Object> validateConfiguration(@RequestBody String json) {
         try {
             FeatureConfiguration featureConfiguration = FeatureConfigurationParser.parseConfiguration(json);
-            String featureModelName = featureConfiguration.getFeatureModelName();
-            if (systemCache.hasSystem(featureModelName)) {
+            if (systemCache.hasSystem(featureConfiguration.getFeatureModelName())) {
                 return new ResponseEntity<>(systemCache.configIsValid(featureConfiguration), HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(false, HttpStatus.OK);
+                return new ResponseEntity<>("Given FeatureConfiguration has non-existing FeatureModelName",
+                                            HttpStatus.BAD_REQUEST);
             }
-        } catch (InterruptedException | IllegalArgumentException | ParseException e) {
-            return new ResponseEntity<>("An ERROR occurred while validating Configuration!", HttpStatus.BAD_REQUEST);
+        } catch (ParseException e) {
+            return new ResponseEntity<>("Invalid FeatureConfiguration JSON in Body: " + e.getMessage(),
+                                        HttpStatus.BAD_REQUEST);
+        } catch (InterruptedException | IllegalArgumentException e) {
+            return new ResponseEntity<>("Unexpected Error while validating FeatureConfiguration: " + e.getMessage(),
+                                        HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -75,6 +89,8 @@ public class FeatureSystemController {
         return StringUtils.join(new ResourceReader()
                                         .readFileFromResources("/exampleFiles/alternativeConfigResponse.json"), "");
     }
+
+    //ToDo: This is only hardcoded for now. ...
 
     @GetMapping("/alternative")
     public ResponseEntity<String> alternativeConfiguration() {
