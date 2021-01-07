@@ -5,7 +5,7 @@
             <div>
                 <Dropdown id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems" optionLabel="name"
                           placeholder="Select a system"
-                          @change="getFeatures"/>
+                          @change="getSystemFeatures"/>
             </div>
 
             <Dialog :header="invalidConfig + ' is invalid'" :visible.sync="displayModal" :style="{width: '50vw'}" :modal="true">
@@ -26,14 +26,16 @@
         </div>
 
         <ConfigArea
+            :systemName="selectedSoftSystem.name"
             :configurationFeatures="configurationFeatures"
             :configurations="configurations"
             :softSystemLoaded="softSystemLoaded"
-            v-on:update-feature="updateFeature"
-            v-on:update-config-name="updateConfigName"
-            v-on:del-config="deleteConfig"
-            v-on:submit-configs="checkValidity"
-            v-on:get-config-example="getConfigExample"
+            @update-feature="updateFeature"
+            @update-config-name="updateConfigName"
+            @del-config="deleteConfig"
+            @submit-configs="checkValidity"
+            @get-config-example="getConfigExample"
+            @load-data="loadConfigs"
         />
 
         <ChartArea
@@ -52,9 +54,6 @@ import ChartArea from './components/ChartArea';
 import Dropdown from 'primevue/dropdown';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-
-
-
 
 export default {
     name: 'App',
@@ -78,7 +77,7 @@ export default {
             chartDataArray: [],
             radarData: {},
             draw: false,
-            selectedSoftSystem: null,
+            selectedSoftSystem: {},
             softSystemLoaded: false,
             softSystems: [
                 {name: 'BlueSoft'},
@@ -100,7 +99,7 @@ export default {
         },
 
         //requests features from backend
-        getFeatures() {
+        getSystemFeatures() {
             // using example data because JSON-Parser is still WIP
             // request itself works
             try {
@@ -118,12 +117,12 @@ export default {
         },
 
         updateFeatureNames(featureNames) {
-            let names = [];
-            let featureName;
-            for (featureName of featureNames) {
-                names.push({name: featureName});
-            }
-            this.configurationFeatures = names;
+            // let names = [];
+            // let featureName;
+            // for (featureName of featureNames) {
+            //     names.push({name: featureName});
+            // }
+            this.configurationFeatures = featureNames;
             this.softSystemLoaded = true;
         },
 
@@ -151,6 +150,10 @@ export default {
             if (this.configurations.length < 1) {
                 this.draw = false;
             }
+        },
+
+        loadConfigs(configs) {
+            this.configurations = this.configurations.concat(configs);
         },
 
         submitConfigs() {
@@ -208,10 +211,6 @@ export default {
 
 <style>
     #app{
-    }
-
-    .logo {
-        height: 1.5rem;
     }
 
     html {

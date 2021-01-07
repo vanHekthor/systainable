@@ -8,15 +8,20 @@
                                 @click="collapse"/>
                         <h5 class="p-mb-0 p-mr-2">Configurations</h5>
                         <div class="p-mr-2">
-                            <SplitButton
-                                v-if="softSystemLoaded"
-                                class="p-button-success" label="Add" icon="pi pi-plus" :model="items"
-                                @click="$emit('get-config-example')">
-                            </SplitButton>
+                            <b-dropdown v-if="softSystemLoaded"
+                                        right split variant="success"
+                                        @click="$emit('get-config-example')">
+                                <template #button-content>
+                                    <font-awesome-icon class="mr-1" icon="plus" fixed-width/>Add
+                                </template>
+                                <ImportDropdownItem :systemName="systemName" :featureNames="configurationFeatures" :fileCheck="true" @load-data="loadData"/>
+                                <b-dropdown-item-button @click="makeToast('info')">
+                                    <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>Optimize
+                                </b-dropdown-item-button>
+                            </b-dropdown>
                         </div>
                         <div class="p-mr-2">
-                            <Button class="p-button-outlined" label="Export" icon="pi pi-external-link"
-                                    @click="makeToast('info')"/>
+                            <ExportButton label="Export" :systemName="systemName" :data="configurations"/>
                         </div>
                     </div>
                     <div class="p-ml-auto"><SelectButton v-model="selectedViewOption" :options="options"/></div>
@@ -81,12 +86,12 @@
                            :value="configurations"
                            editMode="cell">
                     <Column v-for="feature of configurationFeatures"
-                            :field="feature.name"
-                            :header="feature.name"
-                            :key="feature.name">
-                        <template v-if="feature.name === 'name'" #editor="slotProps">
+                            :field="feature"
+                            :header="feature"
+                            :key="feature">
+                        <template v-if="feature === 'name'" #editor="slotProps">
                             <div class="p-grid">
-                                <InputText v-model="slotProps.data[feature.name]"
+                                <InputText v-model="slotProps.data[feature]"
                                            class="p-inputtext-sm" />
                                 <Button class="p-button-danger p-button-sm p-mt-2" label="Delete" icon="pi pi-times"
                                         @click="$emit('del-config', slotProps.index)"/>
@@ -94,8 +99,8 @@
                         </template>
                         <template v-else #body="slotProps">
                             <label>
-                                <input type="checkbox" :checked="slotProps.data[feature.name]"
-                                       @change="$emit('update-feature', slotProps.index, feature.name)"/>
+                                <input type="checkbox" :checked="slotProps.data[feature]"
+                                       @change="$emit('update-feature', slotProps.index, feature)"/>
                             </label>
                         </template>
                     </Column>
@@ -144,12 +149,13 @@ import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 import Panel from 'primevue/panel';
 import Button from 'primevue/button';
-import SplitButton from 'primevue/splitbutton';
 import SelectButton from 'primevue/selectbutton';
 import Card from 'primevue/card';
 import ScrollPanel from 'primevue/scrollpanel';
 import OverlayPanel from 'primevue/overlaypanel';
 import Chip from './Chip';
+import ExportButton from "./ExportButton";
+import ImportDropdownItem from "./ImportDropdownItem";
 
 
 export default {
@@ -160,14 +166,16 @@ export default {
         InputText,
         Panel,
         Button,
-        SplitButton,
         SelectButton,
         Card,
         ScrollPanel,
         OverlayPanel,
-        Chip
+        Chip,
+        ExportButton,
+        ImportDropdownItem
     },
     props: [
+        "systemName",
         "configurationFeatures",
         "configurations",
         "softSystemLoaded"
@@ -186,26 +194,7 @@ export default {
             currentPage: 1,
             featureFilter: null,
             featureFilterOn: [],
-            items: [
-                {
-                    label: 'Load',
-                    icon: 'pi pi-upload',
-                    command: () => {
-                        this.makeToast('info');
-                    }
-                },
-                {
-                    label: 'Optimize',
-                    icon: 'pi pi-compass',
-                    command: () => {
-                        this.makeToast('info');
-                    }
-                }
-            ],
         }
-    },
-
-    created() {
     },
 
     methods: {
@@ -232,7 +221,6 @@ export default {
         untoggle() {
             this.featureFilter=null;
             this.$refs.op.hide();
-            console.log('Overlay was hid');
         },
         onFiltered(filteredItems) {
             // Trigger pagination to update the number of buttons/pages due to filtering
@@ -242,6 +230,9 @@ export default {
         addFeatureToConfig(item) {
             this.$emit('update-feature', this.configIndex, item.feature);
             this.untoggle();
+        },
+        loadData(data) {
+            this.$emit('load-data', data);
         },
         makeToast(variant = null) {
             this.$bvToast.toast('Function is not implemented yet.', {
@@ -256,59 +247,59 @@ export default {
 </script>
 
 <style scoped>
-    .panel-header {
-        margin-top: -0.5rem;
-        margin-bottom: -0.5rem;
-    }
+.panel-header {
+    margin-top: -0.5rem;
+    margin-bottom: -0.5rem;
+}
 
-    .panel-content {
-        margin: -1rem -1rem 0 -1rem;
-        padding-bottom: 0.5em;
-    }
+.panel-content {
+    margin: -1rem -1rem 0 -1rem;
+    padding-bottom: 0.5em;
+}
 
-    .panel-footer {
-        margin: 0 -0.5rem -0.5rem -0.5rem;
-    }
+.panel-footer {
+    margin: 0 -0.5rem -0.5rem -0.5rem;
+}
 
-    .config-card-header{
-        background-color: #f5f5f5;
-        border-bottom: 1px solid #e3e3e3;
-    }
+.config-card-header{
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #e3e3e3;
+}
 
-    .custom-chip {
-        background: #2196F3;
-        color: #fff;
-    }
+.custom-chip {
+    background: #2196F3;
+    color: #fff;
+}
 
-    .no-outline:focus,.no-outline:active {
-        outline: none !important;
-        box-shadow: none !important;
-    }
+.no-outline:focus,.no-outline:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
 </style>
 <style>
-    .dropdown:active .dropdown:focus .dropdown-menu .dropdown-item {
-        outline: none;
-        box-shadow: none;
-    }
+.dropdown:active .dropdown:focus .dropdown-menu .dropdown-item {
+    outline: none;
+    box-shadow: none;
+}
 
-    .p-overlaypanel {
-        box-shadow: none !important;
-        border: 1px rgba(0, 0, 0, 0.15) !important;
-        border-style: solid !important;
-        border-radius: 1px;
-        --overlayArrowLeft: none !important;
-        margin: 0.125rem;
-    }
+.p-overlaypanel {
+    box-shadow: none !important;
+    border: 1px rgba(0, 0, 0, 0.15) !important;
+    border-style: solid !important;
+    border-radius: 1px;
+    --overlayArrowLeft: none !important;
+    margin: 0.125rem;
+}
 
-    .p-overlaypanel-content {
-        padding: 0.5rem 0 !important;
-    }
+.p-overlaypanel-content {
+    padding: 0.5rem 0 !important;
+}
 
-    .table tr, .table td {
-        padding: 0.25rem 1.5rem !important;
-    }
+.table tr, .table td {
+    padding: 0.25rem 1.5rem !important;
+}
 
-    .hidden-header {
-        display: none;
-    }
+.hidden-header {
+    display: none;
+}
 </style>
