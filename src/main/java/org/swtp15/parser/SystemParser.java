@@ -44,7 +44,7 @@ public class SystemParser {
         root.put("features", features);
 
         for (Property property : featureSystem.getProperties()) {
-            properties.put(property.getName(), property.getUnit());
+            properties.put(property.getName(), property.getUnit() + " " + (property.isToMinimize() ? "<" : ">"));
         }
         root.put("properties", properties);
 
