@@ -1,8 +1,14 @@
 package org.swtp15.parserTests;
 
 import org.junit.jupiter.api.Test;
+import org.swtp15.models.FeatureModel;
+import org.swtp15.models.FeatureSystem;
+import org.swtp15.models.PerformanceInfluenceModel;
 import org.swtp15.parser.FeatureModelParser;
 import org.swtp15.parser.ParserExceptions;
+import org.swtp15.parser.PerformanceModelParser;
+import org.swtp15.system.SystemCache;
+import org.swtp15.system.SystemCacheUpdater;
 
 import java.util.*;
 
@@ -85,4 +91,5 @@ public class FeatureModelParserTests {
         loadFileAndAssertException("OccurringLiteralWithoutFeature.dimacs",
                                    ParserExceptions.FEATURE_MODEL_UNASSIGNED_LITERAL);
     }
+
 }
