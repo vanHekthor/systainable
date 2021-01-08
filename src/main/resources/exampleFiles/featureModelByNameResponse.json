@@ -12,8 +12,8 @@
     "feature10"
   ],
   "properties": {
-    "property01": "sec",
-    "property02": "%",
-    "property03": "Ws"
+    "property01": "sec <",
+    "property02": "% >",
+    "property03": "Ws <"
   }
 }
