@@ -1,6 +1,7 @@
 package org.swtp15.systemTests;
 
 import org.junit.jupiter.api.Test;
+import org.swtp15.models.FeatureSystem;
 import org.swtp15.system.SystemCache;
 import org.swtp15.system.SystemCacheUpdater;
 
@@ -39,6 +40,19 @@ public class DirectoryReaderTests {
         } catch (Exception e) {
             assertEquals("Given directory path does not exist.", e.getMessage());
         }
+    }
+
+
+    @Test
+    void parseAllExampleSystems() throws Exception {
+        updater.readSystemsFromDirectory("src/main/resources/featureSystems");
+        StringBuilder builder = new StringBuilder("Successfully read ");
+        SystemCache cache = updater.getSystemCache();
+        builder.append(cache.getCurrentlyKnownSystems().size()).append(" example systems:");
+        for (FeatureSystem system : cache.getCurrentlyKnownSystems().values()){
+            builder.append("\n").append(system.getName());
+        }
+        System.out.println(builder);
     }
 }
 
