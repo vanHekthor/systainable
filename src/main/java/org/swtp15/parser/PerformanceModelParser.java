@@ -23,7 +23,7 @@ public class PerformanceModelParser extends FileParser {
      *
      * @throws IllegalArgumentException If there is any syntax error while parsing a csv file body
      */
-    public static PerformanceInfluenceModel parseModel(String filename, Set<Feature> referenceFeatures)
+    public static PerformanceInfluenceModel parseModel(String filename, List<Feature> referenceFeatures)
     throws IllegalArgumentException {
 
         Set<FeatureInfluence> featureInfluences = new HashSet<>();

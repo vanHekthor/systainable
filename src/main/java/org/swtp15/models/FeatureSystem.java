@@ -3,6 +3,7 @@ package org.swtp15.models;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,13 +65,13 @@ public class FeatureSystem {
     }
 
     /**
-     * Returns a Set containing the names of this feature system as String.
+     * Returns a List containing the names of this feature system as String.
      *
      * @return A Set of feature names
      */
-    public Set<String> getFeatureNames() {
+    public List<String> getFeatureNames() {
         return featureModel.getFeatures().stream().parallel().map(Feature::getName).collect(
-                Collectors.toSet());
+                Collectors.toList());
     }
 
     /**

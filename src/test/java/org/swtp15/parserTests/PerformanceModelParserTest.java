@@ -6,7 +6,9 @@ import org.swtp15.models.Property;
 import org.swtp15.parser.ParserExceptions;
 import org.swtp15.parser.PerformanceModelParser;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,8 +20,8 @@ public class PerformanceModelParserTest {
     /**
      * represents the expected reference-featureSet from the FeatureModel.
      */
-    private Set<Feature> getExpectedFeatureSet() {
-        Set<Feature> features = new HashSet<>();
+    private List<Feature> getExpectedFeatureSet() {
+        List<Feature> features = new ArrayList<>();
         features.add(new Feature("feature1"));
         features.add(new Feature("feature2"));
         return features;

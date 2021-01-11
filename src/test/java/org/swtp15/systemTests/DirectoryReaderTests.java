@@ -49,7 +49,7 @@ public class DirectoryReaderTests {
         StringBuilder builder = new StringBuilder("Successfully read ");
         SystemCache cache = updater.getSystemCache();
         builder.append(cache.getCurrentlyKnownSystems().size()).append(" example systems:");
-        for (FeatureSystem system : cache.getCurrentlyKnownSystems().values()){
+        for (FeatureSystem system : cache.getCurrentlyKnownSystems().values()) {
             builder.append("\n").append(system.getName());
         }
         System.out.println(builder);

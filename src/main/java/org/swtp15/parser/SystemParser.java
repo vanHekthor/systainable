@@ -5,6 +5,9 @@ import org.json.simple.JSONObject;
 import org.swtp15.models.FeatureSystem;
 import org.swtp15.models.Property;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 public class SystemParser {
@@ -18,10 +21,12 @@ public class SystemParser {
      */
     @SuppressWarnings("unchecked")
     public static String parseSystemNamesToJson(Set<String> systemNames) {
+        List<String> orderedSystemNames = new ArrayList<>(systemNames);
+        Collections.sort(orderedSystemNames);
         JSONObject root = new JSONObject();
         JSONArray names = new JSONArray();
 
-        names.addAll(systemNames);
+        names.addAll(orderedSystemNames);
         root.put("systemNames", names);
 
         return root.toJSONString();
