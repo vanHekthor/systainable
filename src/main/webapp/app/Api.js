@@ -7,6 +7,11 @@ const instance = axios.create({
 });
 
 export default {
+  getFeatureNames: async function getFeatureNames() {
+    let response = await instance.get('featuremodel?name=example');
+    return response.data;
+  },
+
   // GET
   getFeatureNamesExample: function getFeatureNamesExample() {
     instance.get('featuremodels/example/featuremodel1').then(response => {
@@ -41,6 +46,11 @@ export default {
     ];
 
     return featureNames;
+  },
+
+  getConfig: async function getConfig() {
+    let response = await instance.get('initconfig');
+    return response.data;
   },
 
   getConfigExample: function getConfigExample() {
@@ -91,7 +101,12 @@ export default {
     return true;
   },
 
-  getProperties: function getProperties(config) {
+  getProperties: async function getProperties() {
+    let response = await instance.get('performance');
+    return response.data;
+  },
+
+  getPropertiesExample: function getPropertiesExample(config) {
     instance.get('property-prediction', config).then(response => {
       console.log(response.data);
       console.log(response.status);
