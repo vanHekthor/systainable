@@ -1,8 +1,8 @@
 package org.swtp15.parserTests;
 
 import org.junit.jupiter.api.Test;
-import org.swtp15.models.FeatureModel;
 import org.swtp15.models.FeatureConfiguration;
+import org.swtp15.models.FeatureModel;
 import org.swtp15.parser.FeatureConfigurationParser;
 import org.swtp15.parser.FeatureModelParser;
 import org.swtp15.parser.FileParser;
@@ -37,7 +37,7 @@ public class FeatureConfigurationValidationTest {
     @Test
     void invalidFeaturesStatusType() {
         this.loadJsonAndExpectException("correctTest.dimacs/InvalidFeatureStatusType.json",
-            ParserExceptions.FEATURE_VALUE_NOT_A_BOOLEAN_IN_JSON);
+                                        ParserExceptions.FEATURE_VALUE_NOT_A_BOOLEAN_IN_JSON);
     }
 
     @Test

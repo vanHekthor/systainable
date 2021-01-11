@@ -24,7 +24,7 @@ public class FeatureModel {
     private final Map<Integer, Feature> featureMap;
 
     @Getter
-    private final Set<Feature> features;
+    private final List<Feature> features;
 
     @Getter
     @Setter
@@ -50,7 +50,7 @@ public class FeatureModel {
      */
     public FeatureModel(@NonNull Map<Integer, Feature> featureMap, @NonNull Set<Set<Integer>> formulas) {
         this.featureMap           = featureMap;
-        this.features             = new HashSet<>(featureMap.values());
+        this.features             = new ArrayList<>(featureMap.values());
         this.formulas             = formulas;
         this.errorInThread        = false;
         this.models               = new HashSet<>();
