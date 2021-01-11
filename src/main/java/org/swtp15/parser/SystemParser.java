@@ -33,11 +33,11 @@ public class SystemParser {
     }
 
     /**
-     * Converts a feature system to String in JSON format.
+     * Converts a {@link FeatureSystem} to String in JSON format.
      *
-     * @param featureSystem Feature system, that should be parsed
+     * @param featureSystem {@link FeatureSystem}, that should be parsed
      *
-     * @return JSON representation of feature system as String
+     * @return JSON representation of {@link FeatureSystem} as String
      */
     @SuppressWarnings("unchecked")
     public static String parseSystemToJson(FeatureSystem featureSystem) {

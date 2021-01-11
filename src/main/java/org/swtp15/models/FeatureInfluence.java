@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Class to  provide a data structure for the Performance-Influence-Model. It's instances describe one line of the
+ * Class to  provide a data structure for the {@link PerformanceInfluenceModel}. It's instances describe one line of the
  * "model.csv" file.
  */
 public class FeatureInfluence {

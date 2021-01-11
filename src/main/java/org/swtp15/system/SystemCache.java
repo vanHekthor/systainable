@@ -21,11 +21,15 @@ public class SystemCache {
     @Setter
     private Map<String, FeatureSystem> currentlyKnownSystems;
 
+    @Getter
+    private String pathToModels;
+
     /**
      * The constructor.
      */
     public SystemCache() {
         currentlyKnownSystems = new HashMap<>();
+        pathToModels          = "src/main/resources/featureSystems";
     }
 
     /**
@@ -40,11 +44,11 @@ public class SystemCache {
     }
 
     /**
-     * Returns the feature system with the given name.
+     * Returns the {@link FeatureSystem} with the given name.
      *
-     * @param name The name of the feature system
+     * @param name The name of the {@link FeatureSystem}
      *
-     * @return A feature system with given name
+     * @return A {@link FeatureSystem} with given name
      */
     public FeatureSystem getFeatureSystemByName(String name) {
         return currentlyKnownSystems.get(name);

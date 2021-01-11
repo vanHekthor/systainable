@@ -27,8 +27,8 @@ public class FeatureSystem {
      * The constructor.
      *
      * @param name             The name of the FeatureSystem.
-     * @param featureModel     The belonging FeatureModel.
-     * @param performanceModel The belonging PerformanceModel.
+     * @param featureModel     The belonging {@link FeatureModel}.
+     * @param performanceModel The belonging {@link PerformanceInfluenceModel}.
      */
     public FeatureSystem(String name, FeatureModel featureModel, PerformanceInfluenceModel performanceModel) {
         this.name             = name;
@@ -40,7 +40,7 @@ public class FeatureSystem {
     /**
      * Tests, if feature configuration is valid for this system.
      *
-     * @param featureConfiguration The configuration that should be tested
+     * @param featureConfiguration The {@link FeatureConfiguration} that should be tested
      *
      * @return Whether the given configuration is valid
      *
@@ -65,7 +65,7 @@ public class FeatureSystem {
     }
 
     /**
-     * Returns a List containing the names of this feature system as String.
+     * Returns a List containing the names of this FeatureSystem as String.
      *
      * @return A Set of feature names
      */
@@ -75,7 +75,7 @@ public class FeatureSystem {
     }
 
     /**
-     * Returns a Set containing the names of this feature system as String.
+     * Returns a Set containing the names of this FeatureSystem as String.
      *
      * @return A Set of feature names
      */

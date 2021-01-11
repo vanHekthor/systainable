@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.*;
 
 /**
- * Class, that parses a '.dimacs' file into a Feature-Model.
+ * Class, that parses a '.dimacs' file into a {@link FeatureModel}.
  */
 public class FeatureModelParser extends FileParser {
 
@@ -28,7 +28,7 @@ public class FeatureModelParser extends FileParser {
      *
      * @param filename file to be parsed
      *
-     * @return parsed FeatureModel
+     * @return parsed {@link FeatureModel}
      *
      * @throws IllegalArgumentException If there is any syntax error while parsing a dimacs file
      */
