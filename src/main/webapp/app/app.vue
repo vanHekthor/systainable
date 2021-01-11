@@ -54,6 +54,7 @@ import ChartArea from './components/ChartArea';
 import Dropdown from 'primevue/dropdown';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
+import requestHandler from './requestHandler';
 
 export default {
     name: 'App',
@@ -87,6 +88,7 @@ export default {
         }
     },
 
+
     methods: {
         //turns feature in the cell(configIndex, featureIndex) on/off
         updateFeature(index, featureName) {
@@ -104,6 +106,7 @@ export default {
             // request itself works
             try {
                 let featureNames = api.getFeatureNamesExample();
+                //let featureNames = requestHandler.getFeatureNames();
                 this.updateFeatureNames(featureNames);
             } catch (error) {
                 this.$log.debug(error)
@@ -114,6 +117,7 @@ export default {
             if (this.configurations.length < 1) {
                 this.getConfigExample();
             }
+
         },
 
         updateFeatureNames(featureNames) {
@@ -129,6 +133,7 @@ export default {
         getConfigExample() {
             try {
                 let featureSet = api.getConfigExample();
+                //let featureSet = requestHandler.getConfig();
                 this.addConfig(featureSet);
             } catch (error) {
                 this.$log.debug(error)
@@ -162,7 +167,8 @@ export default {
             let propertyValueMaps = [];
             for (config of this.configurations) {
                 configNames.push(config.name);
-                propertyValueMaps.push(api.getProperties());
+                propertyValueMaps.push(api.getPropertiesExample());
+                //propertyValueMaps.push(requestHandler.getFeatureProperties());
             }
 
             this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, propertyValueMaps);
