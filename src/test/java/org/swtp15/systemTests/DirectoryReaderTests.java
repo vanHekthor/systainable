@@ -45,7 +45,7 @@ public class DirectoryReaderTests {
 
     @Test
     void parseAllExampleSystems() throws Exception {
-        updater.readSystemsFromDirectory("src/main/resources/featureSystems");
+        updater.initialize();
         StringBuilder builder = new StringBuilder("Successfully read ");
         SystemCache cache = updater.getSystemCache();
         builder.append(cache.getCurrentlyKnownSystems().size()).append(" example systems:");

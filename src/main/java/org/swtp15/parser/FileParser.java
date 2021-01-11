@@ -14,8 +14,7 @@ public abstract class FileParser {
     /**
      * Reads a file.
      *
-     * @param filename
-     *         File to be read
+     * @param filename File to be read
      *
      * @return List of lines as strings
      */

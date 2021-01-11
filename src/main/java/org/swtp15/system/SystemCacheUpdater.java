@@ -31,12 +31,10 @@ public class SystemCacheUpdater {
 
     /**
      * Initializes the {@link SystemCache}.
-     *
-     * @param pathToModels Path to read {@link FeatureSystem} from.
      */
-    public void initialize(String pathToModels) {
+    public void initialize() {
         try {
-            readSystemsFromDirectory(pathToModels);
+            readSystemsFromDirectory(this.systemCache.getPathToModels());
         } catch (Exception e) {
             e.printStackTrace();
         }

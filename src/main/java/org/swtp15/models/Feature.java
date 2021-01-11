@@ -3,7 +3,7 @@ package org.swtp15.models;
 import lombok.Getter;
 
 /**
- * Class that saves one Feature of a FeatureModel.
+ * Class that saves one Feature of a {@link FeatureModel}.
  */
 public class Feature {
 

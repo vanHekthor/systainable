@@ -31,7 +31,7 @@ public class PerformanceInfluenceModel {
      * Evaluates the property values for a list of active features. Iterates over the featureInfluences and adds their
      * value if their set of activeFeatures is contained in the given set of activeFeatures.
      *
-     * @param featureConfiguration the featureConfiguration to be evaluated.
+     * @param featureConfiguration the {@link FeatureConfiguration} to be evaluated.
      *
      * @return The evaluated property values as a map.
      */
