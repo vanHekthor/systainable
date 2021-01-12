@@ -55,18 +55,6 @@ gradle-integration-test:
             - build/jacoco/
         expire_in: 1 day
 
-frontend-test:
-    stage: test
-    script:
-        - ./gradlew npm_run_test -PnodeInstall --no-daemon
-    artifacts:
-        reports:
-            junit: build/test-results/TESTS-results-jest.xml
-        paths:
-            - build/test-results/
-            - build/jacoco/
-        expire_in: 1 day
-
 
 gradle-package:
     stage: package
