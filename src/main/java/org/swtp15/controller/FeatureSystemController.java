@@ -102,9 +102,20 @@ public class FeatureSystemController {
                                         .readFileFromResources("/exampleFiles/minimalValidConfigResponse.json"), "");
     }
 
+    /**
+     * Returns the minimal valid configuration of a system.
+     * @param name The name of the system for which the minimal configuration is needed.
+     * @return The minimal configuration as JSON string.
+     */
     @GetMapping("/initconfig")
     public @ResponseBody
-    ResponseEntity<String> getMinimalValidConfiguration(@RequestParam String featuresystem) {
-        return new ResponseEntity<>(getMinimalValidJson(), HttpStatus.OK);
+    ResponseEntity<String> getMinimalValidConfiguration(@RequestParam String name) {
+        //ToDo: Delete this if statement when the example is no longer needed
+        if (name.equals("example")) {
+            return new ResponseEntity<>(getMinimalValidJson(), HttpStatus.OK);
+        }
+        FeatureSystem featureSystem = systemCache.getFeatureSystemByName(name);
+        return featureSystem == null ? new ResponseEntity<>(HttpStatus.NOT_FOUND) :
+               new ResponseEntity<>(featureSystem.getMinimalConfiguration().toString(), HttpStatus.OK);
     }
 }

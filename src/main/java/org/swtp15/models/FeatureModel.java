@@ -42,6 +42,8 @@ public class FeatureModel {
     private boolean errorInThread;
     private final Set<Set<Integer>> models;
 
+    private Map<String, Boolean> minimalModel;
+
     /**
      * Instantiates a FeatureModel.
      *
@@ -54,6 +56,7 @@ public class FeatureModel {
         this.formulas             = formulas;
         this.errorInThread        = false;
         this.models               = new HashSet<>();
+        this.minimalModel = null;
         this.modelGeneratorThread = new Thread(this::generateModels);
         this.modelGeneratorThread.start();
     }
@@ -173,4 +176,37 @@ public class FeatureModel {
         }
     }
 
+    /**
+     * Getter for the minimal model. If it is null, starts determination of minimal model, else returns it.
+     * @return The map of the features names and their booleans of the minimal model.
+     */
+    public Map<String, Boolean> getMinimalModel(){
+        if(minimalModel == null){
+            findMinimalModel();
+            return minimalModel;
+        }
+        return minimalModel;
+    }
+
+    /**
+     * Calculates the minimal model by finding the smallest integer set and creating a map of feature names out of it.
+     */
+    private void findMinimalModel(){
+        Map<String, Boolean> minimalModel = new HashMap<>();
+        int modelSize = Integer.MAX_VALUE;
+        Set<Integer> minimalModelSet = null;
+        for(Set<Integer> model: models){
+            if(model.size() < modelSize){
+                modelSize = model.size();
+                minimalModelSet = model;
+            }
+        }
+        List<String> activeFeatures = new ArrayList<>();
+        minimalModelSet.forEach(i -> activeFeatures.add(featureMap.get(i).getName()));
+        for(Feature feature: features){
+            String featureName = feature.getName();
+            minimalModel.put(featureName, activeFeatures.contains(featureName));
+        }
+        this.minimalModel = minimalModel;
+    }
 }
