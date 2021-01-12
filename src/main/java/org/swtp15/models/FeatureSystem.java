@@ -82,4 +82,12 @@ public class FeatureSystem {
     public Set<Property> getProperties() {
         return performanceModel.getProperties();
     }
+
+    /**
+     * Gets the minimal valid configuration of a system.
+     * @return minimal valid feature configuration.
+     */
+    public FeatureConfiguration getMinimalConfiguration(){
+        return new FeatureConfiguration(name, featureModel.getMinimalModel(), performanceModel.getInitialPropertyMap());
+    }
 }
