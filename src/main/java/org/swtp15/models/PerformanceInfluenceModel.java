@@ -59,9 +59,10 @@ public class PerformanceInfluenceModel {
 
     /**
      * Creates a Map of the property names and initializes their values with 0.0.
+     *
      * @return The map of the property names.
      */
-    public Map<String, Double> getInitialPropertyMap(){
+    public Map<String, Double> getInitialPropertyMap() {
         Map<String, Double> propertyMap = new HashMap<>();
         properties.forEach(p -> propertyMap.put(p.getName(), 0.0));
         return propertyMap;

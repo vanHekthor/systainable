@@ -1,5 +1,6 @@
 package org.swtp15.parserTests;
 
+import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
 import org.swtp15.models.FeatureConfiguration;
 import org.swtp15.models.FeatureModel;
@@ -58,38 +59,30 @@ public class FeatureConfigurationValidationTest {
     }
 
     @Test
-    void validInvalidNonmatchingConfigurations() {
-        try {
-            FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
-            String json = this.getJsonString("correctTest.dimacs/2Valid1Invalid1NotMatching.json");
-            List<FeatureConfiguration> featureConfigurationList = FeatureConfigurationParser.parseConfigurations(json);
-            if (featureConfigurationList == null) {
-                fail();
-            }
-            assertTrue(model.isValidConfiguration(featureConfigurationList.get(0)));
-            assertTrue(model.isValidConfiguration(featureConfigurationList.get(1)));
-            assertFalse(model.isValidConfiguration(featureConfigurationList.get(2)));
-            try {
-                model.isValidConfiguration(featureConfigurationList.get(3));
-                fail();
-            } catch (IllegalArgumentException e) {
-                assertEquals(e, ParserExceptions.CONFIGURATION_NOT_SUBSET_OF_MODEL);
-            }
-        } catch (Exception e) {
+    void validInvalidNonmatchingConfigurations() throws InterruptedException {
+        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
+        String json = this.getJsonString("correctTest.dimacs/2Valid1Invalid1NotMatching.json");
+        List<FeatureConfiguration> featureConfigurationList = FeatureConfigurationParser.parseConfigurations(json);
+        if (featureConfigurationList == null) {
             fail();
+        }
+        assertTrue(model.isValidConfiguration(featureConfigurationList.get(0)));
+        assertTrue(model.isValidConfiguration(featureConfigurationList.get(1)));
+        assertFalse(model.isValidConfiguration(featureConfigurationList.get(2)));
+        try {
+            model.isValidConfiguration(featureConfigurationList.get(3));
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals(e, ParserExceptions.CONFIGURATION_NOT_SUBSET_OF_MODEL);
         }
     }
 
     @Test
-    void validConfiguration() {
-        try {
-            FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
-            String json = this.getJsonString("correctTest.dimacs/1Valid.json");
-            FeatureConfiguration conf = FeatureConfigurationParser.parseConfiguration(json);
-            assertNotNull(conf);
-            assertTrue(model.isValidConfiguration(conf));
-        } catch (Exception e) {
-            fail();
-        }
+    void validConfiguration() throws InterruptedException, ParseException {
+        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
+        String json = this.getJsonString("correctTest.dimacs/1Valid.json");
+        FeatureConfiguration conf = FeatureConfigurationParser.parseConfiguration(json);
+        assertNotNull(conf);
+        assertTrue(model.isValidConfiguration(conf));
     }
 }

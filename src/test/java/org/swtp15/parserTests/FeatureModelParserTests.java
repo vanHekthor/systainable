@@ -51,23 +51,19 @@ public class FeatureModelParserTests {
 
     @Test
     void parseFileCorrect() {
-        try {
-            var featureModel = FeatureModelParser.parseModel(
-                    "src/test/testFiles/dimacs/CorrectTest.dimacs");
-            var readFeatures = featureModel.getFeatures();
-            boolean featuresEqual = readFeatures.size() == 2;
-            for (var feature : readFeatures) {
-                if (!(feature.getName().equals("feature1") || feature.getName().equals("feature2"))) {
-                    featuresEqual = false;
-                    break;
-                }
+        var featureModel = FeatureModelParser.parseModel(
+                "src/test/testFiles/dimacs/CorrectTest.dimacs");
+        var readFeatures = featureModel.getFeatures();
+        boolean featuresEqual = readFeatures.size() == 2;
+        for (var feature : readFeatures) {
+            if (!(feature.getName().equals("feature1") || feature.getName().equals("feature2"))) {
+                featuresEqual = false;
+                break;
             }
-            Set<Set<Integer>> expectedFormulas = getExpectedFormula();
-            boolean formulaEqual = featureModel.getFormulas().equals(expectedFormulas);
-            assertTrue(featuresEqual && formulaEqual);
-        } catch (Exception ex) {
-            fail("Unexpected Exception thrown");
         }
+        Set<Set<Integer>> expectedFormulas = getExpectedFormula();
+        boolean formulaEqual = featureModel.getFormulas().equals(expectedFormulas);
+        assertTrue(featuresEqual && formulaEqual);
     }
 
     @Test

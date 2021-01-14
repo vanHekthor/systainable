@@ -7,7 +7,6 @@ import org.swtp15.parser.ParserExceptions;
 import org.swtp15.parser.PerformanceModelParser;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,9 +17,9 @@ public class PerformanceModelParserTest {
 
 
     /**
-     * represents the expected reference-featureSet from the FeatureModel.
+     * Represents the expected reference-feature List from the {@link org.swtp15.models.FeatureModel}.
      */
-    private List<Feature> getExpectedFeatureSet() {
+    private List<Feature> getExpectedFeatures() {
         List<Feature> features = new ArrayList<>();
         features.add(new Feature("feature1"));
         features.add(new Feature("feature2"));
@@ -28,14 +27,14 @@ public class PerformanceModelParserTest {
     }
 
     /**
-     * Method provides codeBlock for most Tests for the PerformanceModelParser.
+     * Method provides codeBlock for most Tests for the {@link PerformanceModelParser}.
      *
      * @param testFile Name and file-type-ending of the test-file. File must be contained in 'src/test/testFiles/csv/'
      * @param ex       The expected Exception
      */
     private void loadFileAndAssertException(String testFile, Exception ex) {
         try {
-            PerformanceModelParser.parseModel("src/test/testFiles/csv/" + testFile, getExpectedFeatureSet());
+            PerformanceModelParser.parseModel("src/test/testFiles/csv/" + testFile, getExpectedFeatures());
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals(e, ex);
@@ -86,86 +85,76 @@ public class PerformanceModelParserTest {
 
     @Test
     void parseSimpleCorrectFile() {
-        try {
-            var performanceInfluenceModel =
-                    PerformanceModelParser.parseModel("src/test/testFiles/csv/SimpleCorrectTest.csv",
-                                                      getExpectedFeatureSet());
+        var performanceInfluenceModel =
+                PerformanceModelParser.parseModel("src/test/testFiles/csv/SimpleCorrectTest.csv",
+                                                  getExpectedFeatures());
 
-            // only one Object should be created for this file ...
-            for (var featureInfluence : performanceInfluenceModel.getFeatureInfluences()) {
-                Set<String> featureNames = featureInfluence.getActiveFeatures().parallelStream().map(Feature::getName)
-                        .collect(Collectors.toSet());
-                Set<String> propertyNames = featureInfluence.getPropertyInfluence().keySet().parallelStream()
-                        .map(Property::getName).collect(Collectors.toSet());
-                Set<String> propertyUnits = featureInfluence.getPropertyInfluence().keySet().parallelStream()
-                        .map(Property::getUnit).collect(Collectors.toSet());
-                assertEquals(Set.of("feature1"), featureNames);
-                assertEquals(Set.of("property1", "property2", "property3"), propertyNames);
-                assertEquals(Set.of("a", "b", "c"), propertyUnits);
-                assertTrue(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.1, 0.2, -0.3)));
-                assertEquals(featureInfluence.getPropertyInfluence().values().size(), 3);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected Exception thrown!");
+        // only one Object should be created for this file ...
+        for (var featureInfluence : performanceInfluenceModel.getFeatureInfluences()) {
+            Set<String> featureNames = featureInfluence.getActiveFeatures().parallelStream().map(Feature::getName)
+                    .collect(Collectors.toSet());
+            Set<String> propertyNames = featureInfluence.getPropertyInfluence().keySet().parallelStream()
+                    .map(Property::getName).collect(Collectors.toSet());
+            Set<String> propertyUnits = featureInfluence.getPropertyInfluence().keySet().parallelStream()
+                    .map(Property::getUnit).collect(Collectors.toSet());
+            assertEquals(Set.of("feature1"), featureNames);
+            assertEquals(Set.of("property1", "property2", "property3"), propertyNames);
+            assertEquals(Set.of("a", "b", "c"), propertyUnits);
+            assertTrue(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.1, 0.2, -0.3)));
+            assertEquals(featureInfluence.getPropertyInfluence().values().size(), 3);
         }
     }
 
     @Test
     void parseCorrectFile() {
-        try {
-            var performanceInfluenceModel =
-                    PerformanceModelParser.parseModel("src/test/testFiles/csv/CorrectTest.csv",
-                                                      getExpectedFeatureSet());
-            var featureInfluences = performanceInfluenceModel.getFeatureInfluences();
-            if (!(featureInfluences.size() == 4)) {
-                fail("Size of featureInfluences doesn't correlate with valueLines in csv-file!");
+        var performanceInfluenceModel =
+                PerformanceModelParser.parseModel("src/test/testFiles/csv/CorrectTest.csv",
+                                                  getExpectedFeatures());
+        var featureInfluences = performanceInfluenceModel.getFeatureInfluences();
+        if (!(featureInfluences.size() == 4)) {
+            fail("Size of featureInfluences doesn't correlate with valueLines in csv-file!");
+        }
+
+        for (var featureInfluence : featureInfluences) {
+
+            Set<String> propertyNames = featureInfluence.getPropertyInfluence().keySet().parallelStream()
+                    .map(Property::getName).collect(Collectors.toSet());
+            Set<String> propertyUnits = featureInfluence.getPropertyInfluence().keySet().parallelStream()
+                    .map(Property::getUnit).collect(Collectors.toSet());
+            if (!propertyNames.equals(Set.of("property_1", "property2", "property3"))) {
+                fail("Not all Properties found!");
+            }
+            if (!propertyUnits.equals(Set.of("x", "y", "%"))) {
+                fail("Wrong Property units");
             }
 
-            for (var featureInfluence : featureInfluences) {
-
-                Set<String> propertyNames = featureInfluence.getPropertyInfluence().keySet().parallelStream()
-                        .map(Property::getName).collect(Collectors.toSet());
-                Set<String> propertyUnits = featureInfluence.getPropertyInfluence().keySet().parallelStream()
-                        .map(Property::getUnit).collect(Collectors.toSet());
-                if (!propertyNames.equals(Set.of("property_1", "property2", "property3"))) {
-                    fail("Not all Properties found!");
+            Set<String> featureNames = featureInfluence.getActiveFeatures().parallelStream().map(Feature::getName)
+                    .collect(Collectors.toSet());
+            if (featureNames.isEmpty()) {
+                if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.0, 0.2, -0.1)) &&
+                      featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                    fail("Error in valueLine 1");
                 }
-                if (!propertyUnits.equals(Set.of("x", "y", "%"))) {
-                    fail("Wrong Property units");
+            } else if (featureNames.equals(Set.of("feature1"))) {
+                if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.3, 0.2, 0.1)) &&
+                      featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                    fail("Error in valueLine 2");
                 }
-
-                Set<String> featureNames = featureInfluence.getActiveFeatures().parallelStream().map(Feature::getName)
-                        .collect(Collectors.toSet());
-                if (featureNames.isEmpty()) {
-                    if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.0, 0.2, -0.1)) &&
-                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
-                        fail("Error in valueLine 1");
-                    }
-                } else if (featureNames.equals(Set.of("feature1"))) {
-                    if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.3, 0.2, 0.1)) &&
-                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
-                        fail("Error in valueLine 2");
-                    }
-                } else if (featureNames.equals(Set.of("feature2"))) {
-                    if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.1, -0.245, 0.3)) &&
-                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
-                        fail("Error in valueLine 3");
-                    }
-                } else if (featureNames.equals(Set.of("feature1", "feature2"))) {
-                    if (!(featureInfluence.getPropertyInfluence().values()
-                                  .containsAll(Set.of(1.0, -1.1, 1.2342245214)) &&
-                          featureInfluence.getPropertyInfluence().values().size() == 3)) {
-                        fail("Error in valueLine 4");
-                    }
-                } else {
-                    fail("Unexpected Set of active Features found");
+            } else if (featureNames.equals(Set.of("feature2"))) {
+                if (!(featureInfluence.getPropertyInfluence().values().containsAll(Set.of(0.1, -0.245, 0.3)) &&
+                      featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                    fail("Error in valueLine 3");
                 }
-                assertTrue(true);
+            } else if (featureNames.equals(Set.of("feature1", "feature2"))) {
+                if (!(featureInfluence.getPropertyInfluence().values()
+                              .containsAll(Set.of(1.0, -1.1, 1.2342245214)) &&
+                      featureInfluence.getPropertyInfluence().values().size() == 3)) {
+                    fail("Error in valueLine 4");
+                }
+            } else {
+                fail("Unexpected Set of active Features found");
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected Exception thrown!");
+            assertTrue(true);
         }
     }
 

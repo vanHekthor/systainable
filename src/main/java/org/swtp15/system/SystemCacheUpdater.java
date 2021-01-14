@@ -47,12 +47,12 @@ public class SystemCacheUpdater {
      *
      * @param path Directory to find dimacs and csv files.
      *
-     * @throws Exception invalid path or path does not contains subdirectories for dimacs and csv.
+     * @throws IllegalArgumentException invalid path or path does not contains subdirectories for dimacs and csv.
      */
-    public void readSystemsFromDirectory(String path) throws Exception {
+    public void readSystemsFromDirectory(String path) throws IllegalArgumentException {
         File modelsDirectory = new File(path);
         if (!(modelsDirectory.exists() && modelsDirectory.isDirectory())) {
-            throw new Exception("Given directory path does not exist.");
+            throw SystemExceptions.INVALID_DIRECTORY_PATH;
         }
         Set<Map<String, File>> readSystems = Arrays.stream(
                 Objects.requireNonNull(modelsDirectory.listFiles())).parallel().filter(File::isDirectory)

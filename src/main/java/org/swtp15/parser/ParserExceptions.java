@@ -1,7 +1,7 @@
 package org.swtp15.parser;
 
 /**
- * Collection of Exceptions to prevent code repetition. Mostly used for Unittests
+ * Collection of Exceptions for parser-classes to prevent code repetition. Mostly used for Unittests
  */
 public final class ParserExceptions {
 
