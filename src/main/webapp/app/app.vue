@@ -87,6 +87,55 @@ export default {
             ]
         }
     },
+    mounted() {
+        if(sessionStorage.selectedSoftSystem) {
+            this.selectedSoftSystem = JSON.parse(sessionStorage.selectedSoftSystem);
+        }
+        if(sessionStorage.configurationFeatures) {
+            this.configurationFeatures = JSON.parse(sessionStorage.configurationFeatures);
+        }
+        if(sessionStorage.configurations) {
+            this.configurations = JSON.parse(sessionStorage.configurations);
+        }
+        if (sessionStorage.softSystemLoaded) {
+            this.softSystemLoaded = JSON.parse(sessionStorage.softSystemLoaded);
+        }
+        if (sessionStorage.configCount) {
+            this.configCount = JSON.parse(sessionStorage.configCount);
+        }
+    },
+    watch: {
+        selectedSoftSystem: {
+            handler(newSystem) {
+                sessionStorage.selectedSoftSystem = JSON.stringify(newSystem);
+            },
+            deep: true
+        },
+        configurationFeatures: {
+            handler(newConfigFeat) {
+                sessionStorage.configurationFeatures = JSON.stringify(newConfigFeat);
+            },
+            deep: true
+        },
+        configurations: {
+            handler(newConfig) {
+                sessionStorage.configurations = JSON.stringify(newConfig);
+            },
+            deep: true
+        },
+        softSystemLoaded: {
+            handler(newSoftSystemLoaded) {
+                sessionStorage.softSystemLoaded = JSON.stringify(newSoftSystemLoaded);
+            },
+            deep: true
+        },
+        configCount: {
+            handler(newConfigCount) {
+                sessionStorage.configCount = JSON.stringify(newConfigCount);
+            },
+            deep: true
+        }
+    },
 
 
     methods: {
