@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.swtp15.models.FeatureSystem;
 import org.swtp15.system.SystemCache;
 import org.swtp15.system.SystemCacheUpdater;
+import org.swtp15.system.SystemExceptions;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,14 +23,9 @@ public class DirectoryReaderTests {
 
     @Test
     void readCorrectFiles() {
-        try {
-            updater.readSystemsFromDirectory("src/test/testFiles/modelsDirectories");
-            assertTrue(updater.getSystemCache().getCurrentlyKnownSystems().keySet().containsAll(getExpectedSystems())
-                       &&
-                       getExpectedSystems().containsAll(updater.getSystemCache().getCurrentlyKnownSystems().keySet()));
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
+        updater.readSystemsFromDirectory("src/test/testFiles/modelsDirectories");
+        assertTrue(updater.getSystemCache().getCurrentlyKnownSystems().keySet().containsAll(getExpectedSystems()));
+        assertTrue(getExpectedSystems().containsAll(updater.getSystemCache().getCurrentlyKnownSystems().keySet()));
     }
 
     @Test
@@ -38,13 +34,13 @@ public class DirectoryReaderTests {
             updater.readSystemsFromDirectory("test");
             fail("Exception not thrown");
         } catch (Exception e) {
-            assertEquals("Given directory path does not exist.", e.getMessage());
+            assertEquals(SystemExceptions.INVALID_DIRECTORY_PATH, e);
         }
     }
 
 
     @Test
-    void parseAllExampleSystems() throws Exception {
+    void parseAllExampleSystems() {
         updater.initialize();
         StringBuilder builder = new StringBuilder("Successfully read ");
         SystemCache cache = updater.getSystemCache();

@@ -104,7 +104,9 @@ public class FeatureSystemController {
 
     /**
      * Returns the minimal valid configuration of a system.
+     *
      * @param name The name of the system for which the minimal configuration is needed.
+     *
      * @return The minimal configuration as JSON string.
      */
     @GetMapping("/initconfig")

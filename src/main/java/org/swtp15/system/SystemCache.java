@@ -66,7 +66,7 @@ public class SystemCache {
                                                                                    IllegalArgumentException {
         FeatureSystem featureSystem = getFeatureSystemForConfiguration(featureConfiguration);
         if (featureSystem == null) {
-            throw new IllegalArgumentException("No feature system for model name.");
+            throw SystemExceptions.NO_MATCHING_SYSTEM_FOR_CONFIGURATION;
         }
         return featureSystem.configurationIsValid(featureConfiguration);
     }
@@ -90,8 +90,7 @@ public class SystemCache {
                 .noneMatch(f -> f.getName().equals(modelNameInConfig))) {
             return null;
         } else {
-            throw new IllegalArgumentException("ERROR: More than one matching FeatureSystems were found for the given" +
-                                               " Configuration!");
+            throw SystemExceptions.MORE_THAN_ONE_FEATURESYSTEM_MATCH_CONFIGURATION;
         }
     }
 }
