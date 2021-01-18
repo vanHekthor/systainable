@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class EvaluationTests {
 
     private FeatureSystem getExampleFeatureSystem() {
-        FeatureModel fm = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
+        FeatureModel fm = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null);
         PerformanceInfluenceModel pm = PerformanceModelParser
                 .parseModel("src/test/testFiles/csv/CorrectTest.csv", fm.getFeatures());
         return new FeatureSystem("test", fm, pm);
@@ -23,14 +23,14 @@ public class EvaluationTests {
         Map<String, Boolean> features = new HashMap<>();
         features.put("feature1", true);
         features.put("feature2", false);
-        return new FeatureConfiguration("test", features);
+        return new FeatureConfiguration("test", features, new HashMap<>(), null);
     }
 
     private FeatureConfiguration getExampleFeatureConfiguration2() {
         Map<String, Boolean> features = new HashMap<>();
         features.put("feature1", true);
         features.put("feature2", true);
-        return new FeatureConfiguration("test", features);
+        return new FeatureConfiguration("test", features, new HashMap<>(), null);
     }
 
     @Test

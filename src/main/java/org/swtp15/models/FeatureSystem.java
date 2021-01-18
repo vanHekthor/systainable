@@ -6,7 +6,6 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class FeatureSystem {
 
@@ -65,22 +64,21 @@ public class FeatureSystem {
     }
 
     /**
-     * Returns a List containing the names of this FeatureSystem as String.
+     * Returns a Set containing the properties of this FeatureSystem.
      *
-     * @return A Set of feature names
-     */
-    public List<String> getFeatureNames() {
-        return featureModel.getFeatures().stream().parallel().map(Feature::getName).collect(
-                Collectors.toList());
-    }
-
-    /**
-     * Returns a Set containing the names of this FeatureSystem as String.
-     *
-     * @return A Set of feature names
+     * @return A Set of properties.
      */
     public Set<Property> getProperties() {
         return performanceModel.getProperties();
+    }
+
+    /**
+     * Returns a List containing the features of this FeatureSystem.
+     *
+     * @return A List of features.
+     */
+    public List<Feature> getFeatures() {
+        return featureModel.getFeatures();
     }
 
     /**
@@ -89,6 +87,8 @@ public class FeatureSystem {
      * @return minimal valid feature configuration.
      */
     public FeatureConfiguration getMinimalConfiguration() {
-        return new FeatureConfiguration(name, featureModel.getMinimalModel(), performanceModel.getInitialPropertyMap());
+        return new FeatureConfiguration(name, featureModel.getMinimalModel(),
+                                        featureModel.getInitialNumericFeaturesMap(),
+                                        performanceModel.getInitialPropertyMap());
     }
 }

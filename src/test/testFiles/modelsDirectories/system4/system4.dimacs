@@ -1,0 +1,10 @@
+c 1 Auto
+c 2 Motor
+c 3 Anhaengerkupplung
+c 4 Diesel
+c 5 Elektro
+p cnf 5 4
+1 0
+2 0
+4 5 0
+-4 -5 0

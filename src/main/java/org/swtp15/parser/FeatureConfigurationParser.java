@@ -8,7 +8,10 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.swtp15.models.FeatureConfiguration;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class FeatureConfigurationParser {
 
@@ -91,13 +94,21 @@ public final class FeatureConfigurationParser {
         if ((featuresRoot = (JSONObject) root.get("features")) == null) {
             throw ParserExceptions.MISSING_FEATURES_MAP_IN_JSON;
         }
-        Map<String, Boolean> features = new HashMap<>();
+        Map<String, Boolean> binaryFeatures = new HashMap<>();
+        Map<String, Integer> numericFeatures = new HashMap<>();
         for (Object featureName : featuresRoot.keySet()) {
             String featureNameString = (String) featureName;
-            if (featuresRoot.get(featureNameString) instanceof Boolean) {
-                features.put(featureNameString, (Boolean) featuresRoot.get((featureNameString)));
+            Object featureNameValue = featuresRoot.get(featureNameString);
+            if (featureNameValue instanceof Boolean) {
+                binaryFeatures.put(featureNameString, (Boolean) featureNameValue);
+            } else if (featureNameValue instanceof Number) {
+                Number value = (Number) featureNameValue;
+                if (value.intValue() != value.doubleValue()) {
+                    throw ParserExceptions.FEATURE_VALUE_IS_NUMBER_BUT_NOT_INTEGER;
+                }
+                numericFeatures.put(featureNameString, value.intValue());
             } else {
-                throw ParserExceptions.FEATURE_VALUE_NOT_A_BOOLEAN_IN_JSON;
+                throw ParserExceptions.FEATURE_VALUE_NOT_A_BOOLEAN_OR_NUMBER_IN_JSON;
             }
         }
         Map<String, Double> properties = new HashMap<>();
@@ -115,7 +126,7 @@ public final class FeatureConfigurationParser {
                 }
             }
         }
-        return new FeatureConfiguration(featureModelName, features, properties);
+        return new FeatureConfiguration(featureModelName, binaryFeatures, numericFeatures, properties);
     }
 
 }

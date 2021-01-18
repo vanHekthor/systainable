@@ -18,6 +18,7 @@ public class DirectoryReaderTests {
         Set<String> expectedSystems = new HashSet<>();
         expectedSystems.add("system1");
         expectedSystems.add("system2");
+        expectedSystems.add("system4");
         return expectedSystems;
     }
 

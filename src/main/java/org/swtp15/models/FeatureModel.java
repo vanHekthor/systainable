@@ -21,7 +21,9 @@ public class FeatureModel {
     /**
      * Mapping from Integers to Features.
      */
-    private final Map<Integer, Feature> featureMap;
+    private final Map<Integer, Feature> binaryFeatures;
+
+    private final Map<Integer, Feature> numericFeatures;
 
     @Getter
     private final List<Feature> features;
@@ -44,19 +46,39 @@ public class FeatureModel {
 
     private Map<String, Boolean> minimalModel;
 
+    @Getter
+    private final int amountOfFeatures;
+    @Getter
+    private final int amountOfFormulas;
+
     /**
      * Instantiates a FeatureModel.
      *
-     * @param featureMap list of all features
-     * @param formulas   set of logical clauses of the feature model
+     * @param binaryFeatures   Map of the binary features.
+     * @param numericFeatures  Map of the numeric features.
+     * @param formulas         Set of logical clauses of the feature model
+     * @param amountOfFeatures Amount of features
+     * @param amountOfFormulas Amount of formulas
      */
-    public FeatureModel(@NonNull Map<Integer, Feature> featureMap, @NonNull Set<Set<Integer>> formulas) {
-        this.featureMap           = featureMap;
-        this.features             = new ArrayList<>(featureMap.values());
-        this.formulas             = formulas;
-        this.errorInThread        = false;
-        this.models               = new HashSet<>();
-        this.minimalModel         = null;
+    public FeatureModel(@NonNull Map<Integer, Feature> binaryFeatures,
+                        @NonNull Map<Integer, Feature> numericFeatures, @NonNull Set<Set<Integer>> formulas,
+                        int amountOfFeatures, int amountOfFormulas) {
+        this.binaryFeatures  = binaryFeatures;
+        this.numericFeatures = numericFeatures;
+        this.features        = new ArrayList<>(binaryFeatures.values());
+        features.addAll(numericFeatures.values());
+        this.formulas         = formulas;
+        this.errorInThread    = false;
+        this.models           = new HashSet<>();
+        this.minimalModel     = null;
+        this.amountOfFeatures = amountOfFeatures;
+        this.amountOfFormulas = amountOfFormulas;
+
+        Set<Integer> optionalFeatures = this.getFullyOptionalFeatures();
+
+        this.formulas.addAll(optionalFeatures.parallelStream().map(opt -> Set.of(opt, -opt)).collect(
+                Collectors.toSet()));
+
         this.modelGeneratorThread = new Thread(this::generateModels);
         this.modelGeneratorThread.start();
     }
@@ -82,10 +104,9 @@ public class FeatureModel {
     private void generateModels() {
         final ISolver solver = SolverFactory.newDefault();
         solver.setTimeout(30);
-        solver.newVar(featureMap.size());
+        solver.newVar(binaryFeatures.size());
         solver.setExpectedNumberOfClauses(this.formulas.size());
         solver.setTimeout(1800);
-
         int[] convertedClause;
         for (Set<Integer> clause : formulas) {
             convertedClause = clause.parallelStream().mapToInt(i -> (i == null ? 0 : i)).toArray();
@@ -146,7 +167,7 @@ public class FeatureModel {
      */
     private boolean checkIfFeatureSetValid(@NonNull Set<String> features) {
         return this.models.parallelStream()
-                .map(integers -> integers.parallelStream().map(integer -> this.featureMap.get(integer).getName())
+                .map(integers -> integers.parallelStream().map(integer -> this.binaryFeatures.get(integer).getName())
                         .collect(Collectors.toSet()))
                 .anyMatch(strings -> features.containsAll(strings) && strings.containsAll(features));
     }
@@ -203,11 +224,37 @@ public class FeatureModel {
             }
         }
         List<String> activeFeatures = new ArrayList<>();
-        minimalModelSet.forEach(i -> activeFeatures.add(featureMap.get(i).getName()));
-        for (Feature feature : features) {
+        minimalModelSet.forEach(i -> activeFeatures.add(binaryFeatures.get(i).getName()));
+        for (Feature feature : binaryFeatures.values()) {
             String featureName = feature.getName();
             minimalModel.put(featureName, activeFeatures.contains(featureName));
         }
         this.minimalModel = minimalModel;
+    }
+
+    /**
+     * Creates a Map of the numeric feature names and initializes their values with minValue.
+     * 
+     * @return The map of the numeric features.
+     */
+    public Map<String, Integer> getInitialNumericFeaturesMap() {
+        Map<String, Integer> initialNumericFeatures = new HashMap<>();
+        for (Feature feature : numericFeatures.values()) {
+            initialNumericFeatures.put(feature.getName(), feature.getMinValue());
+        }
+        return initialNumericFeatures;
+    }
+
+    private Set<Integer> getFullyOptionalFeatures() {
+        Set<Integer> allFeatures = new HashSet<>();
+        for (int i = 1; i <= this.amountOfFeatures; i++) {
+            allFeatures.add(i);
+        }
+        Set<Integer> usedFeatures = new HashSet<>();
+        for (Set<Integer> formula : this.formulas) {
+            usedFeatures.addAll(formula.parallelStream().map(Math::abs).collect(Collectors.toSet()));
+        }
+        allFeatures.removeAll(usedFeatures);
+        return allFeatures;
     }
 }

@@ -1,7 +1,7 @@
 package org.swtp15.parser;
 
 /**
- * Collection of Exceptions for parser-classes to prevent code repetition. Mostly used for Unittests
+ * Collection of Exceptions to prevent code repetition. Mostly used for Unittests
  */
 public final class ParserExceptions {
 
@@ -14,8 +14,11 @@ public final class ParserExceptions {
             "Missing key 'featureConfiguration' in JSON");
     public static final IllegalArgumentException MISSING_FEATURES_MAP_IN_JSON = new IllegalArgumentException(
             "Missing array 'features' in 'featureConfiguration'");
-    public static final IllegalArgumentException FEATURE_VALUE_NOT_A_BOOLEAN_IN_JSON = new IllegalArgumentException(
-            "Feature value is not a Boolean");
+    public static final IllegalArgumentException FEATURE_VALUE_NOT_A_BOOLEAN_OR_NUMBER_IN_JSON =
+            new IllegalArgumentException(
+                    "Feature value is not a Boolean or Number");
+    public static final IllegalArgumentException FEATURE_VALUE_IS_NUMBER_BUT_NOT_INTEGER =
+            new IllegalArgumentException("Feature value is a Number but not an Integer");
     public static final IllegalArgumentException MISSING_PROPERTIES_IN_MAP_IN_JSON = new IllegalArgumentException(
             "Map 'properties' missing entries");
     public static final IllegalArgumentException PROPERTY_VALUE_NOT_A_DOUBLE_IN_JSON = new IllegalArgumentException(
@@ -49,16 +52,26 @@ public final class ParserExceptions {
             new IllegalArgumentException("A Column which have been identified by its headline as Property-related " +
                                          "does not contain a Double value!");
 
-    // Exceptions for dimacs-file FeatureModelParser
+    // Exceptions for dimacs-file/xml-file FeatureModelParser
     public static final IllegalArgumentException FEATURE_MODEL_MISSING_CONTROL_LINE = new IllegalArgumentException(
             "Missing Controlline in Dimacs-File");
-    public static final IllegalArgumentException FEATURE_MODEL_WRONG_FILETYPE = new IllegalArgumentException(
+    public static final IllegalArgumentException FEATURE_MODEL_WRONG_FILETYPE_DIMACS = new IllegalArgumentException(
             "Delivered file is not a .dimacs file");
+    public static final IllegalArgumentException FEATURE_MODEL_WRONG_FILETYPE_XML = new IllegalArgumentException(
+            "Delivered file is not a .xml file");
     public static final IllegalArgumentException FEATURE_MODEL_UNASSIGNED_LITERAL = new IllegalArgumentException(
             "There is at least one literal without a belonging feature.");
     public static final IllegalArgumentException FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS =
             new IllegalArgumentException("Number of read features or formulas does not equal the given " +
                                          "number in the Dimacs-File");
+    public static final IllegalArgumentException INCONSISTENT_BINARY_FEATURES_COUNT_IN_XML_AND_DIMACS =
+            new IllegalArgumentException("Number of binary features does not equal the number of read binary features" +
+                                         " in the Dimacs-File");
+    public static final IllegalArgumentException XML_SYNTACTIC_ERROR = new IllegalArgumentException("Syntatic Error " +
+                                                                                                    "in the XML-file");
+    public static final IllegalArgumentException XML_PARSE_ERROR = new IllegalArgumentException("Unexpected Error " +
+                                                                                                "while parsing the " +
+                                                                                                "XML-File.");
 
 }
 
