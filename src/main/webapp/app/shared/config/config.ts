@@ -40,6 +40,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import { faWrench } from '@fortawesome/free-solid-svg-icons/faWrench';
 
 import { faCompass } from '@fortawesome/free-solid-svg-icons/faCompass';
+import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
 import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { faFileExport } from '@fortawesome/free-solid-svg-icons/faFileExport';
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons/faFileUpload';
@@ -117,6 +118,7 @@ export function initFortAwesome(vue) {
 
     // added:
     faCompass,
+    faCopy,
     faEdit,
     faFileExport,
     faFileUpload,
