@@ -60,15 +60,18 @@ public class SystemCacheUpdater {
                     File[] notNullFiles = Objects.requireNonNull(directory.listFiles());
                     List<File> dimacsFiles = Arrays.stream(notNullFiles).parallel()
                             .filter(f -> f.getName().endsWith(".dimacs")).collect(Collectors.toList());
+                    List<File> xmlFiles = Arrays.stream(notNullFiles).parallel()
+                            .filter(f -> f.getName().endsWith(".xml")).collect(Collectors.toList());
                     List<File> csvFiles = Arrays.stream(notNullFiles).parallel()
                             .filter(f -> f.getName().endsWith(".csv")).collect(Collectors.toList());
 
                     Map<String, File> fileTypeMap = new HashMap<>();
                     fileTypeMap.put("name", directory);
                     fileTypeMap.put("dimacs", dimacsFiles.get(0));
+                    fileTypeMap.put("xml", xmlFiles.size() == 0 ? null : xmlFiles.get(0));
                     fileTypeMap.put("csv", csvFiles.get(0));
 
-                    return dimacsFiles.size() == 1 & csvFiles.size() == 1 ?
+                    return dimacsFiles.size() == 1 & csvFiles.size() == 1 & xmlFiles.size() <= 1 ?
                            fileTypeMap : null;
                 }).filter(Objects::nonNull).collect(Collectors.toSet());
 
@@ -76,7 +79,9 @@ public class SystemCacheUpdater {
 
 
         for (Map<String, File> systemFileNames : readSystems) {
-            FeatureModel featureModel = FeatureModelParser.parseModel(systemFileNames.get("dimacs").getPath());
+            File xmlEntry = systemFileNames.get("xml");
+            FeatureModel featureModel = FeatureModelParser.parseModel(systemFileNames.get("dimacs").getPath(),
+                                                                      xmlEntry == null ? null : xmlEntry.getPath());
             PerformanceInfluenceModel pIModel = PerformanceModelParser
                     .parseModel(systemFileNames.get("csv").getPath(), featureModel.getFeatures());
 

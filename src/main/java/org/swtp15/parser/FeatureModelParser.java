@@ -3,8 +3,17 @@ package org.swtp15.parser;
 
 import org.swtp15.models.Feature;
 import org.swtp15.models.FeatureModel;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -13,42 +22,32 @@ import java.util.*;
 public class FeatureModelParser extends FileParser {
 
     /**
-     * Checks if a file has the right file format to be parsed into a {@link FeatureModel}.
-     *
-     * @param filename file to be parsed
-     *
-     * @return true/false
-     */
-    public static boolean canParseFile(String filename) {
-        return filename.endsWith(".dimacs");
-    }
-
-    /**
      * Parses file into {@link FeatureModel}.
      *
-     * @param filename file to be parsed
+     * @param dimacsPath dimacs file to parse binary features and the formula of their interaction
+     * @param xmlPath    xml file to parse numeric features and their codomain.
      *
      * @return parsed {@link FeatureModel}
      *
      * @throws IllegalArgumentException If there is any syntax error while parsing a dimacs file
      */
-    public static FeatureModel parseModel(String filename) throws IllegalArgumentException {
-        Map<Integer, Feature> features = new HashMap<>();
+    public static FeatureModel parseModel(String dimacsPath, String xmlPath) throws IllegalArgumentException {
+        Map<Integer, Feature> binaryFeatures = new HashMap<>();
         Set<Set<Integer>> formulas = new HashSet<>();
         String controlLine = null;
-        if (!canParseFile(filename)) {
-            throw ParserExceptions.FEATURE_MODEL_WRONG_FILETYPE;
+        if (!dimacsPath.endsWith(".dimacs")) {
+            throw ParserExceptions.FEATURE_MODEL_WRONG_FILETYPE_DIMACS;
         }
-        for (String line : FileParser.readFile(filename)) {
+        for (String line : FileParser.readFile(dimacsPath)) {
             switch (line.charAt(0)) {
                 case 'c':
-                    parseFeatureLineAndAddToFeaturesMap(line, features);
+                    parseFeatureLineAndAddToFeaturesMap(line, binaryFeatures);
                     break;
                 case 'p':
                     controlLine = line;
                     break;
                 default:
-                    Set<Integer> formula = parseFormulaLine(line, features);
+                    Set<Integer> formula = parseFormulaLine(line, binaryFeatures);
                     if (formula == null) {
                         throw ParserExceptions.FEATURE_MODEL_UNASSIGNED_LITERAL;
                     }
@@ -59,11 +58,13 @@ public class FeatureModelParser extends FileParser {
         if (controlLine == null) {
             throw ParserExceptions.FEATURE_MODEL_MISSING_CONTROL_LINE;
         }
-        if (!numbersOfFeaturesAndFormulasAreCorrect(controlLine, features.size(), formulas.size())) {
+        if (!numbersOfFeaturesAndFormulasAreCorrect(controlLine, binaryFeatures.size(), formulas.size())) {
             throw ParserExceptions.FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS;
         }
-        FeatureModel resultingModel = new FeatureModel(features, formulas);
-        resultingModel.setName(new File(filename).getName().replace(".dimacs", ""));
+        Map<Integer, Feature> numericFeatures = parseNumericFeaturesFromXml(xmlPath, binaryFeatures);
+        FeatureModel resultingModel = new FeatureModel(binaryFeatures, numericFeatures, formulas,
+                                                       binaryFeatures.size(), formulas.size());
+        resultingModel.setName(new File(dimacsPath).getName().replace(".dimacs", ""));
         return resultingModel;
     }
 
@@ -119,5 +120,77 @@ public class FeatureModelParser extends FileParser {
         boolean correctNumberOfFormulas = Integer.parseInt(controlLineItems[3]) == numberOfFormulas;
         return correctNumberOfFeatures && correctNumberOfFormulas;
 
+    }
+
+    /**
+     * Parses the numeric features given in a xml file and returns them as a map of integers with the belonging feature
+     * as value. The integers starts with the next int after the max int of the given binary features map.
+     *
+     * @param path     path of the xml file to be parsed.
+     * @param features the binary features read out of the belonging dimacs file.
+     *
+     * @return a map of the read numeric features.
+     *
+     * @throws IllegalArgumentException error while parsing the xml.
+     */
+    public static Map<Integer, Feature> parseNumericFeaturesFromXml(String path, Map<Integer, Feature> features)
+    throws IllegalArgumentException {
+        Map<Integer, Feature> numericFeatures = new HashMap<>();
+        if (path == null) {
+            return numericFeatures;
+        }
+        if (!path.endsWith(".xml")) {
+            throw ParserExceptions.FEATURE_MODEL_WRONG_FILETYPE_XML;
+        }
+        try {
+            File xmlFile = new File(path);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document document = dBuilder.parse(xmlFile);
+            document.getDocumentElement().normalize();
+            NodeList binaryOptionsElement = document.getElementsByTagName("binaryOptions");
+            NodeList numericOptionsElement = document.getElementsByTagName("numericOptions");
+            if (binaryOptionsElement.getLength() != 1 || numericOptionsElement.getLength() != 1) {
+                throw ParserExceptions.XML_SYNTACTIC_ERROR;
+            }
+            List<Node> binaryXmlFeatures = removeEmptyNodes(binaryOptionsElement.item(0).getChildNodes());
+            List<Node> numericXmlFeatures = removeEmptyNodes(numericOptionsElement.item(0).getChildNodes());
+            if (binaryXmlFeatures.size() != features.size()) {
+                throw ParserExceptions.INCONSISTENT_BINARY_FEATURES_COUNT_IN_XML_AND_DIMACS;
+            }
+            int featureCount = binaryXmlFeatures.size();
+            for (Node numericFeature : numericXmlFeatures) {
+                Element feature = (Element) numericFeature;
+                String name = feature.getElementsByTagName("name").item(0).getTextContent();
+                String stepFunction = feature.getElementsByTagName("stepFunction").item(0).getTextContent();
+                String minValue = feature.getElementsByTagName("minValue").item(0).getTextContent();
+                String maxValue = feature.getElementsByTagName("maxValue").item(0).getTextContent();
+                numericFeatures.put(++featureCount, new Feature(name, Integer.parseInt(minValue),
+                                                                Integer.parseInt(maxValue), stepFunction));
+
+            }
+            return numericFeatures;
+
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            throw ParserExceptions.XML_PARSE_ERROR;
+        }
+    }
+
+    /**
+     * Removes the empty xml nodes from NodeList object and returns a list of nodes with only not empty nodes.
+     *
+     * @param nodes the NodeList to be emptied.
+     *
+     * @return the emptied list of node.
+     */
+    private static List<Node> removeEmptyNodes(NodeList nodes) {
+        List<Node> emptied = new ArrayList<>();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                emptied.add(node);
+            }
+        }
+        return emptied;
     }
 }

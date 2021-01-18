@@ -15,7 +15,10 @@ public class FeatureConfiguration {
     private String featureModelName;
 
     @Getter
-    private Map<String, Boolean> features;
+    private Map<String, Boolean> binaryFeatures;
+
+    @Getter
+    private Map<String, Integer> numericFeatures;
 
     @Getter
     @Setter
@@ -27,44 +30,17 @@ public class FeatureConfiguration {
      * here to (1) allow for quicker comparison for example inside {@link FeatureModel} as well as (2) avoid creating
      * useless instances of those classes.
      *
-     * @param featureModelName Name of the FeatureModel this configuration should belong to
-     * @param features         Map of features with active status
-     * @param properties       Map from the Properties of the FeatureSystem to the respective values
+     * @param featureModelName Name of the FeatureModel this configuration should belong to.
+     * @param binaryFeatures   Map of binaryFeatures with active status.
+     * @param numericFeatures  Map of numericFeatures with belonging value.
+     * @param properties       Map from the Properties of the FeatureSystem to the respective values.
      */
-    public FeatureConfiguration(String featureModelName, @NonNull Map<String, Boolean> features,
-                                Map<String, Double> properties) {
+    public FeatureConfiguration(String featureModelName, @NonNull Map<String, Boolean> binaryFeatures,
+                                @NonNull Map<String, Integer> numericFeatures, Map<String, Double> properties) {
         this.featureModelName = featureModelName;
-        this.features         = features;
+        this.binaryFeatures   = binaryFeatures;
+        this.numericFeatures  = numericFeatures;
         this.propertyValues   = properties;
-    }
-
-    /**
-     * @param featureModelName Name of the FeatureModel this configuration should belong to
-     * @param features         Map of features with active status
-     *
-     * @see FeatureConfiguration#FeatureConfiguration(String, Map, Map)
-     */
-    public FeatureConfiguration(String featureModelName, @NonNull Map<String, Boolean> features) {
-        this(featureModelName, features, null);
-    }
-
-    /**
-     * @param features   Map of features with active status
-     * @param properties Map from the Properties of the FeatureSystem to the respective values
-     *
-     * @see FeatureConfiguration#FeatureConfiguration(String, Map, Map)
-     */
-    public FeatureConfiguration(@NonNull Map<String, Boolean> features, Map<String, Double> properties) {
-        this("", features, properties);
-    }
-
-    /**
-     * @param features Map of features with active status
-     *
-     * @see FeatureConfiguration#FeatureConfiguration(String, Map, Map)
-     */
-    public FeatureConfiguration(@NonNull Map<String, Boolean> features) {
-        this("", features, null);
     }
 
     /**
@@ -73,8 +49,8 @@ public class FeatureConfiguration {
      * @return Set of active features
      */
     public Set<String> getActiveFeatures() {
-        return features.keySet().stream().
-                filter(f -> this.features.get(f)).collect(Collectors.toSet());
+        return binaryFeatures.keySet().stream().
+                filter(f -> this.binaryFeatures.get(f)).collect(Collectors.toSet());
     }
 
     /**
@@ -93,8 +69,11 @@ public class FeatureConfiguration {
         root.put("featureConfiguration", conf);
         conf.put("featureModel", this.featureModelName);
         conf.put("features", features);
-        for (String featureName : this.features.keySet()) {
-            features.put(featureName, this.features.get(featureName));
+        for (String featureName : this.binaryFeatures.keySet()) {
+            features.put(featureName, this.binaryFeatures.get(featureName));
+        }
+        for (String featureName : this.numericFeatures.keySet()) {
+            features.put(featureName, this.numericFeatures.get(featureName));
         }
         if (this.propertyValues != null) {
             conf.put("properties", properties);

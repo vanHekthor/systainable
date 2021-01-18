@@ -2,6 +2,7 @@ package org.swtp15.parser;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.swtp15.models.Feature;
 import org.swtp15.models.FeatureSystem;
 import org.swtp15.models.Property;
 
@@ -42,10 +43,23 @@ public class SystemParser {
     @SuppressWarnings("unchecked")
     public static String parseSystemToJson(FeatureSystem featureSystem) {
         JSONObject root = new JSONObject();
-        JSONArray features = new JSONArray();
+        JSONObject features = new JSONObject();
+        JSONArray binaryFeatures = new JSONArray();
+        JSONObject numericFeatures = new JSONObject();
         JSONObject properties = new JSONObject();
 
-        features.addAll(featureSystem.getFeatureNames());
+        for (Feature feature : featureSystem.getFeatures()) {
+            if (feature.isBinary()) {
+                binaryFeatures.add(feature.getName());
+            } else {
+                numericFeatures.put(feature.getName(),
+                                    feature.getMinValue() + ";" + feature.getMaxValue() + ";" +
+                                    feature.getStepFunction());
+            }
+        }
+        features.put("binaryFeatures", binaryFeatures);
+        features.put("numericFeatures", numericFeatures);
+
         root.put("features", features);
 
         for (Property property : featureSystem.getProperties()) {

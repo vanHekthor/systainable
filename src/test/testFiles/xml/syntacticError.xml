@@ -1,0 +1,74 @@
+<vm name="xmlTestSyntacticError">
+    <binaryOptions>
+        <configurationOption>
+            <name>Auto</name>
+            <outputString>
+            </outputString>
+            <prefix>
+            </prefix>
+            <postfix>
+            </postfix>
+            <parent>
+            </parent>
+            <impliedOptions />
+            <excludedOptions />
+            <optional>False</optional>
+        </configurationOption>
+        <configurationOption>
+            <name>Motor</name>
+            <outputString></outputString>
+            <prefix></prefix>
+            <postfix></postfix>
+            <parent>Auto</parent>
+            <children>
+                <option>Diesel</option>
+                <option>Elektro</option>
+            </children>
+            <impliedOptions />
+            <excludedOptions />
+            <optional>False</optional>
+        </configurationOption>
+        <configurationOption>
+            <name>Anhaengerkupplung</name>
+            <outputString></outputString>
+            <prefix></prefix>
+            <postfix></postfix>
+            <parent>Auto</parent>
+            <children>
+            </children>
+            <impliedOptions />
+            <excludedOptions />
+            <optional>True</optional>
+        </configurationOption>
+        <configurationOption>
+            <name>Diesel</name>
+            <outputString>
+            </outputString>
+            <prefix></prefix>
+            <postfix></postfix>
+            <parent>Motor</parent>
+            <children>
+            </children>
+            <impliedOptions />
+            <excludedOptions>
+                <options>Elektro</options>
+            </excludedOptions>
+            <optional>False</optional>
+        </configurationOption>
+        <configurationOption>
+            <name>Elektro</name>
+            <outputString></outputString>
+            <prefix></prefix>
+            <postfix></postfix>
+            <parent>Motor</parent>
+            <children />
+            <impliedOptions />
+            <excludedOptions>
+                <options>Diesel</options>
+            </excludedOptions>
+            <optional>False</optional>
+        </configurationOption>
+    </binaryOptions>
+    <booleanConstraints />
+    <nonBooleanConstraints />
+</vm>

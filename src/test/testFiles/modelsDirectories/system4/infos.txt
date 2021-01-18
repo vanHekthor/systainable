@@ -1,0 +1,6 @@
+This file provides some information about this system.
+Tests should not evaluate this txt-file and no errors should be thrown.
+
+System 4 is a System which contains numerical features, that means those features are not displayed in the dimacs file
+and its necessary to evaluate an xml-file with further information.
+To work correct the xml-file must not contain any 'Umlaute' such as 'ä,ü,ö'. Use 'ae, ue, oe' instead.

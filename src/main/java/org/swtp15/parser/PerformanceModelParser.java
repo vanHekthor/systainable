@@ -44,7 +44,7 @@ public class PerformanceModelParser extends FileParser {
             }
         }
 
-        Map<Integer, Feature> featureMap = mapFeatures(csvLines.get(0));
+        Map<Integer, Feature> featureMap = mapFeatures(csvLines.get(0), referenceFeatures);
         Map<Integer, Property> propertyMap = mapProperties(csvLines.get(0));
         Set<Property> properties = new HashSet<>(propertyMap.values());
 
@@ -77,17 +77,25 @@ public class PerformanceModelParser extends FileParser {
      * Method to identify all Features by their name in the headline of .csv-file. FeatureNames and PropertyNames are
      * distinguished by the existence of a ";" in a Property-related space between commas.
      *
-     * @param headline the first line of the .csv-file, already delivered as a String
+     * @param headline          the first line of the .csv-file, already delivered as a String
+     * @param referenceFeatures the exisiting features that should be mapped.
      *
      * @return Map with Features in headline in consecutive order, mapped to Integer-keys which represent their position
      * in the headline
      */
-    private static Map<Integer, Feature> mapFeatures(String headline) {
+    private static Map<Integer, Feature> mapFeatures(String headline, List<Feature> referenceFeatures)
+    throws IllegalArgumentException {
         String[] wordsInHeadline = splitLine(headline);
         Map<Integer, Feature> featureMap = new HashMap<>();
         for (int i = 0; i < wordsInHeadline.length; i++) {
             if (!wordsInHeadline[i].contains(";")) {
-                featureMap.put(i, new Feature(wordsInHeadline[i]));
+                String featureName = wordsInHeadline[i];
+                Optional<Feature> feature =
+                        referenceFeatures.parallelStream().filter(f -> f.getName().equals(featureName)).findAny();
+                if (feature.isEmpty()) {
+                    throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_INCONSISTENT_WITH_DIMACS;
+                }
+                featureMap.put(i, feature.get());
             }
         }
         return featureMap;

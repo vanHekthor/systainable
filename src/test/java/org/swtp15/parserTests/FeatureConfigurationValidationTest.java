@@ -38,7 +38,7 @@ public class FeatureConfigurationValidationTest {
     @Test
     void invalidFeaturesStatusType() {
         this.loadJsonAndExpectException("correctTest.dimacs/InvalidFeatureStatusType.json",
-                                        ParserExceptions.FEATURE_VALUE_NOT_A_BOOLEAN_IN_JSON);
+                                        ParserExceptions.FEATURE_VALUE_NOT_A_BOOLEAN_OR_NUMBER_IN_JSON);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class FeatureConfigurationValidationTest {
 
     @Test
     void validInvalidNonmatchingConfigurations() throws InterruptedException {
-        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
+        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null);
         String json = this.getJsonString("correctTest.dimacs/2Valid1Invalid1NotMatching.json");
         List<FeatureConfiguration> featureConfigurationList = FeatureConfigurationParser.parseConfigurations(json);
         if (featureConfigurationList == null) {
@@ -79,7 +79,7 @@ public class FeatureConfigurationValidationTest {
 
     @Test
     void validConfiguration() throws InterruptedException, ParseException {
-        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs");
+        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null);
         String json = this.getJsonString("correctTest.dimacs/1Valid.json");
         FeatureConfiguration conf = FeatureConfigurationParser.parseConfiguration(json);
         assertNotNull(conf);

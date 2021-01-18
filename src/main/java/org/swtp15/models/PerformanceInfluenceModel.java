@@ -37,6 +37,8 @@ public class PerformanceInfluenceModel {
      */
     public Map<Property, Double> evaluateConfiguration(FeatureConfiguration featureConfiguration) {
         Set<String> activeFeatures = featureConfiguration.getActiveFeatures();
+        Set<String> numericFeatures = featureConfiguration.getNumericFeatures().keySet();
+        activeFeatures.addAll(numericFeatures); //numericFeatures are always active
         Map<Property, Double> returnEvaluation = new HashMap<>();
         Map<String, Double> evaluation = new HashMap<>();
         for (Property property : properties) {
@@ -48,9 +50,17 @@ public class PerformanceInfluenceModel {
                                                                 .collect(Collectors.toSet())))
                 .collect(Collectors.toSet());
         for (FeatureInfluence featureInfluence : relatedInfluences) {
+            Set<String> activeNumericFeatures =
+                    featureInfluence.getActiveFeatures().stream().map(Feature::getName)
+                            .filter(numericFeatures::contains).collect(Collectors.toSet());
+            int factor = 1;
+            for(String feature : activeNumericFeatures){
+                factor *= featureConfiguration.getNumericFeatures().get(feature);
+            }
             for (Map.Entry<Property, Double> entry : featureInfluence.getPropertyInfluence().entrySet()) {
-                returnEvaluation.put(entry.getKey(), returnEvaluation.get(entry.getKey()) + entry.getValue());
-                evaluation.put(entry.getKey().getName(), evaluation.get(entry.getKey().getName()) + entry.getValue());
+                returnEvaluation.put(entry.getKey(), returnEvaluation.get(entry.getKey()) + factor * entry.getValue());
+                evaluation.put(entry.getKey().getName(),
+                               evaluation.get(entry.getKey().getName()) + factor * entry.getValue());
             }
         }
         featureConfiguration.setPropertyValues(evaluation);
