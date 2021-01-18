@@ -37,7 +37,9 @@
                              style="width: 18rem">
                             <div class="config-card-header p-p-1">
                                 <div class="p-d-flex p-ai-center p-jc-between">
-                                    <h6 class="p-my-0 p-ml-3">{{config.name}}</h6>
+                                    <h6 class="p-my-0 py-1 p-ml-3" style="max-width: 12rem; overflow-x: auto">
+                                        {{config.name}}
+                                    </h6>
                                     <div>
                                         <b-button class="p-1 no-outline" variant="link"
                                                   @click.stop="toggle($event, index)">
@@ -48,6 +50,10 @@
                                             <template #button-content>
                                                 <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
                                             </template>
+                                            <b-dropdown-item-button @click="$emit('duplicate-config',index)">
+                                                <font-awesome-icon icon="copy" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                                                duplicate
+                                            </b-dropdown-item-button>
                                             <b-dropdown-item-button v-b-modal="'modal-' + config.name" @click="renamedConfigString=config.name">
                                                 <font-awesome-icon icon="edit" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
                                                 rename
@@ -59,7 +65,7 @@
                                         </b-dropdown>
                                         <b-modal :id="'modal-' + config.name" centered :title="'Rename configuration: ' + config.name"
                                                  @ok="$emit('update-config-name', index, renamedConfigString)">
-                                            <b-form-input type="text" :value="config.name" v-model="renamedConfigString" maxlength="18"></b-form-input>
+                                            <b-form-input type="text" :value="config.name" v-model="renamedConfigString" maxlength="24"></b-form-input>
                                         </b-modal>
                                     </div>
                                 </div>
@@ -90,11 +96,19 @@
                             :header="feature"
                             :key="feature">
                         <template v-if="feature === 'name'" #editor="slotProps">
-                            <div class="p-grid">
+                            <div class="p-grid p-ai-center">
                                 <InputText v-model="slotProps.data[feature]"
-                                           class="p-inputtext-sm" />
-                                <Button class="p-button-danger p-button-sm p-mt-2" label="Delete" icon="pi pi-times"
-                                        @click="$emit('del-config', slotProps.index)"/>
+                                           class="p-inputtext-sm mr-1 my-1" />
+                                <div>
+                                    <b-button class="m-0" variant="info" size="sm"
+                                              @click="$emit('duplicate-config', slotProps.index)">
+                                        <font-awesome-icon icon="copy" class="" fixed-width/>
+                                    </b-button>
+                                    <b-button class="m-0" variant="danger" size="sm"
+                                              @click="$emit('del-config', slotProps.index)">
+                                        <font-awesome-icon icon="times" class="" fixed-width/>
+                                    </b-button>
+                                </div>
                             </div>
                         </template>
                         <template v-else #body="slotProps">

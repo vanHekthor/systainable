@@ -36,6 +36,7 @@
             @submit-configs="checkValidity"
             @get-config-example="getConfigExample"
             @load-data="loadConfigs"
+            @duplicate-config="duplicateConfig"
         />
 
         <ChartArea
@@ -204,6 +205,19 @@ export default {
             if (this.configurations.length < 1) {
                 this.draw = false;
             }
+        },
+
+        duplicateConfig(index) {
+            let configDuplicate = Object.assign({}, this.configurations[index]);
+            configDuplicate.name = configDuplicate.name + "(copy)"
+
+            const insert = (arr, index, newItem) => [
+                ...arr.slice(0, index),
+                newItem,
+                ...arr.slice(index)
+            ]
+
+            this.configurations = insert(this.configurations, index + 1, configDuplicate);
         },
 
         loadConfigs(configs) {
