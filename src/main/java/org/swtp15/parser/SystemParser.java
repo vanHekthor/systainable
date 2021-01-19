@@ -52,9 +52,11 @@ public class SystemParser {
             if (feature.isBinary()) {
                 binaryFeatures.add(feature.getName());
             } else {
-                numericFeatures.put(feature.getName(),
-                                    feature.getMinValue() + ";" + feature.getMaxValue() + ";" +
-                                    feature.getStepFunction());
+                JSONObject attributes = new JSONObject();
+                attributes.put("min", feature.getMinValue());
+                attributes.put("max", feature.getMaxValue());
+                attributes.put("stepFunction", feature.getStepFunction());
+                numericFeatures.put(feature.getName(), attributes);
             }
         }
         features.put("binaryFeatures", binaryFeatures);
