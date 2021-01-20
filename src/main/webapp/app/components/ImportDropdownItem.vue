@@ -50,53 +50,78 @@ export default {
 
                 const fr = new FileReader();
                 fr.onload = e => {
-                    const result = JSON.parse(e.target.result);
-                    if (this.fileCheck) {
-                        if ((result.systemName === this.systemName) && (this.validateData(result.data))) {
+                    try {
+                        const result = JSON.parse(e.target.result);
+                        if (this.fileCheck) {
+                            if (this.validateFile(result)) {
+                                this.loadData(result.data);
+                                this.makeToast('success', null);
+                            }
+                        } else {
                             this.loadData(result.data);
-                            this.makeToast('success')
-                            return;
                         }
-                    } else {
-                        this.loadData(result.data);
-                        return;
+                    } catch (e) {
+                        if (e.name === "SyntaxError") {
+                            this.makeToast('danger', "File does not comply with JSON syntax.");
+                        } else {
+                            this.makeToast('danger', e.message);
+                        }
                     }
-                    this.makeToast('danger')
                 }
                 fr.readAsText(file.item(0));
             }
         },
 
-        validateData: function(data) {
-            console.log("start validating");
+        validateFile: function(file) {
 
-            for (let object of data) {
-                if (!this.checkKeys(object)) {
-                    return false;
-                }
+            if (file.systemName !== this.systemName) {
+                throw new Error(
+                    `The software system "${file.systemName}" defined in the file does not match the selected system "${this.systemName}".`
+                );
+            }
+
+            for (let object of file.data) {
+                this.checkKeys(object);
+                this.checkValueTypes(object);
             }
 
             return true;
         },
 
         checkKeys: function(object) {
-            let featureNames = this.featureNames;
+            let featureNames = [...this.featureNames];
             featureNames.sort();
             const keys = Object.keys(object).sort();
 
             return JSON.stringify(featureNames) === JSON.stringify(keys);
         },
 
+        checkValueTypes: function(object) {
+            for (let key of this.featureNames) {
+                if (key === 'name') {
+                    if (typeof object[key] !== 'string') {
+                        throw Error(`Configuration name should be a string.`);
+                    }
+                } else if (key !== 'name') {
+                    if (typeof object[key] !== 'boolean') {
+                        throw Error(`Feature "${key}" of configuration "${object['name']}" should be boolean.`);
+                    }
+                }
+            }
+            return true;
+        },
+
         loadData(data) {
             this.$emit('load-data', data);
         },
 
-        makeToast(variant) {
-            if (variant === 'danger') {
-                this.$bvToast.toast('Selected system and/or feature names do not match.', {
+        makeToast(variant, message) {
+            if (variant === 'danger' && message !== null){
+                this.$bvToast.toast(message, {
                     title: 'Unable to load file!',
                     variant: variant,
-                    solid: true
+                    solid: true,
+                    autoHideDelay: 12000
                 })
             } else if (variant === 'success') {
                 this.$bvToast.toast('File has been loaded successfully.', {
