@@ -9,7 +9,6 @@ import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
 import { faBell } from '@fortawesome/free-solid-svg-icons/faBell';
 import { faBook } from '@fortawesome/free-solid-svg-icons/faBook';
 import { faCloud } from '@fortawesome/free-solid-svg-icons/faCloud';
-import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
 import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs';
 import { faEye } from '@fortawesome/free-solid-svg-icons/faEye';
 import { faFlag } from '@fortawesome/free-solid-svg-icons/faFlag';
@@ -19,7 +18,6 @@ import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faList } from '@fortawesome/free-solid-svg-icons/faList';
 import { faLock } from '@fortawesome/free-solid-svg-icons/faLock';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faRoad } from '@fortawesome/free-solid-svg-icons/faRoad';
 import { faSave } from '@fortawesome/free-solid-svg-icons/faSave';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
@@ -39,11 +37,15 @@ import { faUserPlus } from '@fortawesome/free-solid-svg-icons/faUserPlus';
 import { faUser } from '@fortawesome/free-solid-svg-icons/faUser';
 import { faWrench } from '@fortawesome/free-solid-svg-icons/faWrench';
 
+// added
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
+import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
 import { faCompass } from '@fortawesome/free-solid-svg-icons/faCompass';
 import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
 import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { faFileExport } from '@fortawesome/free-solid-svg-icons/faFileExport';
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons/faFileUpload';
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 
 import VueCookie from 'vue-cookie';
 import Vuelidate from 'vuelidate';
@@ -117,6 +119,7 @@ export function initFortAwesome(vue) {
     faWrench,
 
     // added:
+    faArrowRight,
     faCompass,
     faCopy,
     faEdit,

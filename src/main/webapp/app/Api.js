@@ -7,21 +7,79 @@ const instance = axios.create({
 });
 
 export default {
-  getFeatureNames: async function getFeatureNames() {
-    let response = await instance.get('featuremodel?name=example');
+  getAvailableSystems: async function getAvailabeSystems() {
+    let response = await instance.get('systems').catch(error => console.log(error));
+
     return response.data;
   },
 
-  // GET
-  getFeatureNamesExample: function getFeatureNamesExample() {
-    instance.get('featuremodels/example/featuremodel1').then(response => {
-      console.log(response.data);
-      console.log(response.status);
-      console.log(response.statusText);
-      console.log(response.headers);
-      console.log(response.config);
-    });
+  getAttributeNames: async function getAttributeNames(systemName) {
+    let response = await instance.get(`featuremodel?name=${systemName}`).catch(error => console.log(error));
 
+    return response.data;
+  },
+
+  getInitConfig: async function getConfig(systemName) {
+    let exampleInitConfig = null;
+
+    // dummy data
+    if (systemName === 'providedModel') {
+      exampleInitConfig = {
+        features: {
+          root: true,
+          compressed_script: false,
+          encryption: false,
+          crypt_aes: false,
+          crypt_blowfish: false,
+          transaction_control: true,
+          txc_mvlocks: true,
+          txc_mvcc: false,
+          txc_locks: false,
+          table_type: true,
+          memory_tables: true,
+          cached_tables: false,
+          small_cache: false,
+          large_cache: false,
+          logging: false,
+          detailed_logging: false,
+          no_write_delay: false,
+          small_log: false,
+        },
+      };
+    } else if (systemName === 'customModel1') {
+      exampleInitConfig = {
+        features: {
+          Auto: true,
+          Heckspoiler: false,
+          Motor: true,
+          Benzin: true,
+          Diesel: false,
+          Wasserstoff: false,
+          Tuning: false,
+          Turbolader: false,
+          'AnhÃ¤ngerkupplung': false,
+          Elektro: false,
+        },
+      };
+    }
+
+    let response = await instance.get(`featuremodel/initconfig?name=${systemName}`).catch(error => console.log(error));
+
+    return response.data;
+  },
+
+  getValidity: async function getValidity(featureConfiguration) {
+    let response = await instance.post('featuremodel/valid', { featureConfiguration }).catch(error => console.log(error));
+    return response.data;
+  },
+
+  getPropValues: async function getPropValues(featureConfiguration) {
+    let response = await instance.post('performance', { featureConfiguration }).catch(error => console.log(error));
+    return response.data;
+  },
+
+  // the following methods generate dummy data for frontend dev without backend responses
+  getFeatureNamesExample: function getFeatureNamesExample() {
     // dummy data
     let featureNames = [
       'name',
@@ -44,24 +102,10 @@ export default {
       'no_write_delay',
       'small_log',
     ];
-
     return featureNames;
   },
 
-  getConfig: async function getConfig() {
-    let response = await instance.get('initconfig');
-    return response.data;
-  },
-
   getConfigExample: function getConfigExample() {
-    instance.get('configexample').then(response => {
-      console.log(response.data);
-      console.log(response.status);
-      console.log(response.statusText);
-      console.log(response.headers);
-      console.log(response.config);
-    });
-
     // dummy data
     let exampleConfig = {
       name: 'config',
@@ -88,33 +132,7 @@ export default {
     return exampleConfig;
   },
 
-  getValidity: function getValidity(config) {
-    if (config.encryption && config.crypt_aes && config.crypt_blowfish) {
-      return false;
-    }
-    if ((!config.encryption && config.crypt_aes) || (!config.encryption && config.crypt_blowfish)) {
-      return false;
-    }
-    if (config.encryption && !config.crypt_aes && !config.crypt_blowfish) {
-      return false;
-    }
-    return true;
-  },
-
-  getProperties: async function getProperties() {
-    let response = await instance.get('performance');
-    return response.data;
-  },
-
-  getPropertiesExample: function getPropertiesExample(config) {
-    instance.get('property-prediction', config).then(response => {
-      console.log(response.data);
-      console.log(response.status);
-      console.log(response.statusText);
-      console.log(response.headers);
-      console.log(response.config);
-    });
-
+  getPropertiesExample: function getPropertiesExample() {
     // dummy data
     let energy = Math.random() * 100;
     let time = Math.random() * 1000;

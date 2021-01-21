@@ -53,7 +53,7 @@ public class FeatureSystemController {
      *
      * @return a ResponseEntity containing a Boolean for a request
      */
-    @GetMapping("/valid")
+    @PostMapping("/valid")
     public ResponseEntity<Object> validateConfiguration(@RequestBody String json) {
         try {
             FeatureConfiguration featureConfiguration = FeatureConfigurationParser.parseConfiguration(json);

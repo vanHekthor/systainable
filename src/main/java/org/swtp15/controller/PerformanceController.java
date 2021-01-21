@@ -26,7 +26,7 @@ public class PerformanceController {
      *
      * @return The Configuration with evaluated values.
      */
-    @GetMapping
+    @PostMapping
     public @ResponseBody
     ResponseEntity<String> getPropertiesForFeatureConfiguration
     (@RequestBody String configurationJSON) {

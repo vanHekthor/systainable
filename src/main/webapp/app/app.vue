@@ -3,38 +3,39 @@
         <div class="top-bar p-d-flex p-ai-center p-shadow-2 p-mb-3 p-p-3">
             <h3 class="p-mb-0 p-mr-2">Green Configurator</h3>
             <div>
-                <Dropdown id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems" optionLabel="name"
+                <Dropdown id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems"
                           placeholder="Select a system"
-                          @change="getSystemFeatures"/>
+                          @change="requestSystemAttributes"/>
             </div>
 
-            <Dialog :header="invalidConfig + ' is invalid'" :visible.sync="displayModal" :style="{width: '50vw'}" :modal="true">
+            <Dialog :header="invalidConfig.name + ' is invalid'" :visible.sync="displayModal" :style="{width: '50vw'}" :modal="true">
                 <h6>Suggestion:</h6>
-                <div class="p-d-flex p-ai-center">
-                    <label class="p-mr-2" for="encryption">encryption</label>
-                    <input class="p-mr-2" id="encryption" type="checkbox" :checked="true"/>
-                    <label class="p-mr-2" for="crypt_aes">crypt_aes</label>
-                    <input class="p-mr-2" id="crypt_aes" type="checkbox" :checked="true"/>
-                    <label class="p-mr-2" for="crypt_blowfish">crypt_blowfish</label>
-                    <input class="p-mr-2" id="crypt_blowfish" type="checkbox" :checked="false"/>
+                <div class="p-d-flex p-jc-center p-ai-center" style="overflow-x: auto">
+                    <ConfigCard class="m-2"
+                                :configurationFeatures="configurationFeatures"
+                                :config="invalidConfig"/>
+                    <font-awesome-icon class="m-2" icon="arrow-right" size="lg" fixed-width/>
+                    <ConfigCard class="m-2"
+                                :configurationFeatures="configurationFeatures"
+                                :config="alternativeConfig"/>
                 </div>
                 <template #footer>
                     <Button label="Decline" icon="pi pi-times" @click="closeModal" class="p-button-text"/>
-                    <Button label="Accept" icon="pi pi-check" @click="closeModalAccept" autofocus />
+                    <Button label="Accept" icon="pi pi-check" @click="closeModalAcceptAlternative" autofocus />
                 </template>
             </Dialog>
         </div>
 
         <ConfigArea
-            :systemName="selectedSoftSystem.name"
+            :systemName="selectedSoftSystem"
             :configurationFeatures="configurationFeatures"
             :configurations="configurations"
             :softSystemLoaded="softSystemLoaded"
             @update-feature="updateFeature"
             @update-config-name="updateConfigName"
             @del-config="deleteConfig"
-            @submit-configs="checkValidity"
-            @get-config-example="getConfigExample"
+            @submit-configs="requestValidityCheck"
+            @get-config-example="requestInitConfig"
             @load-data="loadConfigs"
             @duplicate-config="duplicateConfig"
         />
@@ -48,13 +49,16 @@
 </template>
 
 <script>
-import api from './Api';
 import chartDataBuilder from './ChartDataBuilder'
 import ConfigArea from './components/ConfigArea';
 import ChartArea from './components/ChartArea';
+import ConfigCard from "./components/ConfigCard";
+
+
 import Dropdown from 'primevue/dropdown';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
+
 import requestHandler from './requestHandler';
 
 export default {
@@ -64,13 +68,15 @@ export default {
         ChartArea,
         Dropdown,
         Button,
-        Dialog
+        Dialog,
+        ConfigCard
     },
     data() {
         return {
             messages: [],
             displayModal: false,
-            invalidConfig: "",
+            invalidConfig: {},
+            alternativeConfig: {},
             featureModel: "",
             configurationFeatures: [],
             configurationProperties: [],
@@ -79,13 +85,10 @@ export default {
             chartDataArray: [],
             radarData: {},
             draw: false,
-            selectedSoftSystem: {},
+            selectedSoftSystem: "",
+            previousSelection: "",
             softSystemLoaded: false,
-            softSystems: [
-                {name: 'BlueSoft'},
-                {name: 'RedSoft'},
-                {name: 'GreenSoft'},
-            ]
+            softSystems: []
         }
     },
     mounted() {
@@ -94,6 +97,9 @@ export default {
         }
         if(sessionStorage.configurationFeatures) {
             this.configurationFeatures = JSON.parse(sessionStorage.configurationFeatures);
+        }
+        if(sessionStorage.configurationProperties) {
+            this.configurationProperties = JSON.parse(sessionStorage.configurationProperties);
         }
         if(sessionStorage.configurations) {
             this.configurations = JSON.parse(sessionStorage.configurations);
@@ -118,6 +124,12 @@ export default {
             },
             deep: true
         },
+        configurationProperties: {
+            handler(newConfigProp) {
+                sessionStorage.configurationProperties = JSON.stringify(newConfigProp);
+            },
+            deep: true
+        },
         configurations: {
             handler(newConfig) {
                 sessionStorage.configurations = JSON.stringify(newConfig);
@@ -138,69 +150,67 @@ export default {
         }
     },
 
+    created: async function requestAvailableSystems() {
+        this.softSystems = await requestHandler.getAvailableSystems();
+    },
+
+    computed: {
+        requestAlternativeConfig: async function() {
+            let altConfig = await requestHandler.getInitConfig(this.selectedSoftSystem);
+            altConfig.name = "alternative"
+            return altConfig;
+        }
+    },
 
     methods: {
-        //turns feature in the cell(configIndex, featureIndex) on/off
-        updateFeature(index, featureName) {
-            this.configurations[index][featureName]
-                = !this.configurations[index][featureName];
+        updateFeature(index, featureName, value) {
+            this.configurations[index][featureName] = value;
         },
 
-        updateConfigName(index, configName) {
-            this.configurations[index].name = configName;
-        },
-
-        //requests features from backend
-        getSystemFeatures() {
-            // using example data because JSON-Parser is still WIP
-            // request itself works
-            try {
-                let featureNames = api.getFeatureNamesExample();
-                //let featureNames = requestHandler.getFeatureNames();
-                this.updateFeatureNames(featureNames);
-            } catch (error) {
-                this.$log.debug(error)
-                this.error = "Failed to load features";
-            }finally {
-                this.loading = false;
-            }
-            if (this.configurations.length < 1) {
-                this.getConfigExample();
-            }
-
-        },
-
-        updateFeatureNames(featureNames) {
-            // let names = [];
-            // let featureName;
-            // for (featureName of featureNames) {
-            //     names.push({name: featureName});
-            // }
-            this.configurationFeatures = featureNames;
+        updateFeatureNames(features) {
+            this.configurationFeatures = features;
             this.softSystemLoaded = true;
         },
 
-        getConfigExample() {
-            try {
-                let featureSet = api.getConfigExample();
-                //let featureSet = requestHandler.getConfig();
-                this.addConfig(featureSet);
-            } catch (error) {
-                this.$log.debug(error)
-                this.error = "Failed to load config example";
-            }finally {
-                this.loading = false;
+        updateConfigName(index, configName) {
+            let count = 0;
+
+            // function rename(index, name, count) {
+            //     console.log('hallo');
+            //     console.log(index);
+            //     console.log(name);
+            //     console.log(count);
+            //
+            //     this.configurations.forEach(function(config, idx) {
+            //         if (index !== idx  && config.name === name) {
+            //             count++;
+            //             rename(index, configName + `(${count})`, count);
+            //         }
+            //     })
+            //     return configName + `(${count})`;
+            // }
+            //
+            // console.log(rename(index, configName, count));
+
+            this.configurations.forEach(function(config, idx) {
+                if (index !== idx  && config.name === configName) {
+                    count++;
+                }
+            })
+            if (count > 0) {
+                configName += `(${count})`
             }
+            this.configurations[index].name = configName;
         },
 
         addConfig(config) {
+            this.configCount = this.configurations.length;
             config.name += this.configCount.toString();
             this.configurations.push(config);
-            this.configCount++;
+            this.updateConfigName(this.configurations.length - 1, config.name)
         },
 
         deleteConfig(index) {
-            console.log("remove " + index);
             this.configurations.splice(index, 1);
             if (this.configurations.length < 1) {
                 this.draw = false;
@@ -224,53 +234,87 @@ export default {
             this.configurations = this.configurations.concat(configs);
         },
 
-        submitConfigs() {
-            let configNames = [];
-            let config = {};
-            let propertyValueMaps = [];
-            for (config of this.configurations) {
-                configNames.push(config.name);
-                propertyValueMaps.push(api.getPropertiesExample());
-                //propertyValueMaps.push(requestHandler.getFeatureProperties());
-            }
-
-            this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, propertyValueMaps);
-
-            this.radarData = chartDataBuilder.buildRadarData(configNames, propertyValueMaps);
-            this.drawCharts();
+        drawCharts() {
+            this.draw = true;
         },
 
-        checkValidity() {
+        // requests to backend
+        requestSystemAttributes: async function(event) {
+            let featureNames = await requestHandler.getFeatureNames(event.value);
+            this.updateFeatureNames(featureNames);
+            this.configurationProperties = await requestHandler.getPropNames(event.value);
+
+            if (event.value !== this.previousSelection) {
+                this.configurations = [];
+                this.configCount = 0;
+                await this.requestInitConfig();
+                this.previousSelection = event.value;
+                this.draw = false;
+            }
+        },
+
+        requestInitConfig: async function() {
+            let config = await requestHandler.getInitConfig(this.selectedSoftSystem);
+            this.addConfig(config);
+        },
+
+        requestValidityCheck: async function() {
             let config = {};
             for (config of this.configurations) {
-                if (!api.getValidity(config)) {
-                    this.invalidConfig = config.name;
+                let valid = await requestHandler.validateConfig(this.selectedSoftSystem, config, this.configurationProperties);
+                console.log(config);
+                console.log(`${config.name} is ${valid}`);
+                if (!valid) {
+                    this.invalidConfig = config;
+                    this.alternativeConfig = await this.requestAlternativeConfig;
                     this.openModal();
 
                     return;
                 }
             }
-            this.submitConfigs();
+            await this.submitConfigs();
         },
 
-        drawCharts() {
-            this.draw = true;
+        submitConfigs: async function() {
+            let configNames = [];
+            let config = {};
+            let propertyValueMaps = [];
+
+            for (config of this.configurations) {
+                configNames.push(config.name);
+
+                let predictedProps =
+                    await requestHandler.getConfigPropValues(this.selectedSoftSystem, config, this.configurationProperties)
+
+                let propMap = new Map();
+                Object.keys(predictedProps).forEach(function(key) {
+                    propMap.set(key, predictedProps[key]);
+                })
+
+                propertyValueMaps.push(propMap);
+            }
+
+            this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, propertyValueMaps);
+            this.radarData = chartDataBuilder.buildRadarData(configNames, propertyValueMaps);
+            this.drawCharts();
         },
+
+        // methods for handling a modal indicating that an invalid configuration has been made
         openModal() {
             this.displayModal = true;
         },
+
         closeModal() {
             this.displayModal = false;
         },
-        closeModalAccept() {
-            let config = {};
-            for (config of this.configurations) {
-                if (config.name === this.invalidConfig) {
-                    config.encryption = true;
-                    config.crypt_aes = true;
-                    config.crypt_blowfish = false;
+
+        closeModalAcceptAlternative() {
+            Object.keys(this.invalidConfig).forEach(key => {
+                if (key === 'name') {
+                    return;
                 }
-            }
+                this.invalidConfig[key] = this.alternativeConfig[key];
+            })
             this.displayModal = false;
         },
     }

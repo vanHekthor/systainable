@@ -1,6 +1,6 @@
 <template>
     <div class="p-px-3">
-        <Panel v-if="configurationFeatures.length > 0">
+        <Panel v-if="softSystemLoaded">
             <template #header>
                 <div class="panel-header p-d-flex p-jc-between p-flex-wrap" style="width: 100%">
                     <div class="p-d-flex p-ai-center p-flex-wrap">
@@ -14,7 +14,10 @@
                                 <template #button-content>
                                     <font-awesome-icon class="mr-1" icon="plus" fixed-width/>Add
                                 </template>
-                                <ImportDropdownItem :systemName="systemName" :featureNames="configurationFeatures" :fileCheck="true" @load-data="loadData"/>
+                                <ImportDropdownItem :systemName="systemName"
+                                                    :binaryFeatures="configurationFeatures.binaryFeatures"
+                                                    :numericFeatures="Object.keys(configurationFeatures.numericFeatures)"
+                                                    :fileCheck="true" @load-data="loadData"/>
                                 <b-dropdown-item-button @click="makeToast('info')">
                                     <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>Optimize
                                 </b-dropdown-item-button>
@@ -71,12 +74,15 @@
                                 </div>
                             </div>
                             <div class="config-card-content p-p-1"
-                                 style="max-height: 16rem; overflow-y: auto">
+                                 style="min-height: 6rem; max-height: 16rem; overflow-y: auto">
                                 <div class="badges p-d-flex p-flex-wrap p-jc-center">
-                                    <template v-for="(value, featureName) in config">
-                                        <Chip v-if="featureName !== 'name' && value"
+                                    <template v-for="(featureName) in configurationFeatures.binaryFeatures">
+                                        <Chip v-if="featureName !== 'name' && config[featureName]"
                                               class="custom-chip p-m-1" :label="featureName" removable
-                                              @remove="$emit('update-feature', index, featureName)"/>
+                                              @remove="$emit('update-feature', index, featureName, false)"/>
+                                    </template>
+                                    <template v-for="(featureName) in Object.keys(configurationFeatures.numericFeatures)">
+                                        <Chip class="custom-chip p-m-1" :label="featureName + ': ' + config[featureName]"/>
                                     </template>
                                 </div>
                             </div>
@@ -91,13 +97,12 @@
                            :autoLayout="true"
                            :value="configurations"
                            editMode="cell">
-                    <Column v-for="feature of configurationFeatures"
-                            :field="feature"
-                            :header="feature"
-                            :key="feature">
-                        <template v-if="feature === 'name'" #editor="slotProps">
+                    <Column field="name"
+                            header="name"
+                            key="name">
+                        <template #editor="slotProps">
                             <div class="p-grid p-ai-center">
-                                <InputText v-model="slotProps.data[feature]"
+                                <InputText v-model="slotProps.data['name']"
                                            class="p-inputtext-sm mr-1 my-1" />
                                 <div>
                                     <b-button class="m-0" variant="info" size="sm"
@@ -111,10 +116,25 @@
                                 </div>
                             </div>
                         </template>
-                        <template v-else #body="slotProps">
+                    </Column>
+                    <Column v-for="feature of configurationFeatures.binaryFeatures"
+                            :field="feature"
+                            :header="feature"
+                            :key="feature">
+                        <template #body="slotProps">
                             <label>
                                 <input type="checkbox" :checked="slotProps.data[feature]"
-                                       @change="$emit('update-feature', slotProps.index, feature)"/>
+                                       @change="$emit('update-feature', slotProps.index, feature, !slotProps.data[feature])"/>
+                            </label>
+                        </template>
+                    </Column>
+                    <Column v-for="feature of Object.keys(configurationFeatures.numericFeatures)"
+                            :field="feature"
+                            :header="feature"
+                            :key="feature">
+                        <template #body="slotProps">
+                            <label>
+                                {{slotProps.data[feature]}}
                             </label>
                         </template>
                     </Column>
@@ -211,6 +231,16 @@ export default {
         }
     },
 
+    computed: {
+        completeFeatureArray() {
+            return ['name'].concat(
+                this.configurationFeatures.binaryFeatures.concat(
+                    Object.keys(this.configurationFeatures.numericFeatures)
+                )
+            );
+        }
+    },
+
     methods: {
         collapse() {
             this.visible = !this.visible;
@@ -223,9 +253,7 @@ export default {
         toggle(event, index) {
             this.configIndex = index;
             this.unselectedFeatures = [];
-            for (let featureName of Object.keys(this.configurations[index])) {
-                if (featureName==="name")
-                    continue;
+            for (let featureName of this.configurationFeatures.binaryFeatures) {
                 if (!this.configurations[index][featureName]) {
                     this.unselectedFeatures.push({feature: featureName});
                 }
@@ -242,7 +270,7 @@ export default {
             this.currentPage = 1
         },
         addFeatureToConfig(item) {
-            this.$emit('update-feature', this.configIndex, item.feature);
+            this.$emit('update-feature', this.configIndex, item.feature, true);
             this.untoggle();
         },
         loadData(data) {
@@ -276,7 +304,7 @@ export default {
 }
 
 .config-card-header{
-    background-color: #f5f5f5;
+    background-color: #f8f9fa;
     border-bottom: 1px solid #e3e3e3;
 }
 
