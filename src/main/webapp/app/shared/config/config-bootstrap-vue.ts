@@ -27,6 +27,7 @@ import {
 
   // added
   TablePlugin,
+  LayoutPlugin,
   ModalPlugin,
   ToastPlugin,
 } from 'bootstrap-vue';
@@ -61,6 +62,7 @@ export function initBootstrapVue(vue) {
 
   // added
   vue.use(TablePlugin);
+  vue.use(LayoutPlugin);
   vue.use(ModalPlugin);
   vue.use(ToastPlugin);
 }

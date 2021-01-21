@@ -45,6 +45,7 @@ import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
 import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { faFileExport } from '@fortawesome/free-solid-svg-icons/faFileExport';
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons/faFileUpload';
+import { faMinus } from '@fortawesome/free-solid-svg-icons/faMinus';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 
 import VueCookie from 'vue-cookie';
@@ -120,13 +121,14 @@ export function initFortAwesome(vue) {
 
     // added:
     faArrowRight,
+    faCog,
     faCompass,
     faCopy,
     faEdit,
     faFileExport,
     faFileUpload,
-    faPlus,
-    faCog
+    faMinus,
+    faPlus
   );
 }
 
