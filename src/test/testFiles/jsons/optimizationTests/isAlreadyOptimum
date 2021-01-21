@@ -1,0 +1,23 @@
+{
+    "featureConfiguration": {
+        "featureModel": "system5",
+        "features": {
+            "feature1": false,
+            "feature2": false,
+            "feature3": false,
+            "feature4": false,
+            "feature5": false,
+            "feature6": false,
+            "feature7": false,
+            "feature8": false,
+            "numFeature1": 0,
+            "numFeature2": 0,
+            "numFeature3": 3
+        },
+        "properties": {
+            "time": 0.0,
+            "input": 0.0,
+            "output": 0.0
+        }
+    }
+}

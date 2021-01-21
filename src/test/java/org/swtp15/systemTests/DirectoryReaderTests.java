@@ -19,6 +19,7 @@ public class DirectoryReaderTests {
         expectedSystems.add("system1");
         expectedSystems.add("system2");
         expectedSystems.add("system4");
+        expectedSystems.add("system5");
         return expectedSystems;
     }
 

@@ -12,4 +12,6 @@ public class SystemExceptions {
                                            " Configuration!");
     public static final IllegalArgumentException NO_MATCHING_SYSTEM_FOR_CONFIGURATION = new IllegalArgumentException(
             "No feature system for model name.");
+    public static final IllegalArgumentException IS_ALREADY_OPTIMUM = new IllegalArgumentException(
+            "The optimum has already been reached.");
 }

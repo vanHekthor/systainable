@@ -72,6 +72,30 @@ public class SystemCache {
     }
 
     /**
+     * Looks for corresponding system of given {@link FeatureConfiguration} and finds (local) optimum for a specific
+     * property in a given range. Range here describes the features that can be different from the given configuration.
+     *
+     * @param configToOptimize {@link FeatureConfiguration} that needs optimization
+     * @param propertyName     name of property that should be optimized
+     * @param maxDifference    number of features that can be different
+     *
+     * @return optimized {@link FeatureConfiguration} for property
+     *
+     * @throws IllegalArgumentException If system not found or configuration can't be or is already optimized
+     * @throws InterruptedException     If the thread calculating was interrupted before it could finish gracefully
+     */
+    public FeatureConfiguration findLocalOptimumForConfiguration(FeatureConfiguration configToOptimize,
+                                                                 String propertyName, int maxDifference)
+    throws IllegalArgumentException, InterruptedException {
+        FeatureSystem system = getFeatureSystemForConfiguration(configToOptimize);
+        if (system == null) {
+            throw SystemExceptions.NO_MATCHING_SYSTEM_FOR_CONFIGURATION;
+        } else {
+            return system.findLocalOptimum(configToOptimize, propertyName, maxDifference);
+        }
+    }
+
+    /**
      * Searches for a {@link FeatureSystem} with same name as model name in given configuration. Its supposed that only
      * one or none {@link FeatureSystem} matches the given name.
      *

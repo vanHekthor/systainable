@@ -1,0 +1,18 @@
+c 1 feature1
+c 2 feature2
+c 3 feature3
+c 4 feature4
+c 5 feature5
+c 6 feature6
+c 7 feature7
+c 8 feature8
+p cnf 8 9
+1 -1 0
+2 -2 0
+3 -3 0
+4 -4 0
+5 -5 0
+6 -6 0
+7 -7 0
+8 -8 0
+3 -4 0
