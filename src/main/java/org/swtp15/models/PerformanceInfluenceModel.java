@@ -54,7 +54,7 @@ public class PerformanceInfluenceModel {
                     featureInfluence.getActiveFeatures().stream().map(Feature::getName)
                             .filter(numericFeatures::contains).collect(Collectors.toSet());
             int factor = 1;
-            for(String feature : activeNumericFeatures){
+            for (String feature : activeNumericFeatures) {
                 factor *= featureConfiguration.getNumericFeatures().get(feature);
             }
             for (Map.Entry<Property, Double> entry : featureInfluence.getPropertyInfluence().entrySet()) {
@@ -63,7 +63,7 @@ public class PerformanceInfluenceModel {
                                evaluation.get(entry.getKey().getName()) + factor * entry.getValue());
             }
         }
-        featureConfiguration.setPropertyValues(evaluation);
+        featureConfiguration.setPropertyValueMap(evaluation);
         return returnEvaluation;
     }
 
@@ -77,4 +77,48 @@ public class PerformanceInfluenceModel {
         properties.forEach(p -> propertyMap.put(p.getName(), 0.0));
         return propertyMap;
     }
+
+    /**
+     * Checks if given property should be minimized.
+     *
+     * @param propertyName Property name
+     *
+     * @return TRUE if should be minimized, else FALSE
+     *
+     * @throws IllegalArgumentException If no such property exists
+     */
+    public Boolean propertyIsToMinimize(String propertyName) throws IllegalArgumentException {
+        Property property;
+        if (hasProperty(propertyName)) {
+            property = getPropertyByName(propertyName);
+        } else {
+            throw ModelExceptions.PROPERTY_NOT_IN_MODEL;
+        }
+
+        return property.isToMinimize();
+    }
+
+    /**
+     * Checks if property with that name exists in model.
+     *
+     * @param propertyName Property name
+     *
+     * @return TRUE if property exists, else FALSE
+     */
+    private Boolean hasProperty(String propertyName) {
+        return properties.parallelStream().map(Property::getName).anyMatch(propertyName::equals);
+    }
+
+    /**
+     * Returns {@link Property} for given name.
+     *
+     * @param propertyName Property name
+     *
+     * @return {@link Property} or NULL if no corresponding property exists
+     */
+    private Property getPropertyByName(String propertyName) {
+        return properties.parallelStream()
+                .filter(property -> propertyName.equals(property.getName())).findFirst().orElse(null);
+    }
+
 }

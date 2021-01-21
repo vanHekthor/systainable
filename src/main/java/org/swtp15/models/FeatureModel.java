@@ -234,7 +234,7 @@ public class FeatureModel {
 
     /**
      * Creates a Map of the numeric feature names and initializes their values with minValue.
-     * 
+     *
      * @return The map of the numeric features.
      */
     public Map<String, Integer> getInitialNumericFeaturesMap() {
@@ -256,5 +256,95 @@ public class FeatureModel {
         }
         allFeatures.removeAll(usedFeatures);
         return allFeatures;
+    }
+
+
+    /**
+     * Finds all near Models for a given {@link FeatureConfiguration}.
+     *
+     * @param featureConfiguration The {@link FeatureConfiguration} that determines center of the range
+     * @param maxDiff              The number of features that can be different
+     *
+     * @return A Set of Maps containing the {@link Feature}s as keys and the activ state as value
+     */
+    public Set<Map<String, Boolean>> getNearModels(FeatureConfiguration featureConfiguration, int maxDiff) {
+        Set<Integer> configAsIntegerSet = convertConfigToIntegerSet(featureConfiguration);
+
+        Set<Set<Integer>> nearModels = this.models.parallelStream()
+                .filter(model -> Math.abs(configAsIntegerSet.size() - model.size()) <= maxDiff)
+                .filter(model -> modelIsNear(configAsIntegerSet, model, maxDiff))
+                .collect(Collectors.toSet());
+
+        Set<Map<String, Boolean>> nearModelsAsBinaryMap = nearModels.parallelStream()
+                .map(this::convertModelToBinaryFeatureMap)
+                .collect(Collectors.toSet());
+
+        return nearModelsAsBinaryMap;
+    }
+
+
+    /**
+     * Converts a {@link FeatureConfiguration} to a model, comparable to the {@link #models} of this class. Returns a
+     * Set of Integers which represent an active feature mapped by {@link #binaryFeatures}.
+     *
+     * @param featureConfiguration The configuration that should get converted
+     *
+     * @return A Set of Integers, describing the active features
+     */
+    private Set<Integer> convertConfigToIntegerSet(FeatureConfiguration featureConfiguration) {
+        Map<String, Integer> featureNameToInt = new HashMap<>();
+        this.binaryFeatures.keySet().parallelStream()
+                .forEach(FeatureAsInt ->
+                                 featureNameToInt.put(this.binaryFeatures.get(FeatureAsInt).getName(), FeatureAsInt));
+
+        Set<String> activeFeatures = featureConfiguration.getActiveFeatures();
+        Set<Integer> configAsIntegerSet = activeFeatures.parallelStream()
+                .map(featureNameToInt::get)
+                .collect(Collectors.toSet());
+
+        return configAsIntegerSet;
+    }
+
+
+    /**
+     * Converts a Set of Integers representing active {@link Feature}s to a Map containing all feature names mapped to
+     * against their active-state.
+     *
+     * @param model A Set of Integers representing active features
+     *
+     * @return A Map containing {@link Feature} names as keys and their active-state as values
+     */
+    private Map<String, Boolean> convertModelToBinaryFeatureMap(Set<Integer> model) {
+        Map<String, Boolean> integerSetAsMap = new HashMap<>();
+
+        List<String> activeFeatures = new ArrayList<>();
+        model.forEach(integer -> activeFeatures.add(binaryFeatures.get(integer).getName()));
+
+        binaryFeatures.values().forEach(feature -> integerSetAsMap.put(feature.getName(),
+                                                                       activeFeatures.contains(feature.getName())));
+
+        return integerSetAsMap;
+    }
+
+
+    /**
+     * Checks if a Set of Integers representing active {@link Feature}s differs another Set of Integers by a maximum of
+     * n features.
+     *
+     * @param modelA  Set of Integers representing active features
+     * @param modelB  Another Set of Integers representing active features
+     * @param maxDiff Number n which determines the maximum in differences
+     *
+     * @return TRUE if differences doesn't exceed the given maximum
+     */
+    private boolean modelIsNear(Set<Integer> modelA, Set<Integer> modelB, int maxDiff) {
+        Set<Integer> union = new HashSet<>();
+
+        union.addAll(modelA);
+        union.addAll(modelB);
+
+        int notInA = union.size() - modelA.size();
+        int notInB = union.size() - modelB.size();
+        return (notInA + notInB) <= maxDiff;
     }
 }
