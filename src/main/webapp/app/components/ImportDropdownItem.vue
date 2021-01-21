@@ -99,9 +99,6 @@ export default {
             featureNames.sort();
             const keys = Object.keys(object).sort();
 
-            console.log(featureNames);
-            console.log(keys);
-
             if (JSON.stringify(featureNames) !== JSON.stringify(keys)) {
                 throw Error('Keys in the file do not match valid configuration attributes.')
             }

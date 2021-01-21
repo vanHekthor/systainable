@@ -134,7 +134,13 @@
                             :key="feature">
                         <template #body="slotProps">
                             <label>
-                                {{slotProps.data[feature]}}
+                                <CustomSpinButton
+                                    :value="slotProps.data[feature]"
+                                    :value.sync="slotProps.data[feature]"
+                                    :step-function="configurationFeatures.numericFeatures[feature].stepFunction"
+                                    :min="configurationFeatures.numericFeatures[feature].min"
+                                    :max="configurationFeatures.numericFeatures[feature].max"
+                                />
                             </label>
                         </template>
                     </Column>
@@ -190,6 +196,7 @@ import OverlayPanel from 'primevue/overlaypanel';
 import Chip from './Chip';
 import ExportButton from "./ExportButton";
 import ImportDropdownItem from "./ImportDropdownItem";
+import CustomSpinButton  from "./SpinButton";
 
 
 export default {
@@ -206,7 +213,8 @@ export default {
         OverlayPanel,
         Chip,
         ExportButton,
-        ImportDropdownItem
+        ImportDropdownItem,
+        CustomSpinButton
     },
     props: [
         "systemName",
