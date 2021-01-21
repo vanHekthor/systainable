@@ -19,7 +19,12 @@ export default {
             required: true,
             default: "",
         },
-        featureNames: {
+        binaryFeatures: {
+            type: Array,
+            required: true,
+            default: [],
+        },
+        numericFeatures: {
             type: Array,
             required: true,
             default: [],
@@ -89,23 +94,33 @@ export default {
         },
 
         checkKeys: function(object) {
-            let featureNames = [...this.featureNames];
+            let featureNames = ['name'].concat([...this.binaryFeatures].concat(this.numericFeatures));
+
             featureNames.sort();
             const keys = Object.keys(object).sort();
 
-            return JSON.stringify(featureNames) === JSON.stringify(keys);
+            console.log(featureNames);
+            console.log(keys);
+
+            if (JSON.stringify(featureNames) !== JSON.stringify(keys)) {
+                throw Error('Keys in the file do not match valid configuration attributes.')
+            }
+
+            return true;
         },
 
         checkValueTypes: function(object) {
-            for (let key of this.featureNames) {
-                if (key === 'name') {
-                    if (typeof object[key] !== 'string') {
-                        throw Error(`Configuration name should be a string.`);
-                    }
-                } else if (key !== 'name') {
-                    if (typeof object[key] !== 'boolean') {
-                        throw Error(`Feature "${key}" of configuration "${object['name']}" should be boolean.`);
-                    }
+            if (typeof object['name'] !== 'string') {
+                throw Error(`Configuration name should be a string.`);
+            }
+            for (let key of this.binaryFeatures) {
+                if (typeof object[key] !== 'boolean') {
+                    throw Error(`Feature "${key}" of configuration "${object['name']}" should be boolean.`);
+                }
+            }
+            for (let key of this.numericFeatures) {
+                if (typeof object[key] !== 'number') {
+                    throw Error(`Feature "${key}" of configuration "${object['name']}" should be a number.`);
                 }
             }
             return true;

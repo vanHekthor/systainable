@@ -1,48 +1,59 @@
 import api from './Api';
 
+function createRequestConfig(systemName, config, propNames) {
+  const requestConfig = {
+    featureModel: systemName,
+    features: {},
+    properties: {},
+  };
+
+  Object.keys(config).forEach(function (key) {
+    if (key !== 'name') {
+      requestConfig.features[key] = config[key];
+    }
+  });
+
+  for (let prop of propNames) {
+    requestConfig.properties[prop] = 1.1;
+  }
+
+  return requestConfig;
+}
+
 export default {
-  getFeatureNames: async function getFeatureNames() {
-    let responseData = await api.getFeatureNames();
+  getAvailableSystems: async function getAvailableSystems() {
+    let responseData = await api.getAvailableSystems();
 
-    // compare this output to output console.log(response.data.feature) in Api.js
-    console.log(responseData);
-
-    for (let feature of responseData.featureModel.feature) {
-      console.log(feature);
-    }
-
-    return responseData.featureModel.feature;
+    return responseData.systemNames;
   },
 
-  getConfig: async function getConfig() {
-    let responseData = await api.getFeatureConfig();
-    var features = responseData.featureModel.features;
-    let featList = {};
+  getFeatureNames: async function getFeatureNames(systemName) {
+    let responseData = await api.getAttributeNames(systemName);
 
-    for (var i = 0; i < features.length; i++) {
-      let valFeatures = features[i];
-      featList[valFeatures] = true;
-      /*
-        let valFeatures = { [features[i]]: true };
-        featList.push(valFeatures);*/
-    }
-
-    let featureName = { name: 'config' };
-    const exampleConfig = Object.assign(featureName, featList);
-
-    return exampleConfig;
+    return responseData.features;
   },
 
-  getConfigProperties: async function getConfigProperties() {
-    let responseData = await api.getProp();
+  getPropNames: async function getPropNames(systemName) {
+    let responseData = await api.getAttributeNames(systemName);
 
-    // compare this output to output console.log(response.data.feature) in Api.js
-    console.log(responseData);
+    return Object.keys(responseData.properties);
+  },
 
-    for (let property of responseData.featureModel.properties) {
-      console.log(property);
-    }
+  getInitConfig: async function getInitConfig(systemName) {
+    let responseData = await api.getInitConfig(systemName);
 
-    return responseData.featureModel.properties;
+    return Object.assign({ name: 'config' }, responseData.featureConfiguration.features);
+  },
+
+  validateConfig: async function validate(systemName, config, propNames) {
+    const requestConfig = createRequestConfig(systemName, config, propNames);
+    return await api.getValidity(requestConfig);
+  },
+
+  getConfigPropValues: async function getConfigPropValues(systemName, config, propNames) {
+    const requestConfig = createRequestConfig(systemName, config, propNames);
+    let responseData = await api.getPropValues(requestConfig);
+
+    return responseData.featureConfiguration.properties;
   },
 };
