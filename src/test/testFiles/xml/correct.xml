@@ -10,8 +10,8 @@
             </postfix>
             <parent>
             </parent>
-            <impliedOptions />
-            <excludedOptions />
+            <impliedOptions/>
+            <excludedOptions/>
             <optional>False</optional>
         </configurationOption>
         <configurationOption>
@@ -24,8 +24,8 @@
                 <option>Diesel</option>
                 <option>Elektro</option>
             </children>
-            <impliedOptions />
-            <excludedOptions />
+            <impliedOptions/>
+            <excludedOptions/>
             <optional>False</optional>
         </configurationOption>
         <configurationOption>
@@ -36,8 +36,8 @@
             <parent>Auto</parent>
             <children>
             </children>
-            <impliedOptions />
-            <excludedOptions />
+            <impliedOptions/>
+            <excludedOptions/>
             <optional>True</optional>
         </configurationOption>
         <configurationOption>
@@ -49,7 +49,7 @@
             <parent>Motor</parent>
             <children>
             </children>
-            <impliedOptions />
+            <impliedOptions/>
             <excludedOptions>
                 <options>Elektro</options>
             </excludedOptions>
@@ -61,8 +61,8 @@
             <prefix></prefix>
             <postfix></postfix>
             <parent>Motor</parent>
-            <children />
-            <impliedOptions />
+            <children/>
+            <impliedOptions/>
             <excludedOptions>
                 <options>Diesel</options>
             </excludedOptions>
@@ -77,9 +77,9 @@
             <prefix></prefix>
             <postfix></postfix>
             <parent>Auto</parent>
-            <children />
-            <impliedOptions />
-            <excludedOptions />
+            <children/>
+            <impliedOptions/>
+            <excludedOptions/>
             <minValue>4</minValue>
             <maxValue>7</maxValue>
             <stepFunction>Gaenge + 1</stepFunction>
@@ -91,14 +91,14 @@
             <prefix></prefix>
             <postfix></postfix>
             <parent>Auto</parent>
-            <children />
-            <impliedOptions />
-            <excludedOptions />
+            <children/>
+            <impliedOptions/>
+            <excludedOptions/>
             <minValue>2</minValue>
             <maxValue>6</maxValue>
             <stepFunction>Tueren + 2</stepFunction>
         </configurationOption>
     </numericOptions>
-    <booleanConstraints />
-    <nonBooleanConstraints />
+    <booleanConstraints/>
+    <nonBooleanConstraints/>
 </vm>
