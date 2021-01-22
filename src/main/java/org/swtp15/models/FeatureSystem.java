@@ -2,8 +2,11 @@ package org.swtp15.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.swtp15.parser.FeatureModelParser;
+import org.swtp15.parser.PerformanceModelParser;
 import org.swtp15.system.SystemExceptions;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,8 @@ public class FeatureSystem {
 
     /**
      * The constructor.
+     * <p>
+     * TODO: Replace all usages of this constructor to instead use the other
      *
      * @param name             The name of the FeatureSystem.
      * @param featureModel     The belonging {@link FeatureModel}.
@@ -38,6 +43,29 @@ public class FeatureSystem {
         this.performanceModel = performanceModel;
     }
 
+    /**
+     * Constructor for FeatureSystem, creating all submodels internally.
+     *
+     * @param name       The name of the FeatureSystem
+     * @param dirPath    Path where all relevant files are stored. Is prepended on all other file paths to reduce
+     *                   redundancy
+     * @param dimacsPath Filename of the dimacs file. Is appended on the `dirPath`
+     * @param xmlPath    Filename of the xml file. Is appended on the `dirPath`. May be `null`
+     * @param csvPath    Filename of the csv file. Is appended on the `dirPath`
+     * @param isInternal Whether the paths are pointing on internal resources.
+     *
+     * @throws FileNotFoundException If a File could not be found.
+     */
+    public FeatureSystem(String name, String dirPath, String dimacsPath, String xmlPath, String csvPath,
+                         boolean isInternal)
+    throws FileNotFoundException {
+        this.name             = name;
+        this.featureModel     = FeatureModelParser.parseModel(dirPath + dimacsPath, xmlPath != null ?
+                                                                                    dirPath + xmlPath : null,
+                                                              isInternal);
+        this.performanceModel = PerformanceModelParser.parseModel(dirPath + csvPath, featureModel.getFeatures(),
+                                                                  isInternal);
+    }
 
     /**
      * Tests, if feature configuration is valid for this system.

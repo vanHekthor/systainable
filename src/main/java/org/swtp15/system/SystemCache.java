@@ -22,6 +22,10 @@ public class SystemCache {
     private Map<String, FeatureSystem> currentlyKnownSystems;
 
     @Getter
+    @Setter
+    private SystemCacheUpdater systemCacheUpdater;
+
+    @Getter
     private String pathToModels;
 
     /**

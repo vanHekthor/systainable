@@ -2,6 +2,7 @@ package org.swtp15;
 
 import io.github.jhipster.config.DefaultProfileUtil;
 import io.github.jhipster.config.JHipsterConstants;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,13 +12,20 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.Environment;
 import org.swtp15.config.ApplicationProperties;
+import org.swtp15.models.FeatureModel;
+import org.swtp15.models.FeatureSystem;
+import org.swtp15.models.PerformanceInfluenceModel;
+import org.swtp15.parser.FeatureModelParser;
+import org.swtp15.parser.PerformanceModelParser;
 import org.swtp15.system.SystemCacheUpdater;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 
 @SpringBootApplication
 @EnableConfigurationProperties({ApplicationProperties.class})
@@ -27,7 +35,6 @@ public class GreenConfigurator15App {
 
     private final Environment env;
 
-    @Autowired
     private final SystemCacheUpdater systemCacheUpdater;
 
     public GreenConfigurator15App(Environment env, SystemCacheUpdater systemCacheUpdater) {

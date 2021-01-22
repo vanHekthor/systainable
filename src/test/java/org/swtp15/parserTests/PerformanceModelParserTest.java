@@ -34,7 +34,7 @@ public class PerformanceModelParserTest {
      */
     private void loadFileAndAssertException(String testFile, Exception ex) {
         try {
-            PerformanceModelParser.parseModel("src/test/testFiles/csv/" + testFile, getExpectedFeatures());
+            PerformanceModelParser.parseModel("src/test/testFiles/csv/" + testFile, getExpectedFeatures(), false);
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals(e, ex);
@@ -87,7 +87,7 @@ public class PerformanceModelParserTest {
     void parseSimpleCorrectFile() {
         var performanceInfluenceModel =
                 PerformanceModelParser.parseModel("src/test/testFiles/csv/SimpleCorrectTest.csv",
-                                                  getExpectedFeatures());
+                                                  getExpectedFeatures(), false);
 
         // only one Object should be created for this file ...
         for (var featureInfluence : performanceInfluenceModel.getFeatureInfluences()) {
@@ -109,7 +109,7 @@ public class PerformanceModelParserTest {
     void parseCorrectFile() {
         var performanceInfluenceModel =
                 PerformanceModelParser.parseModel("src/test/testFiles/csv/CorrectTest.csv",
-                                                  getExpectedFeatures());
+                                                  getExpectedFeatures(), false);
         var featureInfluences = performanceInfluenceModel.getFeatureInfluences();
         if (!(featureInfluences.size() == 4)) {
             fail("Size of featureInfluences doesn't correlate with valueLines in csv-file!");

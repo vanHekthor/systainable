@@ -5,6 +5,7 @@ import org.swtp15.models.Feature;
 import org.swtp15.parser.FeatureModelParser;
 import org.swtp15.parser.ParserExceptions;
 
+import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,9 +33,10 @@ public class FeatureModelParserTests {
      *                 'src/test/testFiles/dimacs/'
      * @param ex       The expected Exception
      */
-    private void loadFileAndAssertException_OnlyBinaryFeatures(String testFile, Exception ex) {
+    private void loadFileAndAssertException_OnlyBinaryFeatures(String testFile, Exception ex) throws
+                                                                                              FileNotFoundException {
         try {
-            FeatureModelParser.parseModel("src/test/testFiles/dimacs/" + testFile, null);
+            FeatureModelParser.parseModel("src/test/testFiles/dimacs/" + testFile, null, false);
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals(e, ex);
@@ -50,10 +52,12 @@ public class FeatureModelParserTests {
      *                       'src/test/testFiles/xml/'
      * @param ex             The expected Exception
      */
-    private void loadFileAndAssertException_WithNumerics(String dimacsTestFile, String xmlTestFile, Exception ex) {
+    private void loadFileAndAssertException_WithNumerics(String dimacsTestFile, String xmlTestFile, Exception ex)
+    throws FileNotFoundException {
         try {
             FeatureModelParser
-                    .parseModel("src/test/testFiles/dimacs/" + dimacsTestFile, "src/test/testFiles/xml/" + xmlTestFile);
+                    .parseModel("src/test/testFiles/dimacs/" + dimacsTestFile,
+                                "src/test/testFiles/xml/" + xmlTestFile, false);
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals(e, ex);
@@ -61,9 +65,9 @@ public class FeatureModelParserTests {
     }
 
     @Test
-    void parseFileCorrect() {
+    void parseFileCorrect() throws FileNotFoundException {
         var featureModel = FeatureModelParser.parseModel(
-                "src/test/testFiles/dimacs/CorrectTest.dimacs", null);
+                "src/test/testFiles/dimacs/CorrectTest.dimacs", null, false);
         var readFeatures = featureModel.getFeatures();
         boolean featuresEqual = readFeatures.size() == 2;
         for (var feature : readFeatures) {
@@ -78,19 +82,19 @@ public class FeatureModelParserTests {
     }
 
     @Test
-    void parseFileMissingControlLine() {
+    void parseFileMissingControlLine() throws FileNotFoundException {
         loadFileAndAssertException_OnlyBinaryFeatures("MissingControlLine.dimacs",
                                                       ParserExceptions.FEATURE_MODEL_MISSING_CONTROL_LINE);
     }
 
     @Test
-    void parseFileNotMatchingFeatureNumber() {
+    void parseFileNotMatchingFeatureNumber() throws FileNotFoundException {
         loadFileAndAssertException_OnlyBinaryFeatures("NotMatchingFeatureNumber.dimacs",
                                                       ParserExceptions.FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS);
     }
 
     @Test
-    void parseFileOccurringLiteralWithoutFeature() {
+    void parseFileOccurringLiteralWithoutFeature() throws FileNotFoundException {
         loadFileAndAssertException_OnlyBinaryFeatures("OccurringLiteralWithoutFeature.dimacs",
                                                       ParserExceptions.FEATURE_MODEL_UNASSIGNED_LITERAL);
     }
@@ -98,27 +102,27 @@ public class FeatureModelParserTests {
     // Tests for xml-files/numerics start here
 
     @Test
-    void syntacticErrorBecauseOfNoNumericOptionsInXml() {
+    void syntacticErrorBecauseOfNoNumericOptionsInXml() throws FileNotFoundException {
         loadFileAndAssertException_WithNumerics("xmlReference.dimacs", "syntacticError.xml",
                                                 ParserExceptions.XML_SYNTACTIC_ERROR);
     }
 
     @Test
-    void inconsistentBinaryFeaturesInXml() {
+    void inconsistentBinaryFeaturesInXml() throws FileNotFoundException {
         loadFileAndAssertException_WithNumerics("xmlReference.dimacs", "inconsistentBinaryFeatures.xml",
                                                 ParserExceptions.INCONSISTENT_BINARY_FEATURES_COUNT_IN_XML_AND_DIMACS);
     }
 
     @Test
-    void xmlWrongFiletype() {
+    void xmlWrongFiletype() throws FileNotFoundException {
         loadFileAndAssertException_WithNumerics("xmlReference.dimacs", "wrongFiletype.txt",
                                                 ParserExceptions.FEATURE_MODEL_WRONG_FILETYPE_XML);
     }
 
     @Test
-    void parseCorrectNumericFile() {
+    void parseCorrectNumericFile() throws FileNotFoundException {
         var featureModel = FeatureModelParser.parseModel(
-                "src/test/testFiles/dimacs/xmlReference.dimacs", "src/test/testFiles/xml/correct.xml");
+                "src/test/testFiles/dimacs/xmlReference.dimacs", "src/test/testFiles/xml/correct.xml", false);
         var readFeatures = featureModel.getFeatures();
         var binaryFeatures = readFeatures.parallelStream().filter(Feature::isBinary).collect(Collectors.toList());
         var numericFeatures = readFeatures.parallelStream().filter(f -> !f.isBinary()).collect(Collectors.toList());

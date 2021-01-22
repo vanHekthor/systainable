@@ -5,6 +5,7 @@ import org.swtp15.models.*;
 import org.swtp15.parser.FeatureModelParser;
 import org.swtp15.parser.PerformanceModelParser;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EvaluationTests {
 
-    private FeatureSystem getExampleFeatureSystem() {
-        FeatureModel fm = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null);
+    private FeatureSystem getExampleFeatureSystem() throws FileNotFoundException {
+        FeatureModel fm = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null, false);
         PerformanceInfluenceModel pm = PerformanceModelParser
-                .parseModel("src/test/testFiles/csv/CorrectTest.csv", fm.getFeatures());
+                .parseModel("src/test/testFiles/csv/CorrectTest.csv", fm.getFeatures(), false);
         return new FeatureSystem("test", fm, pm);
     }
 
@@ -34,7 +35,7 @@ public class EvaluationTests {
     }
 
     @Test
-    void evaluateConfiguration1() {
+    void evaluateConfiguration1() throws FileNotFoundException {
         FeatureSystem featureSystem = getExampleFeatureSystem();
         var result = featureSystem.evaluateFeatureConfiguration(getExampleFeatureConfiguration1());
         assertEquals(result.size(), 3);
@@ -44,7 +45,7 @@ public class EvaluationTests {
     }
 
     @Test
-    void evaluateConfiguration2() {
+    void evaluateConfiguration2() throws FileNotFoundException {
         FeatureSystem featureSystem = getExampleFeatureSystem();
         var result = featureSystem.evaluateFeatureConfiguration(getExampleFeatureConfiguration2());
         assertEquals(result.size(), 3);
