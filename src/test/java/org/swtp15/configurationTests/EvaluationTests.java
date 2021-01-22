@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EvaluationTests {
 
+    // Tests with Binary Features only.
+
     private FeatureSystem getExampleFeatureSystem() throws FileNotFoundException {
         FeatureModel fm = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null, false);
         PerformanceInfluenceModel pm = PerformanceModelParser
@@ -53,4 +55,41 @@ public class EvaluationTests {
         assertEquals(result.get(new Property("property2", null, false)), -0.945, 0.00001);
         assertEquals(result.get(new Property("property3", null, false)), 1.5342245214, 0.00001);
     }
+
+    // Tests with Numeric Features.
+
+    private FeatureSystem getExampleNumericFeatureSystem() throws FileNotFoundException {
+        FeatureModel fm = FeatureModelParser
+                .parseModel("src/test/testFiles/dimacs/xmlReference.dimacs", "src/test/testFiles/xml/correct.xml",
+                            false);
+        PerformanceInfluenceModel pm = PerformanceModelParser
+                .parseModel("src/test/testFiles/csv/Numerics.csv", fm.getFeatures(), false);
+        return new FeatureSystem("test", fm, pm);
+    }
+
+    private FeatureConfiguration getExampleNumericFeatureConfiguration() {
+        Map<String, Boolean> binaryFeatures = new HashMap<>();
+        Map<String, Integer> numericFeatures = new HashMap<>();
+        binaryFeatures.put("Auto", true);
+        binaryFeatures.put("Motor", true);
+        binaryFeatures.put("Anhaengerkupplung", false);
+        binaryFeatures.put("Diesel", true);
+        binaryFeatures.put("Elektro", false);
+        numericFeatures.put("Gaenge", 5);
+        numericFeatures.put("Tueren", 4);
+        return new FeatureConfiguration("car", binaryFeatures, numericFeatures, null);
+    }
+
+    @Test
+    void evaluateNumericConfiguration() throws FileNotFoundException {
+        FeatureSystem featureSystem = getExampleNumericFeatureSystem();
+        Map<Property, Double> result = featureSystem
+                .evaluateFeatureConfiguration(getExampleNumericFeatureConfiguration());
+        assertEquals(result.size(), 3);
+        assertEquals(result.get(new Property("Geschwindigkeit", null, false)), 125);
+        assertEquals(result.get(new Property("Verbrauch", null, true)), 25);
+        assertEquals(result.get(new Property("Preis", null, true)), 7600);
+    }
+
+
 }

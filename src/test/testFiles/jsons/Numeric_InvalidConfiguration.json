@@ -1,0 +1,19 @@
+{
+  "featureConfiguration": {
+    "featureModel": "invalid_numeric_model",
+    "features": {
+      "Gaenge": 4,
+      "Tueren": 2,
+      "Auto": true,
+      "Motor": true,
+      "Anhaengerkupplung": false,
+      "Diesel": true,
+      "Elektro": true
+    },
+    "properties": {
+      "Geschwindigkeit": 0.0,
+      "Verbrauch": 0.0,
+      "Preis": 0.0
+    }
+  }
+}
