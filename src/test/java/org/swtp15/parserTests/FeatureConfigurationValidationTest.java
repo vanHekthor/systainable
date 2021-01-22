@@ -9,6 +9,7 @@ import org.swtp15.parser.FeatureModelParser;
 import org.swtp15.parser.FileParser;
 import org.swtp15.parser.ParserExceptions;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,8 +60,8 @@ public class FeatureConfigurationValidationTest {
     }
 
     @Test
-    void validInvalidNonmatchingConfigurations() throws InterruptedException {
-        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null);
+    void validInvalidNonmatchingConfigurations() throws InterruptedException, FileNotFoundException {
+        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null, false);
         String json = this.getJsonString("correctTest.dimacs/2Valid1Invalid1NotMatching.json");
         List<FeatureConfiguration> featureConfigurationList = FeatureConfigurationParser.parseConfigurations(json);
         if (featureConfigurationList == null) {
@@ -78,8 +79,8 @@ public class FeatureConfigurationValidationTest {
     }
 
     @Test
-    void validConfiguration() throws InterruptedException, ParseException {
-        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null);
+    void validConfiguration() throws InterruptedException, ParseException, FileNotFoundException {
+        FeatureModel model = FeatureModelParser.parseModel("src/test/testFiles/dimacs/CorrectTest.dimacs", null, false);
         String json = this.getJsonString("correctTest.dimacs/1Valid.json");
         FeatureConfiguration conf = FeatureConfigurationParser.parseConfiguration(json);
         assertNotNull(conf);

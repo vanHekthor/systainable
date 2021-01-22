@@ -30,16 +30,6 @@ public class DirectoryReaderTests {
         assertTrue(getExpectedSystems().containsAll(updater.getSystemCache().getCurrentlyKnownSystems().keySet()));
     }
 
-    @Test
-    void nonExistingPath() {
-        try {
-            updater.readSystemsFromDirectory("test");
-            fail("Exception not thrown");
-        } catch (Exception e) {
-            assertEquals(SystemExceptions.INVALID_DIRECTORY_PATH, e);
-        }
-    }
-
 
     @Test
     void parseAllExampleSystems() {

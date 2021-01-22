@@ -1,6 +1,7 @@
 package org.swtp15.system;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.swtp15.models.FeatureModel;
@@ -10,6 +11,7 @@ import org.swtp15.parser.FeatureModelParser;
 import org.swtp15.parser.PerformanceModelParser;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,9 @@ public class SystemCacheUpdater {
     @Getter
     private final SystemCache systemCache;
 
+    @Setter
+    private Set<FeatureSystem> permanentSystems;
+
     /**
      * The constructor.
      *
@@ -27,17 +32,18 @@ public class SystemCacheUpdater {
     @Autowired
     public SystemCacheUpdater(SystemCache systemCache) {
         this.systemCache = systemCache;
+        systemCache.setSystemCacheUpdater(this);
     }
 
     /**
      * Initializes the {@link SystemCache}.
-     *
+     * <p>
      * This method scans both the internal used path of the models as well as `$PWD/modelFiles` to search for valid
      * models.
      */
     public void initialize() {
         try {
-            readSystemsFromDirectory(this.systemCache.getPathToModels(), new File("modelFiles").getCanonicalPath());
+            readSystemsFromDirectory(new File("modelFiles").getCanonicalPath());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -46,9 +52,9 @@ public class SystemCacheUpdater {
 
     /**
      * Reads systems from files
-     *
-     * Reads by going through all subdirectories of the provided paths and checks whether
-     * they contain both a valid dimacs, csv and optionally a xml, compiling a {@link FeatureSystem} for each found.
+     * <p>
+     * Reads by going through all subdirectories of the provided paths and checks whether they contain both a valid
+     * dimacs, csv and optionally a xml, compiling a {@link FeatureSystem} for each found.
      *
      * @param paths All directories to scan subdirectories from
      *
@@ -57,9 +63,6 @@ public class SystemCacheUpdater {
     public void readSystemsFromDirectory(String... paths) throws IllegalArgumentException {
         Set<File> foundDirestories = Arrays.stream(paths).map(File::new).filter(File::isDirectory).collect(
                 Collectors.toSet());
-        if (foundDirestories.size() == 0) {
-            throw SystemExceptions.INVALID_DIRECTORY_PATH;
-        }
         Map<String, FeatureSystem> systemMap = new HashMap<>();
 
         for (File dir : foundDirestories) {
@@ -87,16 +90,28 @@ public class SystemCacheUpdater {
 
             for (Map<String, File> systemFileNames : readSystems) {
                 File xmlEntry = systemFileNames.get("xml");
-                FeatureModel featureModel = FeatureModelParser.parseModel(systemFileNames.get("dimacs").getPath(),
-                                                                          xmlEntry == null ? null : xmlEntry.getPath());
-                PerformanceInfluenceModel pIModel = PerformanceModelParser
-                        .parseModel(systemFileNames.get("csv").getPath(), featureModel.getFeatures());
+                try {
+                    FeatureModel featureModel = FeatureModelParser.parseModel(systemFileNames.get("dimacs").getPath(),
+                                                                              xmlEntry == null ? null :
+                                                                              xmlEntry.getPath(), false);
+                    PerformanceInfluenceModel pIModel = PerformanceModelParser
+                            .parseModel(systemFileNames.get("csv").getPath(), featureModel.getFeatures(), false);
 
-                FeatureSystem system = new FeatureSystem(systemFileNames.get("name").getName(), featureModel, pIModel);
+                    FeatureSystem system = new FeatureSystem(systemFileNames.get("name").getName(), featureModel,
+                                                             pIModel);
 
-                systemMap.put(system.getName(), system);
+                    systemMap.put(system.getName(), system);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         }
+
+        if (permanentSystems != null) {
+            systemMap.putAll(permanentSystems.parallelStream().collect(Collectors.toMap(FeatureSystem::getName,
+                                                                                        system -> system)));
+        }
+
 
         this.systemCache.setCurrentlyKnownSystems(systemMap);
     }

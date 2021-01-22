@@ -18,21 +18,28 @@ public class PerformanceModelParser extends FileParser {
      * @param filename          the name of the .csv-file to parse
      * @param referenceFeatures The Set of all Features from the {@link FeatureModel},  which should correspond to the
      *                          features in the .csv-file
+     * @param isInternalModel   Whether the model is constructed from internal resources, required due to issues with
+     *                          accessing file when packaged into jar
      *
      * @return A Set of instances of {@link FeatureInfluence} (representing all non-headlines of .csv-file)
      *
      * @throws IllegalArgumentException If there is any syntax error while parsing a csv file body
      */
-    public static PerformanceInfluenceModel parseModel(String filename, List<Feature> referenceFeatures)
+    public static PerformanceInfluenceModel parseModel(String filename, List<Feature> referenceFeatures,
+                                                       boolean isInternalModel)
     throws IllegalArgumentException {
-
-        Set<FeatureInfluence> featureInfluences = new HashSet<>();
-
         if (!filename.endsWith(".csv")) {
             throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_NOT_CSV_EXTENSION;
         }
+        List<String> csvContents = isInternalModel ? ResourceReader.readFileFromResources(filename) :
+                                   FileParser.readFile(filename);
+        return parseModelFromString(csvContents, referenceFeatures);
+    }
 
-        List<String> csvLines = readFile(filename);
+    private static PerformanceInfluenceModel parseModelFromString(List<String> csvLines,
+                                                                  List<Feature> referenceFeatures) {
+        Set<FeatureInfluence> featureInfluences = new HashSet<>();
+
 
         if (csvLines.size() == 0 || csvLines.size() == 1) {
             throw ParserExceptions.PROPERTY_INFLUENCE_MODEL_LESS_THAN_2_LINES;

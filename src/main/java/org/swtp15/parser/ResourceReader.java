@@ -21,8 +21,8 @@ public class ResourceReader {
      *
      * @return List of lines as strings
      */
-    public List<String> readFileFromResources(String filename) {
-        InputStream inputStream = getClass().getResourceAsStream(filename);
+    public static List<String> readFileFromResources(String filename) {
+        InputStream inputStream = ResourceReader.class.getResourceAsStream(filename);
         List<String> lines = new ArrayList<>();
         try (InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
              BufferedReader reader = new BufferedReader(streamReader)) {

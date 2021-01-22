@@ -12,8 +12,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -24,21 +23,46 @@ public class FeatureModelParser extends FileParser {
     /**
      * Parses file into {@link FeatureModel}.
      *
-     * @param dimacsPath dimacs file to parse binary features and the formula of their interaction
-     * @param xmlPath    xml file to parse numeric features and their codomain.
+     * @param dimacsPath      dimacs file to parse binary features and the formula of their interaction
+     * @param xmlPath         xml file to parse numeric features and their co-domain.
+     * @param isInternalModel Whether the model is constructed from internal resources, required due to issues with
+     *                        accessing file when packaged into jar
      *
      * @return parsed {@link FeatureModel}
      *
      * @throws IllegalArgumentException If there is any syntax error while parsing a dimacs file
+     * @throws FileNotFoundException    When the file cannot be found, usually when the path is incorrect
      */
-    public static FeatureModel parseModel(String dimacsPath, String xmlPath) throws IllegalArgumentException {
-        Map<Integer, Feature> binaryFeatures = new HashMap<>();
-        Set<Set<Integer>> formulas = new HashSet<>();
-        String controlLine = null;
+    public static FeatureModel parseModel(String dimacsPath, String xmlPath, boolean isInternalModel)
+    throws IllegalArgumentException, FileNotFoundException {
         if (!dimacsPath.endsWith(".dimacs")) {
             throw ParserExceptions.FEATURE_MODEL_WRONG_FILETYPE_DIMACS;
         }
-        for (String line : FileParser.readFile(dimacsPath)) {
+        if (xmlPath != null) {
+            if (!xmlPath.endsWith(".xml")) {
+                throw ParserExceptions.FEATURE_MODEL_WRONG_FILETYPE_XML;
+            }
+        }
+        FeatureModel resultingModel;
+        if (isInternalModel) {
+            resultingModel = parseModelFromString(ResourceReader.readFileFromResources(dimacsPath),
+                                                  xmlPath != null ? FeatureModelParser.class
+                                                          .getResourceAsStream(xmlPath) : null);
+        } else {
+            resultingModel = parseModelFromString(FileParser.readFile(dimacsPath),
+                                                  xmlPath != null ? new FileInputStream(xmlPath) : null);
+        }
+
+        resultingModel.setName(new File(dimacsPath).getName().replace(".dimacs", ""));
+        return resultingModel;
+    }
+
+    private static FeatureModel parseModelFromString(List<String> dimacsContent, InputStream xmlStream)
+    throws IllegalArgumentException {
+        Map<Integer, Feature> binaryFeatures = new HashMap<>();
+        Set<Set<Integer>> formulas = new HashSet<>();
+        String controlLine = null;
+        for (String line : dimacsContent) {
             switch (line.charAt(0)) {
                 case 'c':
                     parseFeatureLineAndAddToFeaturesMap(line, binaryFeatures);
@@ -61,11 +85,8 @@ public class FeatureModelParser extends FileParser {
         if (!numbersOfFeaturesAndFormulasAreCorrect(controlLine, binaryFeatures.size(), formulas.size())) {
             throw ParserExceptions.FEATURE_MODEL_WRONG_NUMBER_OF_FEATURES_OR_FORMULAS;
         }
-        Map<Integer, Feature> numericFeatures = parseNumericFeaturesFromXml(xmlPath, binaryFeatures);
-        FeatureModel resultingModel = new FeatureModel(binaryFeatures, numericFeatures, formulas,
-                                                       binaryFeatures.size(), formulas.size());
-        resultingModel.setName(new File(dimacsPath).getName().replace(".dimacs", ""));
-        return resultingModel;
+        Map<Integer, Feature> numericFeatures = parseNumericFeaturesFromXml(xmlStream, binaryFeatures);
+        return new FeatureModel(binaryFeatures, numericFeatures, formulas, binaryFeatures.size(), formulas.size());
     }
 
     /**
@@ -126,27 +147,24 @@ public class FeatureModelParser extends FileParser {
      * Parses the numeric features given in a xml file and returns them as a map of integers with the belonging feature
      * as value. The integers starts with the next int after the max int of the given binary features map.
      *
-     * @param path     path of the xml file to be parsed.
-     * @param features the binary features read out of the belonging dimacs file.
+     * @param xmlStream path of the xml file to be parsed.
+     * @param features  the binary features read out of the belonging dimacs file.
      *
      * @return a map of the read numeric features.
      *
      * @throws IllegalArgumentException error while parsing the xml.
      */
-    public static Map<Integer, Feature> parseNumericFeaturesFromXml(String path, Map<Integer, Feature> features)
+    public static Map<Integer, Feature> parseNumericFeaturesFromXml(InputStream xmlStream,
+                                                                    Map<Integer, Feature> features)
     throws IllegalArgumentException {
         Map<Integer, Feature> numericFeatures = new HashMap<>();
-        if (path == null) {
+        if (xmlStream == null) {
             return numericFeatures;
         }
-        if (!path.endsWith(".xml")) {
-            throw ParserExceptions.FEATURE_MODEL_WRONG_FILETYPE_XML;
-        }
         try {
-            File xmlFile = new File(path);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document document = dBuilder.parse(xmlFile);
+            Document document = dBuilder.parse(xmlStream);
             document.getDocumentElement().normalize();
             NodeList binaryOptionsElement = document.getElementsByTagName("binaryOptions");
             NodeList numericOptionsElement = document.getElementsByTagName("numericOptions");
