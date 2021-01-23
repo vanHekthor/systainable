@@ -127,6 +127,9 @@ export default {
       detailed_logging: true,
       no_write_delay: true,
       small_log: false,
+      files: 10,
+      blockSize: 16,
+      x: 4,
     };
 
     return exampleConfig;

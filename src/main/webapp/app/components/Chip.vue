@@ -3,7 +3,11 @@
         <slot>
             <img :src="image" v-if="image">
             <span :class="iconClass" v-else-if="icon"></span>
-            <div class="p-chip-text" v-if="label">{{label}}</div>
+            <span @click="$emit('chip-clicked')" style="cursor:pointer">
+                <div class="p-chip-text" v-if="label">
+                     {{label}}
+                </div>
+            </span>
             <span v-if="removable" tabindex="0" :class="removeIconClass"
                   @click="close" @keydown.enter="close"></span>
         </slot>
@@ -40,12 +44,14 @@ export default {
             visible: true
         }
     },
+
     methods: {
         close(event) {
             this.visible = false;
             this.$emit('remove', event);
         }
     },
+
     computed: {
         containerClass() {
             return ['p-chip p-component', {

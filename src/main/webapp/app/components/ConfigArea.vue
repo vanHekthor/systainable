@@ -82,7 +82,22 @@
                                               @remove="$emit('update-feature', index, featureName, false)"/>
                                     </template>
                                     <template v-for="(featureName) in Object.keys(configurationFeatures.numericFeatures)">
-                                        <Chip class="custom-chip p-m-1" :label="featureName + ': ' + config[featureName]"/>
+                                        <Chip :id="'numeric-chip' + index + featureName"
+                                              class="custom-chip1 p-m-1" :label="featureName + ': ' + config[featureName]"/>
+                                        <b-popover
+                                            :target="'numeric-chip' + index + featureName"
+                                            :title="featureName"
+                                            triggers="hover"
+                                            boundary="viewport"
+                                            placement="bottom">
+                                            <CustomSpinButton
+                                                :value="config[featureName]"
+                                                :value.sync="config[featureName]"
+                                                :step-function="configurationFeatures.numericFeatures[featureName].stepFunction"
+                                                :min="configurationFeatures.numericFeatures[featureName].min"
+                                                :max="configurationFeatures.numericFeatures[featureName].max"
+                                            />
+                                        </b-popover>
                                     </template>
                                 </div>
                             </div>
@@ -318,6 +333,11 @@ export default {
 
 .custom-chip {
     background: #2196F3;
+    color: #fff;
+}
+
+.custom-chip1 {
+    background: #0064C1;
     color: #fff;
 }
 

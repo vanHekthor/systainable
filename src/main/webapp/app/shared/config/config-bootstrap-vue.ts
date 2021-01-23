@@ -26,6 +26,8 @@ import {
   BInputGroupPrepend,
 
   // added
+  BFormSpinbutton,
+  PopoverPlugin,
   TablePlugin,
   LayoutPlugin,
   ModalPlugin,
@@ -59,8 +61,9 @@ export function initBootstrapVue(vue) {
   vue.component('b-form-datepicker', BFormDatepicker);
   vue.component('b-input-group', BInputGroup);
   vue.component('b-input-group-prepend', BInputGroupPrepend);
-
   // added
+  vue.component('b-form-spinbutton', BFormSpinbutton);
+  vue.use(PopoverPlugin);
   vue.use(TablePlugin);
   vue.use(LayoutPlugin);
   vue.use(ModalPlugin);
