@@ -78,6 +78,13 @@ export default {
     return response.data;
   },
 
+  getOptimizedConfig: async function getOptimizedConfig(systemName, propertyName, featureConfiguration) {
+    let response = await instance
+      .post(`performance/optimum/local?featuresystem=${systemName}&property=${propertyName}`, { featureConfiguration })
+      .catch(error => console.log(error));
+    return response.data;
+  },
+
   // the following methods generate dummy data for frontend dev without backend responses
   getFeatureNamesExample: function getFeatureNamesExample() {
     // dummy data
