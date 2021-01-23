@@ -1,5 +1,5 @@
 <template>
-    <div class="p-px-3">
+    <div class="mb-3">
         <Panel v-if="softSystemLoaded">
             <template #header>
                 <div class="panel-header p-d-flex p-jc-between p-flex-wrap" style="width: 100%">

@@ -1,50 +1,52 @@
 <template id="app">
     <div>
-        <div class="top-bar p-d-flex p-ai-center p-shadow-2 p-mb-3 p-p-3">
-            <h3 class="p-mb-0 p-mr-2">Green Configurator</h3>
-            <div>
-                <Dropdown id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems"
-                          placeholder="Select a system"
-                          @change="requestSystemAttributes"/>
-            </div>
-
-            <Dialog :header="invalidConfig.name + ' is invalid'" :visible.sync="displayModal" :style="{width: '50vw'}" :modal="true">
-                <h6>Suggestion:</h6>
-                <div class="p-d-flex p-jc-center p-ai-center" style="overflow-x: auto">
-                    <ConfigCard class="m-2"
-                                :configurationFeatures="configurationFeatures"
-                                :config="invalidConfig"/>
-                    <font-awesome-icon class="m-2" icon="arrow-right" size="lg" fixed-width/>
-                    <ConfigCard class="m-2"
-                                :configurationFeatures="configurationFeatures"
-                                :config="alternativeConfig"/>
+        <div class="top-bar p-d-flex p-ai-center p-shadow-2 mb-3 p-3">
+            <b-container class="d-inline-flex flex-wrap align-items-center" fluid>
+                <h3 class="p-mb-0 p-mr-2 ">Green Configurator</h3>
+                <div>
+                    <Dropdown id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems"
+                              placeholder="Select a system"
+                              @change="requestSystemAttributes"/>
                 </div>
-                <template #footer>
-                    <Button label="Decline" icon="pi pi-times" @click="closeModal" class="p-button-text"/>
-                    <Button label="Accept" icon="pi pi-check" @click="closeModalAcceptAlternative" autofocus />
-                </template>
-            </Dialog>
+            </b-container>
         </div>
+        <b-container fluid>
+            <ConfigArea
+                :systemName="selectedSoftSystem"
+                :configurationFeatures="configurationFeatures"
+                :configurations="configurations"
+                :softSystemLoaded="softSystemLoaded"
+                @update-feature="updateFeature"
+                @update-config-name="updateConfigName"
+                @del-config="deleteConfig"
+                @submit-configs="requestValidityCheck"
+                @get-config-example="requestInitConfig"
+                @load-data="loadConfigs"
+                @duplicate-config="duplicateConfig"
+            />
 
-        <ConfigArea
-            :systemName="selectedSoftSystem"
-            :configurationFeatures="configurationFeatures"
-            :configurations="configurations"
-            :softSystemLoaded="softSystemLoaded"
-            @update-feature="updateFeature"
-            @update-config-name="updateConfigName"
-            @del-config="deleteConfig"
-            @submit-configs="requestValidityCheck"
-            @get-config-example="requestInitConfig"
-            @load-data="loadConfigs"
-            @duplicate-config="duplicateConfig"
-        />
-
-        <ChartArea
-            v-if="draw & configurations.length > 0"
-            :chartDataArray="chartDataArray"
-            :radarData="radarData"
-        />
+            <ChartArea
+                v-if="draw & configurations.length > 0"
+                :chartDataArray="chartDataArray"
+                :radarData="radarData"
+            />
+        </b-container>
+        <Dialog :header="invalidConfig.name + ' is invalid'" :visible.sync="displayModal" :style="{width: '50vw'}" :modal="true">
+            <h6>Suggestion:</h6>
+            <div class="p-d-flex p-jc-center p-ai-center" style="overflow-x: auto">
+                <ConfigCard class="m-2"
+                            :configurationFeatures="configurationFeatures"
+                            :config="invalidConfig"/>
+                <font-awesome-icon class="m-2" icon="arrow-right" size="lg" fixed-width/>
+                <ConfigCard class="m-2"
+                            :configurationFeatures="configurationFeatures"
+                            :config="alternativeConfig"/>
+            </div>
+            <template #footer>
+                <Button label="Decline" icon="pi pi-times" @click="closeModal" class="p-button-text"/>
+                <Button label="Accept" icon="pi pi-check" @click="closeModalAcceptAlternative" autofocus />
+            </template>
+        </Dialog>
     </div>
 </template>
 
