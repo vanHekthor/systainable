@@ -115,4 +115,7 @@ new Vue({
     accountService: () => accountService,
   },
   store,
+  data: {
+    noUnderscore: false,
+  },
 });
