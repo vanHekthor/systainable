@@ -1,0 +1,116 @@
+import api from './requestApi';
+import underscoreUtil from '../util/underscoreUtil';
+
+/**
+ * This function converts the app-internal configuration format into the format needed for requests.
+ * @param systemName name of the software systems this configuration belongs to
+ * @param config configuration to be converted
+ * @param properties properties belonging to the software system as well as the configuration
+ * @returns {{featureModel: *, features: {}, properties: {}}} Configuration in request format
+ */
+function createRequestConfig(systemName, config, properties) {
+  const requestConfig = {
+    featureModel: systemName,
+    features: {},
+    properties: {},
+  };
+
+  Object.keys(config).forEach(function (key) {
+    if (key !== 'name') {
+      requestConfig.features[key.replace('\xa0', '_')] = config[key];
+    }
+  });
+
+  for (let prop of Object.keys(properties)) {
+    requestConfig.properties[prop.replace('\xa0', '_')] = 1.1;
+  }
+
+  return requestConfig;
+}
+
+export default {
+  /**
+   * This method makes requests for available software systems.
+   * @returns {Promise<*>} String array with names of available systems
+   */
+  getAvailableSystems: async function getAvailableSystems() {
+    let responseData = await api.getAvailableSystems();
+    return responseData.systemNames;
+  },
+
+  /**
+   * This method requests the feature/option names of a selected software system.<br>
+   * Additional content of response (feature attributes):
+   * - binary/numeric features<br>
+   * - numeric feature constraints<br>
+   * - numeric feature step-function<br>
+   * Underscores get replaced with non-break spaces.
+   * @param systemName Selected software system
+   * @returns {Promise<{}|undefined>} Object with feature attributes
+   */
+  getFeatureNames: async function getFeatureNames(systemName) {
+    let responseData = await api.getAttributeNames(systemName);
+
+    await Object.keys(responseData.features).forEach(function (key) {
+      responseData.features[key] = underscoreUtil.replaceUnderscores(responseData.features[key]);
+    });
+
+    return responseData.features;
+  },
+
+  /**
+   * This method requests the property names of a selected software system with additional information about property units and remarks about desirable values
+   * (lower/higher? == better). Underscores get replaced with non-break spaces.
+   * @param systemName Selected software system
+   * @returns {Promise<{}|undefined>} Object with property names as keys and units plus desirable values (lower/higher)
+   */
+  getPropNames: async function getPropNames(systemName) {
+    let responseData = await api.getAttributeNames(systemName);
+    responseData.properties = underscoreUtil.replaceUnderscores(responseData.properties);
+
+    return responseData.properties;
+  },
+
+  /**
+   * This method requests an initial valid minimal configuration of a selected software system. The received configuration gets adapted to the app-internal format by
+   * adding a name property. Underscores in object keys get replaced with non-break spaces.
+   * @param systemName Selected software system
+   * @returns {Promise<{name: string}|undefined>} Valid minimal configuration
+   */
+  getInitConfig: async function getInitConfig(systemName) {
+    let responseData = await api.getInitConfig(systemName);
+
+    responseData.featureConfiguration.features = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
+    responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
+
+    return Object.assign({ name: 'config' }, responseData.featureConfiguration.features);
+  },
+
+  /**
+   * This method requests if a configuration is valid.
+   * @param systemName Selected software system
+   * @param config Configuration to be checked
+   * @param properties Configuration properties object
+   * @returns {Promise<*>} Validity of the configuration true/false
+   */
+  validateConfig: async function validate(systemName, config, properties) {
+    const requestConfig = createRequestConfig(systemName, config, properties);
+    return await api.getValidity(requestConfig);
+  },
+
+  /**
+   * This method requests the property values of a configuration. Underscores in response object keys get replaced by non-break spaces.
+   * @param systemName Selected software system
+   * @param config Configuration to be evaluated
+   * @param properties Configuration properties object
+   * @returns {Promise<{}|undefined>} Object with property values
+   */
+  getConfigPropValues: async function getConfigPropValues(systemName, config, properties) {
+    const requestConfig = createRequestConfig(systemName, config, properties);
+
+    let responseData = await api.getPropValues(requestConfig);
+    responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.properties);
+
+    return responseData.featureConfiguration.properties;
+  },
+};

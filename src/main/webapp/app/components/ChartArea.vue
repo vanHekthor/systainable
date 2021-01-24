@@ -92,6 +92,7 @@ export default {
         Knob
     },
     props: [
+        "configurationProperties",
         "chartDataArray",
         "radarData"
     ],

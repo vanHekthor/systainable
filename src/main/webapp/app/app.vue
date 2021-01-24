@@ -2,9 +2,9 @@
     <div>
         <div class="top-bar p-d-flex p-ai-center p-shadow-2 mb-3 p-3">
             <b-container class="d-inline-flex flex-wrap align-items-center" fluid>
-                <h3 class="p-mb-0 p-mr-2 ">Green Configurator</h3>
-                <div>
-                    <Dropdown id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems"
+                <h3 class="mb-0 mr-3 ">Green Configurator</h3>
+                <div class="d-inline-flex align-items-center">
+                    <Dropdown class="mr-2" id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems"
                               placeholder="Select a system"
                               @change="requestSystemAttributes"/>
                 </div>
@@ -27,6 +27,7 @@
 
             <ChartArea
                 v-if="draw & configurations.length > 0"
+                :configurationProperties="configurationProperties"
                 :chartDataArray="chartDataArray"
                 :radarData="radarData"
             />
@@ -51,7 +52,7 @@
 </template>
 
 <script>
-import chartDataBuilder from './ChartDataBuilder'
+import chartDataBuilder from './js_modules/visualization/ChartDataBuilder'
 import ConfigArea from './components/ConfigArea';
 import ChartArea from './components/ChartArea';
 import ConfigCard from "./components/ConfigCard";
@@ -61,7 +62,7 @@ import Dropdown from 'primevue/dropdown';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 
-import requestHandler from './requestHandler';
+import requestHandler from './js_modules/request/requestHandler';
 
 export default {
     name: 'App',
@@ -75,22 +76,25 @@ export default {
     },
     data() {
         return {
-            messages: [],
-            displayModal: false,
-            invalidConfig: {},
-            alternativeConfig: {},
-            featureModel: "",
+            // system and config data
+            softSystems: [],
             configurationFeatures: [],
             configurationProperties: [],
             configurations: [],
-            configCount: 0,
-            chartDataArray: [],
-            radarData: {},
-            draw: false,
+            invalidConfig: {},
+            alternativeConfig: {},
+
+            // UI logic data
             selectedSoftSystem: "",
             previousSelection: "",
+            configCount: 0,
+            displayModal: false,
+            draw: false,
             softSystemLoaded: false,
-            softSystems: []
+
+            // chart data
+            chartDataArray: [],
+            radarData: {},
         }
     },
     mounted() {
