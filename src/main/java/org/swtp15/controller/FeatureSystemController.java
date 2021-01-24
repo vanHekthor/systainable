@@ -22,8 +22,8 @@ public class FeatureSystemController {
     private SystemCache systemCache;
 
     private String getFeatureModelJson() {
-        return StringUtils.join(new ResourceReader()
-                                        .readFileFromResources("/exampleFiles/featureModelByNameResponse.json"), "");
+        return StringUtils
+                .join(ResourceReader.readFileFromResources("/exampleFiles/featureModelByNameResponse.json"), "");
     }
 
     /**
@@ -86,8 +86,8 @@ public class FeatureSystemController {
 
 
     private String getAlternativeJson() {
-        return StringUtils.join(new ResourceReader()
-                                        .readFileFromResources("/exampleFiles/alternativeConfigResponse.json"), "");
+        return StringUtils
+                .join(ResourceReader.readFileFromResources("/exampleFiles/alternativeConfigResponse.json"), "");
     }
 
     //ToDo: This is only hardcoded for now. ...
@@ -98,8 +98,8 @@ public class FeatureSystemController {
     }
 
     private String getMinimalValidJson() {
-        return StringUtils.join(new ResourceReader()
-                                        .readFileFromResources("/exampleFiles/minimalValidConfigResponse.json"), "");
+        return StringUtils
+                .join(ResourceReader.readFileFromResources("/exampleFiles/minimalValidConfigResponse.json"), "");
     }
 
     /**

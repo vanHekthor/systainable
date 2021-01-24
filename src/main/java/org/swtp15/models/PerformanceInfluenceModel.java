@@ -62,6 +62,7 @@ public class PerformanceInfluenceModel {
                 evaluation.put(entry.getKey().getName(),
                                evaluation.get(entry.getKey().getName()) + factor * entry.getValue());
             }
+            featureConfiguration.getActiveInfluences().put(featureInfluence, factor);
         }
         featureConfiguration.setPropertyValueMap(evaluation);
         return returnEvaluation;

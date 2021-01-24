@@ -3,6 +3,8 @@ package org.swtp15.models;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
@@ -16,14 +18,17 @@ public class FeatureConfiguration implements Cloneable {
     private String featureModelName;
 
     @Getter
-    private Map<String, Boolean> binaryFeatures;
+    private final Map<String, Boolean> binaryFeatures;
 
     @Getter
-    private Map<String, Integer> numericFeatures;
+    private final Map<String, Integer> numericFeatures;
 
     @Getter
     @Setter
     private Map<String, Double> propertyValueMap;
+
+    @Getter
+    private final Map<FeatureInfluence, Integer> activeInfluences;
 
 
     /**
@@ -36,12 +41,13 @@ public class FeatureConfiguration implements Cloneable {
      * @param numericFeatures  Map of numericFeatures with belonging value.
      * @param properties       Map from the Properties of the FeatureSystem to the respective values.
      */
-    public FeatureConfiguration(String featureModelName, @NonNull Map<String, Boolean> binaryFeatures,
+    public FeatureConfiguration(@NonNull String featureModelName, @NonNull Map<String, Boolean> binaryFeatures,
                                 @NonNull Map<String, Integer> numericFeatures, Map<String, Double> properties) {
         this.featureModelName = featureModelName;
         this.binaryFeatures   = binaryFeatures;
         this.numericFeatures  = numericFeatures;
         this.propertyValueMap = properties;
+        this.activeInfluences = new HashMap<>();
     }
 
 
@@ -51,8 +57,7 @@ public class FeatureConfiguration implements Cloneable {
      * @return Set of active features
      */
     public Set<String> getActiveFeatures() {
-        return binaryFeatures.keySet().stream().
-                filter(f -> this.binaryFeatures.get(f)).collect(Collectors.toSet());
+        return binaryFeatures.keySet().parallelStream().filter(this.binaryFeatures::get).collect(Collectors.toSet());
     }
 
     /**
@@ -72,35 +77,20 @@ public class FeatureConfiguration implements Cloneable {
      *
      * @return A deep copy instance of {@link FeatureConfiguration}
      */
+    @SneakyThrows
     @Override
     public FeatureConfiguration clone() {
-        FeatureConfiguration clone = null;
-        try {
-            clone = (FeatureConfiguration) super.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        clone.featureModelName = this.featureModelName;
-        clone.binaryFeatures   = new HashMap<>();
-        clone.numericFeatures  = new HashMap<>();
-        clone.propertyValueMap = new HashMap<>();
+        String newFeatureModelName = this.featureModelName;
+        Map<String, Boolean> newBinaryFeatures = new HashMap<>();
+        Map<String, Integer> newNumericFeatures = new HashMap<>();
+        Map<String, Double> newPropertyValueMap = new HashMap<>();
 
-        // create copy of binary Features
-        for (String binaryFeature : this.binaryFeatures.keySet()) {
-            clone.binaryFeatures.put(binaryFeature, this.binaryFeatures.get(binaryFeature));
-        }
+        this.binaryFeatures.forEach(newBinaryFeatures::put);
+        this.numericFeatures.forEach(newNumericFeatures::put);
+        this.propertyValueMap.forEach(newPropertyValueMap::put);
 
-        // create copy of numeric Features
-        for (String numericFeature : this.numericFeatures.keySet()) {
-            clone.numericFeatures.put(numericFeature, this.numericFeatures.get(numericFeature));
-        }
-
-        // create copy of property Features
-        for (String property : this.propertyValueMap.keySet()) {
-            clone.propertyValueMap.put(property, this.propertyValueMap.get(property));
-        }
-
-        return clone;
+        return new FeatureConfiguration(newFeatureModelName, newBinaryFeatures, newNumericFeatures,
+                                        newPropertyValueMap);
     }
 
 
@@ -159,6 +149,7 @@ public class FeatureConfiguration implements Cloneable {
         final JSONObject conf = new JSONObject();
         final JSONObject properties = new JSONObject();
         final JSONObject features = new JSONObject();
+        final JSONObject dissectedProperties = new JSONObject();
 
         root.put("featureConfiguration", conf);
         conf.put("featureModel", this.featureModelName);
@@ -173,6 +164,27 @@ public class FeatureConfiguration implements Cloneable {
             conf.put("properties", properties);
             for (String property : this.propertyValueMap.keySet()) {
                 properties.put(property, this.propertyValueMap.get(property));
+            }
+        }
+        if (this.activeInfluences.size() > 0) {
+            conf.put("dissectedProperties", dissectedProperties);
+            int i = 0;
+            for (Map.Entry<FeatureInfluence, Integer> dissected : this.activeInfluences.entrySet()) {
+                final JSONObject dissectedLine = new JSONObject();
+                dissectedProperties.put("interaction" + i++, dissectedLine);
+                final JSONArray activeFeatures = new JSONArray();
+                dissectedLine.put("features", activeFeatures);
+                activeFeatures
+                        .addAll(dissected.getKey().getActiveFeatures().parallelStream().map(Feature::getName).collect(
+                                Collectors.toSet()));
+                final JSONObject propertyInfluences = new JSONObject();
+                dissectedLine.put("properties", propertyInfluences);
+                for (Map.Entry<Property, Double> singleInflunece : dissected.getKey().getPropertyInfluence()
+                        .entrySet()) {
+                    propertyInfluences.put(singleInflunece.getKey(),
+                                           singleInflunece.getValue() * dissected.getValue());
+                }
+                dissectedLine.put("multiplier", dissected.getValue());
             }
         }
         return root.toJSONString();
