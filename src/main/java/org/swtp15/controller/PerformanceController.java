@@ -52,8 +52,8 @@ public class PerformanceController {
   ToDo: This is only hardcoded for now. ...
    */
     private String getPredictedPropertiesJson() {
-        return StringUtils.join(new ResourceReader()
-                                        .readFileFromResources("/exampleFiles/predictedPropertiesResponse.json"), "");
+        return StringUtils
+                .join(ResourceReader.readFileFromResources("/exampleFiles/predictedPropertiesResponse.json"), "");
     }
 
     @GetMapping("/example")
@@ -62,8 +62,7 @@ public class PerformanceController {
     }
 
     private String getGlobalOptimumJson() {
-        return StringUtils.join(new ResourceReader()
-                                        .readFileFromResources("/exampleFiles/globalOptimumResponse.json"), "");
+        return StringUtils.join(ResourceReader.readFileFromResources("/exampleFiles/globalOptimumResponse.json"), "");
     }
 
     @GetMapping("/optimum/global")
@@ -74,8 +73,7 @@ public class PerformanceController {
     }
 
     private String getLocalOptimumJson() {
-        return StringUtils.join(new ResourceReader()
-                                        .readFileFromResources("/exampleFiles/localOptimumResponse.json"), "");
+        return StringUtils.join(ResourceReader.readFileFromResources("/exampleFiles/localOptimumResponse.json"), "");
     }
 
     // ToDo: delete when examples are no longer needed
@@ -115,7 +113,7 @@ public class PerformanceController {
             return new ResponseEntity<>("Invalid FeatureConfiguration JSON in Body: " + e.getMessage(),
                                         HttpStatus.BAD_REQUEST);
         } catch (IllegalArgumentException | InterruptedException e) {
-            if(e.getMessage().equals(SystemExceptions.IS_ALREADY_OPTIMUM.getMessage()))
+            if (e.getMessage().equals(SystemExceptions.IS_ALREADY_OPTIMUM.getMessage()))
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
