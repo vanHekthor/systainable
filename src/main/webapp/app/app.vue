@@ -293,15 +293,15 @@ export default {
                     await requestHandler.getConfigPropValues(this.selectedSoftSystem, config, this.configurationProperties)
 
                 let propMap = new Map();
-                Object.keys(predictedProps).forEach(function(key) {
+                Object.keys(this.configurationProperties).forEach(function(key) {
                     propMap.set(key, predictedProps[key]);
                 })
 
                 propertyValueMaps.push(propMap);
             }
 
-            this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, propertyValueMaps);
-            this.radarData = chartDataBuilder.buildRadarData(configNames, propertyValueMaps);
+            this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, this.configurationProperties, propertyValueMaps);
+            this.radarData = chartDataBuilder.buildRadarData(configNames, this.configurationProperties, propertyValueMaps);
             this.drawCharts();
         },
 
