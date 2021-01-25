@@ -31,7 +31,7 @@
                             </b-dropdown>
                         </div>
                     </div>
-                    <Chart type="horizontalBar" :data="chartData" :options="options"/>
+                    <Chart type="horizontalBar" :data="chartData" :options="barChartsOptions(chartData)"/>
                 </b-card>
             </b-col>
             <b-col cols="12" lg="6" md="6"
@@ -85,17 +85,20 @@ import Knob from './Knob';
 
 export default {
     name: "ChartArea",
+
     components: {
         Card,
         Chart,
         Button,
         Knob
     },
+
     props: [
         "configurationProperties",
         "chartDataArray",
         "radarData"
     ],
+
     data() {
         return {
             deltaEnergy: 2345-1245,
@@ -131,19 +134,6 @@ export default {
                     },
                 ]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                hoverMode: 'index',
-                stacked: false,
-                scales: {
-                    xAxes: [{
-                        ticks: {
-                            min: 0
-                        }
-                    }]
-                }
-            },
             radarOptions: {
                 scale: {
                 },
@@ -154,7 +144,33 @@ export default {
             },
         }
     },
+
     methods: {
+        barChartsOptions(chartData) {
+            const options = {
+                title: {
+                    display: true,
+                    text: chartData.evalHint,
+                    position: 'bottom'
+                },
+                responsive: true,
+                maintainAspectRatio: true,
+                hoverMode: 'index',
+                stacked: false,
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            min: 0,
+                            // Include a unit sign in the ticks
+                            callback: function(value, index, values) {
+                                return value + chartData.unit;
+                            }
+                        }
+                    }]
+                }
+            };
+            return options;
+        },
         makeToast(variant = null) {
             this.$bvToast.toast('Function is not implemented yet.', {
                 title: 'Unsupported function',
@@ -163,7 +179,6 @@ export default {
             })
         }
     }
-
 }
 </script>
 

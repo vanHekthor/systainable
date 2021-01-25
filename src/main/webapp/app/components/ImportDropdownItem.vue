@@ -78,7 +78,6 @@ export default {
         },
 
         validateFile: function(file) {
-
             if (file.systemName !== this.systemName) {
                 throw new Error(
                     `The software system "${file.systemName}" defined in the file does not match the selected system "${this.systemName}".`
