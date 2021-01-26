@@ -1,6 +1,5 @@
 package org.swtp15.controller;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.swtp15.models.FeatureConfiguration;
 import org.swtp15.models.FeatureSystem;
 import org.swtp15.parser.FeatureConfigurationParser;
-import org.swtp15.parser.ResourceReader;
 import org.swtp15.system.SystemCache;
 import org.swtp15.system.SystemExceptions;
 
@@ -48,41 +46,13 @@ public class PerformanceController {
         }
     }
 
-    /*
-  ToDo: This is only hardcoded for now. ...
-   */
-    private String getPredictedPropertiesJson() {
-        return StringUtils
-                .join(ResourceReader.readFileFromResources("/exampleFiles/predictedPropertiesResponse.json"), "");
-    }
-
-    @GetMapping("/example")
-    public ResponseEntity<String> getPredictedProperties() {
-        return new ResponseEntity<>(getPredictedPropertiesJson(), HttpStatus.OK);
-    }
-
-    private String getGlobalOptimumJson() {
-        return StringUtils.join(ResourceReader.readFileFromResources("/exampleFiles/globalOptimumResponse.json"), "");
-    }
-
     @GetMapping("/optimum/global")
     public @ResponseBody
     ResponseEntity<String> getGlobalOptimum(@RequestParam String featuresystem,
                                             @RequestParam String property) {
-        return new ResponseEntity<>(getGlobalOptimumJson(), HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
-    private String getLocalOptimumJson() {
-        return StringUtils.join(ResourceReader.readFileFromResources("/exampleFiles/localOptimumResponse.json"), "");
-    }
-
-    // ToDo: delete when examples are no longer needed
-    @GetMapping("/optimum/local/example")
-    public @ResponseBody
-    ResponseEntity<String> getLocalOptimumExample(@RequestParam String property,
-                                                  @RequestParam int maxDifference) {
-        return new ResponseEntity<>(getLocalOptimumJson(), HttpStatus.OK);
-    }
 
     /**
      * Find (local) optimum for a specific property in a given range. Range here describes the features that can be
