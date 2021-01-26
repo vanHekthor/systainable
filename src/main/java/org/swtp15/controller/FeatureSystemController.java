@@ -1,6 +1,5 @@
 package org.swtp15.controller;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import org.swtp15.models.FeatureConfiguration;
 import org.swtp15.models.FeatureSystem;
 import org.swtp15.parser.FeatureConfigurationParser;
-import org.swtp15.parser.ResourceReader;
 import org.swtp15.parser.SystemParser;
 import org.swtp15.system.SystemCache;
 
@@ -20,11 +18,6 @@ public class FeatureSystemController {
 
     @Autowired
     private SystemCache systemCache;
-
-    private String getFeatureModelJson() {
-        return StringUtils
-                .join(ResourceReader.readFileFromResources("/exampleFiles/featureModelByNameResponse.json"), "");
-    }
 
     /**
      * Returns a specific featureSystem as a JSON containing the features as a list and the properties as a map with the
@@ -37,10 +30,6 @@ public class FeatureSystemController {
     @GetMapping
     public @ResponseBody
     ResponseEntity<String> getFeatureModelByName(@RequestParam String name) {
-        //ToDo: Delete this if statement when the example is no longer needed
-        if (name.equals("example")) {
-            return new ResponseEntity<>(getFeatureModelJson(), HttpStatus.OK);
-        }
         FeatureSystem featureSystem = systemCache.getFeatureSystemByName(name);
         return featureSystem == null ? new ResponseEntity<>(HttpStatus.NOT_FOUND) :
                new ResponseEntity<>(SystemParser.parseSystemToJson(featureSystem), HttpStatus.OK);
@@ -72,34 +61,10 @@ public class FeatureSystemController {
         }
     }
 
-    /**
-     * ToDo: delete when examples no longer necessary
-     * <p>
-     * Get example Boolean (default=false) for validity.
-     *
-     * @return ResponseEntity
-     */
-    @GetMapping("/valid/example")
-    public ResponseEntity<Boolean> validateConfigurationExample() {
-        return new ResponseEntity<>(true, HttpStatus.OK);
-    }
-
-
-    private String getAlternativeJson() {
-        return StringUtils
-                .join(ResourceReader.readFileFromResources("/exampleFiles/alternativeConfigResponse.json"), "");
-    }
-
-    //ToDo: This is only hardcoded for now. ...
-
+    //ToDo: This is not implemented yet.
     @GetMapping("/alternative")
     public ResponseEntity<String> alternativeConfiguration() {
-        return new ResponseEntity<>(getAlternativeJson(), HttpStatus.OK);
-    }
-
-    private String getMinimalValidJson() {
-        return StringUtils
-                .join(ResourceReader.readFileFromResources("/exampleFiles/minimalValidConfigResponse.json"), "");
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
     /**
@@ -112,10 +77,6 @@ public class FeatureSystemController {
     @GetMapping("/initconfig")
     public @ResponseBody
     ResponseEntity<String> getMinimalValidConfiguration(@RequestParam String name) {
-        //ToDo: Delete this if statement when the example is no longer needed
-        if (name.equals("example")) {
-            return new ResponseEntity<>(getMinimalValidJson(), HttpStatus.OK);
-        }
         FeatureSystem featureSystem = systemCache.getFeatureSystemByName(name);
         return featureSystem == null ? new ResponseEntity<>(HttpStatus.NOT_FOUND) :
                new ResponseEntity<>(featureSystem.getMinimalConfiguration().toString(), HttpStatus.OK);
