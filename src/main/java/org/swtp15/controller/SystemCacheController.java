@@ -32,6 +32,11 @@ public class SystemCacheController {
         return new ResponseEntity<>(SystemParser.parseSystemNamesToJson(systems), HttpStatus.OK);
     }
 
+    @GetMapping("/activateExamples")
+    public void loadExampleModels() {
+        this.generateExampleModels();
+    }
+
     @SneakyThrows
     private void generateExampleModels() {
         FeatureSystem zipSystem = new FeatureSystem("7-ZIP", "/featureSystems/7-ZIP/", "FeatureModel_noNumeric.dimacs",
