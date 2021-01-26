@@ -10,7 +10,7 @@ function switchCharacters(charToReplace, attributes) {
       if (charToReplace === '_') {
         return string.replace(/_/g, '\xa0');
       } else if (charToReplace === '\xa0') {
-        return string.replace('\xa0', '_');
+        return string.replace(/\u00a0/g, '_');
       } else {
         throw Error(`Wrong character: Replacement of this character "${charToReplace}" is not supported!`);
       }
@@ -22,7 +22,7 @@ function switchCharacters(charToReplace, attributes) {
       if (charToReplace === '_') {
         noUnderscoreKeyObj[key.replace(/_/g, '\xa0')] = attributes[key];
       } else if (charToReplace === '\xa0') {
-        noUnderscoreKeyObj[key.replace('\xa0', '_')] = attributes[key];
+        noUnderscoreKeyObj[key.replace(/\u00a0/g, '_')] = attributes[key];
       } else {
         throw Error(`Wrong character: Replacement of this character "${charToReplace}" is not supported!`);
       }

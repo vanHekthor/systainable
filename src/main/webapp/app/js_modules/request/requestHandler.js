@@ -17,12 +17,12 @@ function createRequestConfig(systemName, config, properties) {
 
   Object.keys(config).forEach(function (key) {
     if (key !== 'name') {
-      requestConfig.features[key.replace('\xa0', '_')] = config[key];
+      requestConfig.features[key.replace(/\u00a0/g, '_')] = config[key];
     }
   });
 
   for (let prop of Object.keys(properties)) {
-    requestConfig.properties[prop.replace('\xa0', '_')] = 1.1;
+    requestConfig.properties[prop.replace(/\u00a0/g, '_')] = 1.1;
   }
 
   return requestConfig;
