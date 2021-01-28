@@ -8,6 +8,16 @@ const instance = axios.create({
 
 export default {
   /**
+   * This method sends a GET request to /systems/activateExamples.
+   * @returns {Promise<any>} String array with names of available systems
+   */
+  activateExampleModels: async function () {
+    let response = await instance.get('systems/activateExamples').catch(error => console.log(error));
+
+    return response.data;
+  },
+
+  /**
    * This method sends a GET request to /systems.
    * @returns {Promise<any>} String array with names of available systems
    */

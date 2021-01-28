@@ -156,8 +156,8 @@ export default {
         }
     },
 
-    created: async function requestAvailableSystems() {
-        this.softSystems = await requestHandler.getAvailableSystems();
+    created: async function() {
+        this.softSystems = await requestHandler.activateExampleModels();
     },
 
     computed: {

@@ -32,9 +32,15 @@ public class SystemCacheController {
         return new ResponseEntity<>(SystemParser.parseSystemNamesToJson(systems), HttpStatus.OK);
     }
 
+    /**
+     * Loads example models and returns the system names of systems currently known by the system cache.
+     *
+     * @return ResponseEntity containing JSON containing Array of system names
+     */
     @GetMapping("/activateExamples")
-    public void loadExampleModels() {
+    public ResponseEntity<String> loadExampleModels() {
         this.generateExampleModels();
+        return this.getAllSystems();
     }
 
     @SneakyThrows
