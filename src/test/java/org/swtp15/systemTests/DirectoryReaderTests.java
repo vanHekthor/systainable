@@ -30,7 +30,7 @@ public class DirectoryReaderTests {
         assertTrue(getExpectedSystems().containsAll(updater.getSystemCache().getCurrentlyKnownSystems().keySet()));
     }
 
-
+    // reads from the 'modelFiles' folder within the project folder.
     @Test
     void parseAllExampleSystems() {
         updater.initialize();
