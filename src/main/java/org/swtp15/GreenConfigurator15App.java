@@ -2,33 +2,26 @@ package org.swtp15;
 
 import io.github.jhipster.config.DefaultProfileUtil;
 import io.github.jhipster.config.JHipsterConstants;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.swtp15.config.ApplicationProperties;
-import org.swtp15.models.FeatureModel;
-import org.swtp15.models.FeatureSystem;
-import org.swtp15.models.PerformanceInfluenceModel;
-import org.swtp15.parser.FeatureModelParser;
-import org.swtp15.parser.PerformanceModelParser;
 import org.swtp15.system.SystemCacheUpdater;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Set;
 
 @SpringBootApplication
 @EnableConfigurationProperties({ApplicationProperties.class})
+@EnableScheduling
 public class GreenConfigurator15App {
 
     private static final Logger log = LoggerFactory.getLogger(GreenConfigurator15App.class);

@@ -3,6 +3,8 @@ package org.swtp15.system;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.swtp15.models.FeatureModel;
 import org.swtp15.models.FeatureSystem;
@@ -36,18 +38,20 @@ public class SystemCacheUpdater {
     }
 
     /**
-     * Initializes the {@link SystemCache}.
+     * Initializes the {@link SystemCache}. This method is also used to update the SystemCache by calling it repeatedly
+     * every 20 seconds.
      * <p>
-     * This method scans both the internal used path of the models as well as `$PWD/modelFiles` to search for valid
-     * models.
+     * This method scans both the internal used path of the models as well as on LINUX systems:`$PWD/modelFiles` and on
+     * Windows systems: `@echo %cd%/modelFiles` to search for valid models.
      */
+    @Scheduled(fixedRate = 20000)
+    @Bean
     public void initialize() {
         try {
             readSystemsFromDirectory(new File("modelFiles").getCanonicalPath());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //ToDo: here a method should be started that regularly updates the SystemCache
     }
 
     /**
@@ -61,14 +65,14 @@ public class SystemCacheUpdater {
      * @throws IllegalArgumentException No subdirectories found or invalid model files
      */
     public void readSystemsFromDirectory(String... paths) throws IllegalArgumentException {
-        List<File> foundDirestories = Arrays.stream(paths).map(File::new).filter(File::isDirectory).collect(
+        List<File> foundDirectories = Arrays.stream(paths).map(File::new).filter(File::isDirectory).collect(
                 Collectors.toList());
         Map<String, FeatureSystem> systemMap = new HashMap<>();
 
-        Thread[] locatorThreads = new Thread[foundDirestories.size()];
+        Thread[] locatorThreads = new Thread[foundDirectories.size()];
 
-        for (int i = 0; i < foundDirestories.size(); i++) {
-            File dir = foundDirestories.get(i);
+        for (int i = 0; i < foundDirectories.size(); i++) {
+            File dir = foundDirectories.get(i);
             locatorThreads[i] = new Thread(() -> {
                 Set<Map<String, File>> readSystems = Arrays.stream(
                         Objects.requireNonNull(dir.listFiles())).parallel()
