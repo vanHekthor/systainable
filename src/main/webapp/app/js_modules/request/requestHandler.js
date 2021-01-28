@@ -30,6 +30,15 @@ function createRequestConfig(systemName, config, properties) {
 
 export default {
   /**
+   * This method request the backend to load the available systems.
+   * @returns {Promise<*>} String array with names of available systems
+   */
+  activateExampleModels: async function () {
+    let responseData = await api.activateExampleModels();
+    return responseData.systemNames;
+  },
+
+  /**
    * This method makes requests for available software systems.
    * @returns {Promise<*>} String array with names of available systems
    */
