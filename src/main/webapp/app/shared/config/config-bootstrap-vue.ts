@@ -26,6 +26,8 @@ import {
   BInputGroupPrepend,
 
   // added
+  FormSelectPlugin,
+  FormSpinbuttonPlugin,
   CardPlugin,
   PopoverPlugin,
   TablePlugin,
@@ -63,6 +65,8 @@ export function initBootstrapVue(vue) {
   vue.component('b-input-group-prepend', BInputGroupPrepend);
 
   // added
+  vue.use(FormSpinbuttonPlugin);
+  vue.use(FormSelectPlugin);
   vue.use(CardPlugin);
   vue.use(PopoverPlugin);
   vue.use(TablePlugin);

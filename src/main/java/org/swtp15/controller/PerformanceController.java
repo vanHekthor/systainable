@@ -64,7 +64,7 @@ public class PerformanceController {
      *
      * @return optimized {@link FeatureConfiguration} for property
      */
-    @GetMapping("/optimum/local")
+    @PostMapping("/optimum/local")
     public @ResponseBody
     ResponseEntity<String> getLocalOptimum(@RequestParam String property,
                                            @RequestParam int maxDifference,
