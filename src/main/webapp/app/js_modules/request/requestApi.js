@@ -71,14 +71,14 @@ export default {
 
   /**
    * This method sends a POST request to /performance/optimum/local?featuresystem=${systemName}&property=${propertyName}. The request body contains a configuration in request format.
-   * @param systemName Name of the system
-   * @param propertyName Name of the property to be improved
+   * @param propName Name of the property to be improved
+   * @param maxDifference Max. difference of optimized configuration to sent configuration
    * @param featureConfiguration Configuration that is put into the request body and shall be optimized
    * @returns {Promise<any>} Object with optimized configuration or message similar to 'no better configuration found'
    */
-  getOptimizedConfig: async function getOptimizedConfig(systemName, propertyName, featureConfiguration) {
+  getOptimizedConfig: async function getOptimizedConfig(propName, maxDifference, featureConfiguration) {
     let response = await instance
-      .post(`performance/optimum/local?featuresystem=${systemName}&property=${propertyName}`, { featureConfiguration })
+      .post(`performance/optimum/local?property=${propName}&maxDifference=${maxDifference}`, { featureConfiguration })
       .catch(error => console.log(error));
     return response.data;
   },

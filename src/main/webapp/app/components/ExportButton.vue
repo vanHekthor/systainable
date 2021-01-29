@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-button v-b-modal.filename-modal variant="outline-primary">
+        <b-button @click="$emit('click')" v-b-modal.filename-modal variant="outline-primary">
             <font-awesome-icon icon="file-export" fixed-width/>
             {{label}}
         </b-button>

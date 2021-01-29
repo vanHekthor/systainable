@@ -18,13 +18,16 @@
                                                     :binaryFeatures="configurationFeatures.binaryFeatures"
                                                     :numericFeatures="Object.keys(configurationFeatures.numericFeatures)"
                                                     :fileCheck="true" @load-data="loadData"/>
-                                <b-dropdown-item-button @click="makeToast('info')">
+                                <b-dropdown-item-button @click="$emit('click-optimize', '')">
                                     <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>Optimize
                                 </b-dropdown-item-button>
                             </b-dropdown>
                         </div>
                         <div class="p-mr-2">
-                            <ExportButton label="Export" :systemName="systemName" :data="configurations"/>
+                            <ExportButton
+                                label="Export" :systemName="systemName" :data="exportData"
+                                @click="generateExportData">
+                            </ExportButton>
                         </div>
                     </div>
                     <div class="p-ml-auto"><SelectButton v-model="selectedViewOption" :options="options"/></div>
@@ -78,12 +81,12 @@
                                 <div class="badges p-d-flex p-flex-wrap p-jc-center">
                                     <template v-for="(featureName) in configurationFeatures.binaryFeatures">
                                         <Chip v-if="featureName !== 'name' && config[featureName]"
-                                              class="custom-chip p-m-1" :label="featureName" removable
+                                              class="binary-chip p-m-1" :label="featureName" removable
                                               @remove="$emit('update-feature', index, featureName, false)"/>
                                     </template>
                                     <template v-for="(featureName) in Object.keys(configurationFeatures.numericFeatures)">
                                         <Chip :id="'numeric-chip' + index + featureName"
-                                              class="custom-chip1 p-m-1" :label="featureName + ': ' + config[featureName]"/>
+                                              class="numeric-chip p-m-1" :label="featureName + ': ' + config[featureName]"/>
                                         <b-popover
                                             :target="'numeric-chip' + index + featureName"
                                             :title="featureName"
@@ -215,7 +218,7 @@ import CustomSpinButton  from "./SpinButton";
 
 
 export default {
-    name: "ConfigTable",
+    name: "ConfigArea",
     components: {
         DataTable,
         Column,
@@ -251,17 +254,12 @@ export default {
             currentPage: 1,
             featureFilter: null,
             featureFilterOn: [],
+            exportData: [],
         }
     },
 
     computed: {
-        completeFeatureArray() {
-            return ['name'].concat(
-                this.configurationFeatures.binaryFeatures.concat(
-                    Object.keys(this.configurationFeatures.numericFeatures)
-                )
-            );
-        }
+
     },
 
     methods: {
@@ -299,6 +297,12 @@ export default {
         loadData(data) {
             this.$emit('load-data', data);
         },
+        generateExportData() {
+            let exportData = [...this.configurations];
+            exportData.forEach(function(obj) { delete obj.properties });
+
+            this.exportData = exportData;
+        },
         makeToast(variant = null) {
             this.$bvToast.toast('Function is not implemented yet.', {
                 title: 'Unsupported function',
@@ -331,12 +335,12 @@ export default {
     border-bottom: 1px solid #e3e3e3;
 }
 
-.custom-chip {
+.binary-chip {
     background: #2196F3;
     color: #fff;
 }
 
-.custom-chip1 {
+.numeric-chip {
     background: #0064C1;
     color: #fff;
 }

@@ -16,7 +16,7 @@ function createRequestConfig(systemName, config, properties) {
   };
 
   Object.keys(config).forEach(function (key) {
-    if (key !== 'name') {
+    if (key !== 'name' && key !== 'properties') {
       requestConfig.features[key.replace(/\u00a0/g, '_')] = config[key];
     }
   });
@@ -90,7 +90,7 @@ export default {
     let responseData = await api.getInitConfig(systemName);
 
     responseData.featureConfiguration.features = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
-    responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
+    responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.properties);
 
     return Object.assign({ name: 'config' }, responseData.featureConfiguration.features);
   },
@@ -121,5 +121,32 @@ export default {
     responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.properties);
 
     return responseData.featureConfiguration.properties;
+  },
+
+  /**
+   * This method requests the optimization of a configuration given a selected property and a max. difference of configuration features/options.
+   * Underscores in response object keys get replaced by non-break spaces.
+   * @param systemName Selected software system
+   * @param propName Selected property name
+   * @param maxDifference Max. feature/option difference to original configuration
+   * @param config Configuration to be optimized (alias original configuration)
+   * @param properties Configuration properties object
+   * @returns {Promise<(string)|({name: string} & Array)|({name: string} & Object)>}
+   */
+  getOptimizedConfig: async function getOptimizedConfig(systemName, propName, maxDifference, config, properties) {
+    const requestConfig = createRequestConfig(systemName, config, properties);
+
+    let responseData = await api.getOptimizedConfig(propName.replace(/\u00a0/g, '_'), maxDifference, requestConfig);
+
+    if (responseData === '') {
+      return responseData;
+    } else {
+      responseData.featureConfiguration.features = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
+      responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.properties);
+      let optiConfig = Object.assign({ name: 'config' }, responseData.featureConfiguration.features);
+      optiConfig.properties = responseData.featureConfiguration.properties;
+
+      return optiConfig;
+    }
   },
 };

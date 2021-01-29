@@ -68,7 +68,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .p-chip {
     display: inline-flex;
     align-items: center;

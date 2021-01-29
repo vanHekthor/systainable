@@ -23,6 +23,7 @@
                 @get-config-example="requestInitConfig"
                 @load-data="loadConfigs"
                 @duplicate-config="duplicateConfig"
+                @click-optimize="openOptimizationModal"
             />
 
             <ChartArea
@@ -30,6 +31,7 @@
                 :configurationProperties="configurationProperties"
                 :chartDataArray="chartDataArray"
                 :radarData="radarData"
+                @click-optimize="openOptimizationModal"
             />
         </b-container>
         <Dialog :header="invalidConfig.name + ' is invalid'" :visible.sync="displayModal" :style="{width: '50vw'}" :modal="true">
@@ -48,15 +50,31 @@
                 <Button label="Accept" icon="pi pi-check" @click="closeModalAcceptAlternative" autofocus />
             </template>
         </Dialog>
+        <OptimizationModal
+            :display-optimization-modal.sync="displayOptimizationModal"
+            :selected-optimization-config-name.sync="selectedOptimizationConfigName"
+            :selected-optimization-prop-name.sync="selectedOptimizationPropName"
+            :config-names="configurations.map(config => { return config.name })"
+            :prop-names="Object.keys(configurationProperties)"
+            :max-optimization-distance="maxOptimizationDistance"
+            :searched-for-optimized-config="searchedForOptimizedConfig"
+            :optimized-config-found="optimizedConfigFound"
+            :configuration-features="configurationFeatures"
+            :optimized-config="optiConfig"
+            :property-attributes="configurationProperties"
+            @search-optimized-config="searchOptimizedConfig"
+            @ok="acceptOptimizedConfig"
+            @hide="closeOptimizationModal">
+        </OptimizationModal>
     </div>
 </template>
 
 <script>
-import chartDataBuilder from './js_modules/visualization/ChartDataBuilder'
+import chartDataBuilder from './js_modules/visualization/ChartDataBuilder';
 import ConfigArea from './components/ConfigArea';
 import ChartArea from './components/ChartArea';
 import ConfigCard from "./components/ConfigCard";
-
+import OptimizationModal from "./components/OptimizationModal";
 
 import Dropdown from 'primevue/dropdown';
 import Button from 'primevue/button';
@@ -72,23 +90,32 @@ export default {
         Dropdown,
         Button,
         Dialog,
-        ConfigCard
+        ConfigCard,
+        OptimizationModal
     },
     data() {
         return {
             // system and config data
             softSystems: [],
             configurationFeatures: [],
-            configurationProperties: [],
+            configurationProperties: {},
             configurations: [],
             invalidConfig: {},
             alternativeConfig: {},
+            optiConfig: {},
 
             // UI logic data
             selectedSoftSystem: "",
             previousSelection: "",
             configCount: 0,
             displayModal: false,
+            displayOptimizationModal: false,
+            selectedOptimizationConfigName: "",
+            selectedOptimizationPropName: "",
+            optimizationDistance: 1,
+            optimizedConfigFound: false,
+            searchedForOptimizedConfig: false,
+
             draw: false,
             softSystemLoaded: false,
 
@@ -165,7 +192,14 @@ export default {
             let altConfig = await requestHandler.getInitConfig(this.selectedSoftSystem);
             altConfig.name = "alternative"
             return altConfig;
-        }
+        },
+        maxOptimizationDistance: function() {
+            if (this.softSystemLoaded) {
+                return this.configurationFeatures.binaryFeatures.length;
+            } else {
+                return 1;
+            }
+        },
     },
 
     methods: {
@@ -180,23 +214,6 @@ export default {
 
         updateConfigName(index, configName) {
             let count = 0;
-
-            // function rename(index, name, count) {
-            //     console.log('hallo');
-            //     console.log(index);
-            //     console.log(name);
-            //     console.log(count);
-            //
-            //     this.configurations.forEach(function(config, idx) {
-            //         if (index !== idx  && config.name === name) {
-            //             count++;
-            //             rename(index, configName + `(${count})`, count);
-            //         }
-            //     })
-            //     return configName + `(${count})`;
-            // }
-            //
-            // console.log(rename(index, configName, count));
 
             this.configurations.forEach(function(config, idx) {
                 if (index !== idx  && config.name === configName) {
@@ -244,6 +261,33 @@ export default {
             this.draw = true;
         },
 
+        searchOptimizedConfig: async function(optiModalEvent, configName, propName, maxDifference) {
+            optiModalEvent.preventDefault();
+
+            const config = this.configurations.find(conf => { return conf.name === configName });
+            let optiConfig = await this.requestOptimizedConfig(configName, propName, maxDifference);
+
+            if (optiConfig === "") {
+                this.optimizedConfigFound = false;
+                this.searchedForOptimizedConfig = true;
+            } else {
+                this.optimizedConfigFound = true;
+                this.searchedForOptimizedConfig = true;
+                optiConfig.name = config.name + "[+]";
+                this.optiConfig = optiConfig;
+            }
+        },
+
+        acceptOptimizedConfig() {
+            this.configurations.push(this.optiConfig);
+            this.optimizedConfigFound = false;
+            this.searchedForOptimizedConfig = false;
+
+            this.$nextTick(() => {
+                this.$bvModal.hide('optiModal');
+            });
+        },
+
         // requests to backend
         requestSystemAttributes: async function(event) {
             let featureNames = await requestHandler.getFeatureNames(event.value);
@@ -289,8 +333,8 @@ export default {
             for (config of this.configurations) {
                 configNames.push(config.name);
 
-                let predictedProps =
-                    await requestHandler.getConfigPropValues(this.selectedSoftSystem, config, this.configurationProperties)
+                let predictedProps = await requestHandler.getConfigPropValues(this.selectedSoftSystem, config, this.configurationProperties);
+                config.properties = predictedProps;
 
                 let propMap = new Map();
                 Object.keys(this.configurationProperties).forEach(function(key) {
@@ -305,7 +349,15 @@ export default {
             this.drawCharts();
         },
 
-        // methods for handling a modal indicating that an invalid configuration has been made
+        requestOptimizedConfig: async function(configName, propName, maxDifference) {
+            const config = this.configurations.find(conf => { return conf.name === configName });
+
+            let optiConfig = await requestHandler.getOptimizedConfig(this.selectedSoftSystem, propName, maxDifference, config, this.configurationProperties);
+
+            return optiConfig;
+        },
+
+        // methods for handling a modals
         openModal() {
             this.displayModal = true;
         },
@@ -323,6 +375,20 @@ export default {
             })
             this.displayModal = false;
         },
+
+        openOptimizationModal(optimizationPropName) {
+            if (this.configurations.length === 1) {
+                this.selectedOptimizationConfigName = this.configurations[0].name;
+            }
+            this.selectedOptimizationPropName = optimizationPropName;
+            this.displayOptimizationModal = true;
+        },
+
+        closeOptimizationModal() {
+            this.optimizedConfigFound = false;
+            this.searchedForOptimizedConfig = false;
+            this.displayOptimizationModal = false;
+        }
     }
 
 }

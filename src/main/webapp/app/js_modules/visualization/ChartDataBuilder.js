@@ -63,7 +63,7 @@ export default {
         evalHint: evalHint,
         datasets: [
           {
-            label: label + `\xa0[${unit}]`,
+            label: label,
             backgroundColor: backgroundColors[i % 3],
             data: values,
           },
@@ -94,10 +94,8 @@ export default {
       }
 
       let maxVal = Math.max(...propertyValues);
-      const unit = propertyAttributes[label].split(' ')[0];
       for (propertyMap of propertyMaps) {
-        propertyMap.set(label + `\xa0[${unit}]`, propertyMap.get(label) / maxVal);
-        propertyMap.delete(label);
+        propertyMap.set(label, propertyMap.get(label) / maxVal);
       }
     }
 
