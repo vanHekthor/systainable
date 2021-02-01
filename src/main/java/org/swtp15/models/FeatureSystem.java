@@ -7,7 +7,6 @@ import org.swtp15.parser.PerformanceModelParser;
 import org.swtp15.system.SystemExceptions;
 
 import java.io.FileNotFoundException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -116,6 +115,7 @@ public class FeatureSystem {
      * Gets the minimal valid configuration of a system.
      *
      * @return minimal valid feature configuration.
+     *
      */
     public FeatureConfiguration getMinimalConfiguration() {
         return new FeatureConfiguration(name, featureModel.getMinimalModel(),
@@ -144,12 +144,7 @@ public class FeatureSystem {
         }
 
         // evaluate given config
-        Map<Property, Double> properties = evaluateFeatureConfiguration(configToOptimize);
-        Map<String, Double> propertiesAsStrings = new HashMap<>();
-        for (Property property : properties.keySet()) {
-            propertiesAsStrings.put(property.getName(), properties.get(property));
-        }
-        configToOptimize.setPropertyValueMap(propertiesAsStrings);
+        evaluateFeatureConfiguration(configToOptimize);
 
         // get local config(s) as feature map
         Set<Map<String, Boolean>> localConfigMaps = this.featureModel.getNearModels(configToOptimize, maxDifference);
@@ -163,20 +158,11 @@ public class FeatureSystem {
                 .collect(Collectors.toSet());
 
         // evaluate FeatureConfiguration(s) and set values
-        localConfigs.parallelStream()
-                .forEach(config -> {
-                    Map<Property, Double> evaluatedProperties = evaluateFeatureConfiguration(config);
-
-                    Map<String, Double> parsedProperties = new HashMap<>();
-                    evaluatedProperties.forEach((property, aDouble) ->
-                                                        parsedProperties.put(property.getName(), aDouble));
-
-                    config.setPropertyValueMap(parsedProperties);
-                });
+        localConfigs.parallelStream().forEach(this::evaluateFeatureConfiguration);
 
         // find best-in-property
         Boolean isToMinimize = this.performanceModel.propertyIsToMinimize(propertyName);
-        FeatureConfiguration localOptimum = (FeatureConfiguration) configToOptimize.clone();
+        FeatureConfiguration localOptimum = configToOptimize.clone();
         for (FeatureConfiguration config : localConfigs) {
             if (isBetter(localOptimum, config, propertyName, isToMinimize)) {
                 localOptimum = config;
@@ -187,6 +173,42 @@ public class FeatureSystem {
         }
 
         return localOptimum;
+    }
+
+    /**
+     * Searches for a valid, alternative and preferable similar {@link FeatureConfiguration} for a given configuration.
+     *
+     * @param featureConfiguration The configuration, for which the alternative should be searched for
+     *
+     * @return A {@link FeatureConfiguration} near the given configuration
+     *
+     * @throws IllegalStateException If system has no valid configurations
+     * @throws InterruptedException  If the thread calculating was interrupted before it could finish gracefully
+     */
+    public FeatureConfiguration getAlternativeConfiguration(FeatureConfiguration featureConfiguration)
+    throws IllegalStateException, InterruptedException {
+
+        FeatureConfiguration alternative = null;
+
+        // increase maximum difference between configurations until alternative is found
+        for (int maxDiff = 0; maxDiff < this.featureModel.getFeatures().size(); maxDiff++) {
+            Set<Map<String, Boolean>> nearModels = this.featureModel.getNearModels(featureConfiguration, maxDiff);
+            if (!nearModels.isEmpty()) {
+                Map<String, Boolean> biFeatureMap = nearModels.iterator().next();
+                alternative = new FeatureConfiguration(this.name, biFeatureMap,
+                                                       featureConfiguration.getNumericFeatures(),
+                                                       null);
+                break;
+            }
+        }
+
+        if (alternative == null) {
+            throw ModelExceptions.MODEL_HAS_NO_VALID_CONFIGURATIONS;
+        }
+
+        evaluateFeatureConfiguration(alternative);
+
+        return alternative;
     }
 
     /**

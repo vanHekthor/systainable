@@ -3,6 +3,7 @@ package org.swtp15.models;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
@@ -201,7 +202,9 @@ public class FeatureModel {
      * Getter for the minimal model. If it is null, starts determination of minimal model, else returns it.
      *
      * @return The map of the features names and their booleans of the minimal model.
+     *
      */
+    @SneakyThrows
     public Map<String, Boolean> getMinimalModel() {
         if (minimalModel == null) {
             findMinimalModel();
@@ -212,11 +215,14 @@ public class FeatureModel {
 
     /**
      * Calculates the minimal model by finding the smallest integer set and creating a map of feature names out of it.
+     *
      */
+    @SneakyThrows
     private void findMinimalModel() {
         Map<String, Boolean> minimalModel = new HashMap<>();
         int modelSize = Integer.MAX_VALUE;
         Set<Integer> minimalModelSet = null;
+        this.modelGeneratorThread.join();
         for (Set<Integer> model : models) {
             if (model.size() < modelSize) {
                 modelSize       = model.size();
@@ -266,10 +272,14 @@ public class FeatureModel {
      * @param maxDiff              The number of features that can be different
      *
      * @return A Set of Maps containing the {@link Feature}s as keys and the activ state as value
+     *
+     * @throws InterruptedException If the thread calculating was interrupted before it could finish gracefully
      */
-    public Set<Map<String, Boolean>> getNearModels(FeatureConfiguration featureConfiguration, int maxDiff) {
+    public Set<Map<String, Boolean>> getNearModels(FeatureConfiguration featureConfiguration, int maxDiff)
+    throws InterruptedException {
         Set<Integer> configAsIntegerSet = convertConfigToIntegerSet(featureConfiguration);
 
+        this.modelGeneratorThread.join();
         Set<Set<Integer>> nearModels = this.models.parallelStream()
                 .filter(model -> Math.abs(configAsIntegerSet.size() - model.size()) <= maxDiff)
                 .filter(model -> modelIsNear(configAsIntegerSet, model, maxDiff))
