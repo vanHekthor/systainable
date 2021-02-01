@@ -61,10 +61,32 @@ public class FeatureSystemController {
         }
     }
 
-    //ToDo: This is not implemented yet.
-    @GetMapping("/alternative")
-    public ResponseEntity<String> alternativeConfiguration() {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    /**
+     * Returns a valid, alternative and preferable similar {@link FeatureConfiguration} for a given configuration.
+     *
+     * @param json A String containing the JSON representation of a configuration, for which the alternative should be
+     *             searched for
+     *
+     * @return A ResponseEntity containing the alternative configuration as JSON or the exception message, if errors
+     * occurred
+     */
+    @PostMapping("/alternative")
+    public ResponseEntity<String> alternativeConfiguration(@RequestBody String json) {
+        try {
+            FeatureConfiguration featureConfiguration = FeatureConfigurationParser.parseConfiguration(json);
+            FeatureConfiguration alternative = systemCache.getAlternativeConfiguration(featureConfiguration);
+            return new ResponseEntity<>(alternative.toString(), HttpStatus.OK);
+        } catch (ParseException e) {
+            return new ResponseEntity<>("Invalid FeatureConfiguration JSON in Body: " + e.getMessage(),
+                                        HttpStatus.BAD_REQUEST);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (InterruptedException e) {
+            return new ResponseEntity<>("Valid model calculation was interrupted.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -78,7 +100,8 @@ public class FeatureSystemController {
     public @ResponseBody
     ResponseEntity<String> getMinimalValidConfiguration(@RequestParam String name) {
         FeatureSystem featureSystem = systemCache.getFeatureSystemByName(name);
-        return featureSystem == null ? new ResponseEntity<>(HttpStatus.NOT_FOUND) :
-               new ResponseEntity<>(featureSystem.getMinimalConfiguration().toString(), HttpStatus.OK);
+            return featureSystem != null ? new ResponseEntity<>(featureSystem.getMinimalConfiguration().toString(),
+                                                                HttpStatus.OK) :
+                                                                new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

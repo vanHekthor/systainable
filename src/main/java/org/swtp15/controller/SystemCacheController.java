@@ -52,7 +52,17 @@ public class SystemCacheController {
                                                      "model.csv", true);
         FeatureSystem hsqldbSystem = new FeatureSystem("HSQL DB", "/featureSystems/HSQL DB/", "FeatureModel.dimacs",
                                                        null, "model.csv", true);
-        this.systemCache.getSystemCacheUpdater().setPermanentSystems(Set.of(zipSystem, autoSystem, hsqldbSystem));
+        FeatureSystem customBi = new FeatureSystem("OptimizationBinary",
+                                                   "/featureSystems/OptimizationBinary/",
+                                                   "Model_Optimize.dimacs",
+                                                   null, "Model_Optimize.csv", true);
+        FeatureSystem customNum = new FeatureSystem("OptimizationNumeric",
+                                                    "/featureSystems/OptimizationNumeric/",
+                                                    "Model_Optimize.dimacs",
+                                                    "Model_Optimize.xml",
+                                                    "Model_Optimize.csv", true);
+        this.systemCache.getSystemCacheUpdater().setPermanentSystems(Set.of(zipSystem, autoSystem, hsqldbSystem,
+                                                                            customBi, customNum));
         this.systemCache.getSystemCacheUpdater().initialize();
     }
 }

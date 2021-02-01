@@ -99,6 +99,30 @@ public class SystemCache {
         }
     }
 
+
+    /**
+     * Searches for corresponding {@link FeatureSystem} and a valid, alternative and preferable similar
+     * {@link FeatureConfiguration} for a given configuration.
+     *
+     * @param featureConfiguration The configuration, for which the alternative should be searched for
+     *
+     * @return A {@link FeatureConfiguration} near the given configuration
+     *
+     * @throws IllegalArgumentException If system not found
+     * @throws IllegalStateException    If system has no valid configurations
+     * @throws InterruptedException     If the thread calculating was interrupted before it could finish gracefully
+     */
+    public FeatureConfiguration getAlternativeConfiguration(FeatureConfiguration featureConfiguration)
+    throws IllegalArgumentException, IllegalStateException, InterruptedException {
+        FeatureSystem system = getFeatureSystemForConfiguration(featureConfiguration);
+        if (system == null) {
+            throw SystemExceptions.NO_MATCHING_SYSTEM_FOR_CONFIGURATION;
+        } else {
+            return system.getAlternativeConfiguration(featureConfiguration);
+        }
+    }
+
+
     /**
      * Searches for a {@link FeatureSystem} with same name as model name in given configuration. Its supposed that only
      * one or none {@link FeatureSystem} matches the given name.
@@ -121,4 +145,5 @@ public class SystemCache {
             throw SystemExceptions.MORE_THAN_ONE_FEATURESYSTEM_MATCH_CONFIGURATION;
         }
     }
+
 }
