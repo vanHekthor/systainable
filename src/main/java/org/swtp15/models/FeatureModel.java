@@ -42,8 +42,9 @@ public class FeatureModel {
     private final Set<Set<Integer>> formulas;
 
     private final Thread modelGeneratorThread;
-    private boolean errorInThread;
-    private final Set<Set<Integer>> models;
+    @Getter
+    private boolean isModelCalculationFailed;
+    private final List<Set<Integer>> models;
 
     private Map<String, Boolean> minimalModel;
 
@@ -51,6 +52,9 @@ public class FeatureModel {
     private final int amountOfFeatures;
     @Getter
     private final int amountOfFormulas;
+
+    @Setter
+    private FeatureSystem featureSystem;
 
     /**
      * Instantiates a FeatureModel.
@@ -68,12 +72,12 @@ public class FeatureModel {
         this.numericFeatures = numericFeatures;
         this.features        = new ArrayList<>(binaryFeatures.values());
         features.addAll(numericFeatures.values());
-        this.formulas         = formulas;
-        this.errorInThread    = false;
-        this.models           = new HashSet<>();
-        this.minimalModel     = null;
-        this.amountOfFeatures = amountOfFeatures;
-        this.amountOfFormulas = amountOfFormulas;
+        this.formulas                 = formulas;
+        this.isModelCalculationFailed = false;
+        this.models                   = new ArrayList<>();
+        this.minimalModel             = null;
+        this.amountOfFeatures         = amountOfFeatures;
+        this.amountOfFormulas         = amountOfFormulas;
 
         Set<Integer> optionalFeatures = this.getFullyOptionalFeatures();
 
@@ -82,15 +86,6 @@ public class FeatureModel {
 
         this.modelGeneratorThread = new Thread(this::generateModels);
         this.modelGeneratorThread.start();
-    }
-
-    /**
-     * Checks whether there has been an error during the calculation of all valid models.
-     *
-     * @return Whether the model generation thread stopped by error.
-     */
-    public boolean isModelCalculationFailed() {
-        return this.errorInThread;
     }
 
 
@@ -104,10 +99,9 @@ public class FeatureModel {
      */
     private void generateModels() {
         final ISolver solver = SolverFactory.newDefault();
-        solver.setTimeout(30);
+        solver.setTimeout(60);
         solver.newVar(binaryFeatures.size());
         solver.setExpectedNumberOfClauses(this.formulas.size());
-        solver.setTimeout(1800);
         int[] convertedClause;
         for (Set<Integer> clause : formulas) {
             convertedClause = clause.parallelStream().mapToInt(i -> (i == null ? 0 : i)).toArray();
@@ -116,7 +110,7 @@ public class FeatureModel {
             } catch (ContradictionException e) {
                 System.err.println("Contradiction in Clause");
                 e.printStackTrace();
-                errorInThread = true;
+                isModelCalculationFailed = true;
                 return;
             }
         }
@@ -129,7 +123,7 @@ public class FeatureModel {
             }
         } catch (TimeoutException e) {
             e.printStackTrace();
-            errorInThread = true;
+            isModelCalculationFailed = true;
         }
     }
 
@@ -139,14 +133,36 @@ public class FeatureModel {
      * This method only does something, if the Thread has been interrupted or failed from an internal exception
      */
     public void restartModelCalculation() {
-        final boolean threadFailedByItself = this.errorInThread && !this.modelGeneratorThread.isAlive();
+        final boolean threadFailedByItself = this.isModelCalculationFailed && !this.modelGeneratorThread.isAlive();
         if (this.modelGeneratorThread.isInterrupted() || threadFailedByItself) {
-            this.errorInThread = false;
+            this.isModelCalculationFailed = false;
             this.models.clear();
             this.modelGeneratorThread.start();
         }
     }
 
+    /**
+     * A proxy to wait on the models to be generated.
+     * <p>
+     * To be used to wait on the thread to finish
+     */
+    @SneakyThrows
+    void waitOnModelsGenerated() {
+        this.modelGeneratorThread.join();
+    }
+
+
+    /**
+     * Gets a random configuration of binary features which is valid within the model.
+     *
+     * @param rand A Random object
+     *
+     * @return Set of active Features
+     */
+    public Set<Feature> getRandomValidConfig(Random rand) {
+        int randomIndex = rand.nextInt(this.models.size());
+        return this.models.get(randomIndex).parallelStream().map(binaryFeatures::get).collect(Collectors.toSet());
+    }
 
     /**
      * Checks whether all given features are contained in this feature model.
@@ -156,7 +172,8 @@ public class FeatureModel {
      * @return Whether all features could be mapped to instances of {@link Feature} from within this model
      */
     private boolean allFeaturesInModel(@NonNull Set<String> features) {
-        return this.features.parallelStream().map(Feature::getName).collect(Collectors.toSet()).containsAll(features);
+        return this.features.parallelStream().map(Feature::getName).collect(Collectors.toSet())
+                .containsAll(features);
     }
 
     /**
@@ -168,7 +185,8 @@ public class FeatureModel {
      */
     private boolean checkIfFeatureSetValid(@NonNull Set<String> features) {
         return this.models.parallelStream()
-                .map(integers -> integers.parallelStream().map(integer -> this.binaryFeatures.get(integer).getName())
+                .map(integers -> integers.parallelStream()
+                        .map(integer -> this.binaryFeatures.get(integer).getName())
                         .collect(Collectors.toSet()))
                 .anyMatch(strings -> features.containsAll(strings) && strings.containsAll(features));
     }
@@ -185,8 +203,9 @@ public class FeatureModel {
      * @throws IllegalArgumentException If the given configuration contains features not included in the feature model
      * @throws InterruptedException     If the thread calculating was interrupted before it could finish gracefully
      */
-    public boolean isValidConfiguration(@NonNull FeatureConfiguration configuration) throws IllegalArgumentException,
-                                                                                            InterruptedException {
+    public boolean isValidConfiguration(@NonNull FeatureConfiguration configuration) throws
+                                                                                     IllegalArgumentException,
+                                                                                     InterruptedException {
         final Set<String> activeFeatures = configuration.getActiveFeatures();
         if (!this.isModelCalculationFailed()) {
             if (this.allFeaturesInModel(activeFeatures)) {
@@ -202,7 +221,6 @@ public class FeatureModel {
      * Getter for the minimal model. If it is null, starts determination of minimal model, else returns it.
      *
      * @return The map of the features names and their booleans of the minimal model.
-     *
      */
     @SneakyThrows
     public Map<String, Boolean> getMinimalModel() {
@@ -215,7 +233,6 @@ public class FeatureModel {
 
     /**
      * Calculates the minimal model by finding the smallest integer set and creating a map of feature names out of it.
-     *
      */
     @SneakyThrows
     private void findMinimalModel() {
@@ -305,7 +322,8 @@ public class FeatureModel {
         Map<String, Integer> featureNameToInt = new HashMap<>();
         this.binaryFeatures.keySet().parallelStream()
                 .forEach(FeatureAsInt ->
-                                 featureNameToInt.put(this.binaryFeatures.get(FeatureAsInt).getName(), FeatureAsInt));
+                                 featureNameToInt
+                                         .put(this.binaryFeatures.get(FeatureAsInt).getName(), FeatureAsInt));
 
         Set<String> activeFeatures = featureConfiguration.getActiveFeatures();
         Set<Integer> configAsIntegerSet = activeFeatures.parallelStream()

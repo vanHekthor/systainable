@@ -32,6 +32,18 @@ public class FeatureConfiguration implements Cloneable {
 
 
     /**
+     * An alternate constructor if there is no need to set property values.
+     *
+     * @param featureModelName Name of the Model associated
+     * @param binaryFeatures   Map of binaryFeatures with active status.
+     * @param numericFeatures  Map of numericFeatures with belonging value.
+     */
+    public FeatureConfiguration(@NonNull String featureModelName, @NonNull Map<String, Boolean> binaryFeatures,
+                                @NonNull Map<String, Integer> numericFeatures) {
+        this(featureModelName, binaryFeatures, numericFeatures, null);
+    }
+
+    /**
      * Constructor for the class. Instead of using instances of {@link Feature} or {@link Property}, Strings are used
      * here to (1) allow for quicker comparison for example inside {@link FeatureModel} as well as (2) avoid creating
      * useless instances of those classes.

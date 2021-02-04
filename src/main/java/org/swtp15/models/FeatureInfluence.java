@@ -25,4 +25,18 @@ public class FeatureInfluence {
         this.activeFeatures    = activeFeatures;
         this.propertyInfluence = propertyInfluence;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        activeFeatures.forEach(feature -> sb.append(feature.getName()).append(","));
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("->");
+        propertyInfluence.forEach((key, value) -> sb.append(key.getName()).append(":").append(value).append(";"));
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
 }

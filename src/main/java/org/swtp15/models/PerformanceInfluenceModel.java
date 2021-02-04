@@ -1,7 +1,9 @@
 package org.swtp15.models;
 
 import lombok.Getter;
+import lombok.Setter;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +18,9 @@ public class PerformanceInfluenceModel {
     @Getter
     private final Set<FeatureInfluence> featureInfluences;
 
+    @Setter
+    private FeatureSystem featureSystem;
+
     /**
      * The Constructor.
      *
@@ -25,6 +30,19 @@ public class PerformanceInfluenceModel {
     public PerformanceInfluenceModel(Set<Property> properties, Set<FeatureInfluence> featureInfluences) {
         this.properties        = properties;
         this.featureInfluences = featureInfluences;
+    }
+
+    /**
+     * Evaluates multiple {@link FeatureConfiguration} at once.
+     *
+     * @param featureConfigurations Collection of all Configurations to evaluate
+     *
+     * @return A map having each input configuration mapped to its properties
+     */
+    public Map<FeatureConfiguration, Map<Property, Double>> evaluateConfigurations(
+            FeatureConfiguration... featureConfigurations) {
+        return Arrays.stream(featureConfigurations).parallel().collect(Collectors.toMap(conf -> conf,
+                                                                                        this::evaluateConfiguration));
     }
 
     /**

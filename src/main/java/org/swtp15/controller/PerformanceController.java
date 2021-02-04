@@ -46,11 +46,21 @@ public class PerformanceController {
         }
     }
 
+    /**
+     * Returns the global near-optimum of a feature system in relation to the given Property.
+     *
+     * @param featuresystem Name of the {@link FeatureSystem} to optimize
+     * @param property      {@link org.swtp15.models.Property} to optimize.
+     *
+     * @return ResponseEntity containing the optimized {@link FeatureConfiguration}
+     */
     @GetMapping("/optimum/global")
     public @ResponseBody
-    ResponseEntity<String> getGlobalOptimum(@RequestParam String featuresystem,
-                                            @RequestParam String property) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    ResponseEntity<FeatureConfiguration> getGlobalOptimum(@RequestParam String featuresystem,
+                                                          @RequestParam String property) {
+        FeatureSystem selectedSystem = this.systemCache.getFeatureSystemByName(featuresystem);
+        FeatureConfiguration nearOptimum = selectedSystem.getGlobalOptimumPerProperty().get(property);
+        return new ResponseEntity<>(nearOptimum, HttpStatus.OK);
     }
 
 
