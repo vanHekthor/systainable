@@ -2,15 +2,15 @@ package org.swtp15.models;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import org.swtp15.parser.FeatureModelParser;
 import org.swtp15.parser.PerformanceModelParser;
 import org.swtp15.system.SystemExceptions;
 
 import java.io.FileNotFoundException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FeatureSystem {
 
@@ -26,6 +26,10 @@ public class FeatureSystem {
     @Setter
     private FeatureModel featureModel;
 
+    private Map<String, FeatureConfiguration> globalOptimumPerProperty;
+
+    final Thread globalNearOptimumThread = new Thread(this::generateNearOptimalConfigurations);
+
 
     /**
      * The constructor.
@@ -40,6 +44,9 @@ public class FeatureSystem {
         this.name             = name;
         this.featureModel     = featureModel;
         this.performanceModel = performanceModel;
+
+        this.featureModel.setFeatureSystem(this);
+        this.performanceModel.setFeatureSystem(this);
     }
 
     /**
@@ -58,12 +65,16 @@ public class FeatureSystem {
     public FeatureSystem(String name, String dirPath, String dimacsPath, String xmlPath, String csvPath,
                          boolean isInternal)
     throws FileNotFoundException {
+
         this.name             = name;
         this.featureModel     = FeatureModelParser.parseModel(dirPath + dimacsPath, xmlPath != null ?
                                                                                     dirPath + xmlPath : null,
                                                               isInternal);
         this.performanceModel = PerformanceModelParser.parseModel(dirPath + csvPath, featureModel.getFeatures(),
                                                                   isInternal);
+
+        this.featureModel.setFeatureSystem(this);
+        this.performanceModel.setFeatureSystem(this);
     }
 
     /**
@@ -94,6 +105,15 @@ public class FeatureSystem {
     }
 
     /**
+     * A proxy to wait on the models to be generated.
+     * <p>
+     * To be used to wait on the thread to finish
+     */
+    public void waitOnModelsGenerated() {
+        this.featureModel.waitOnModelsGenerated();
+    }
+
+    /**
      * Returns a Set containing the properties of this FeatureSystem.
      *
      * @return A Set of properties.
@@ -115,7 +135,6 @@ public class FeatureSystem {
      * Gets the minimal valid configuration of a system.
      *
      * @return minimal valid feature configuration.
-     *
      */
     public FeatureConfiguration getMinimalConfiguration() {
         return new FeatureConfiguration(name, featureModel.getMinimalModel(),
@@ -134,11 +153,10 @@ public class FeatureSystem {
      * @return optimized {@link FeatureConfiguration} for property
      *
      * @throws IllegalArgumentException If configuration can't be or is already optimized
-     * @throws InterruptedException     If the thread calculating was interrupted before it could finish gracefully
      */
+    @SneakyThrows
     public FeatureConfiguration findLocalOptimum(FeatureConfiguration configToOptimize, String propertyName,
-                                                 int maxDifference) throws InterruptedException,
-                                                                           IllegalArgumentException {
+                                                 int maxDifference) throws IllegalArgumentException {
         if (!configurationIsValid(configToOptimize)) {
             throw ModelExceptions.CONFIGURATION_NOT_VALID;
         }
@@ -173,6 +191,77 @@ public class FeatureSystem {
         }
 
         return localOptimum;
+    }
+
+    /**
+     * Starts the async thread generating the near optimum of every Property of the system.
+     */
+    public void startGenerateGlobalOptimum() {
+        this.globalOptimumPerProperty = new HashMap<>();
+        this.globalNearOptimumThread.start();
+    }
+
+    /**
+     * Returns the respectively optimal {@link FeatureConfiguration} for each {@link Property}.
+     * <p>
+     * The returned feature configuration may not be the absolute best, but it is a very close estimate. Calculating the
+     * very best is far too slow to be viable for big systems.
+     *
+     * @return Map from the Property to optimize to the corresponding near-optimal FeatureConfiguration
+     */
+    @SneakyThrows
+    public Map<String, FeatureConfiguration> getGlobalOptimumPerProperty() {
+        this.featureModel.waitOnModelsGenerated();
+        this.startGenerateGlobalOptimum();
+        this.globalNearOptimumThread.join();
+        return this.globalOptimumPerProperty;
+    }
+
+    /**
+     * Generates a very good estimate for a global optimum for all {@link Property} instances of this System.
+     */
+    private void generateNearOptimalConfigurations() {
+        Random rand = new Random();
+        for (Property property : this.getProperties()) {
+            Map<String, Integer> optimalNumericValues = this.calculateGlobalOptimum(property);
+            List<Set<Feature>> binaryConfigs = Stream.generate(() -> this.featureModel.getRandomValidConfig(rand))
+                    .limit(10).collect(Collectors.toList());
+            List<Map<String, Boolean>> sampledBinaryMaps =
+                    binaryConfigs.parallelStream().map(bFeatures ->
+                                                               this.getFeatures().parallelStream()
+                                                                       .collect(Collectors
+                                                                                        .toMap(Feature::getName,
+                                                                                               bFeatures::contains)))
+                            .collect(Collectors.toList());
+            FeatureConfiguration sampledConfig = sampledBinaryMaps.parallelStream()
+                    .map(map -> new FeatureConfiguration(this.name, map, optimalNumericValues))
+                    .min((configA, configB) -> (property.isToMinimize() ? 1 : -1) * (int) Math
+                            .signum(this.evaluateFeatureConfiguration(configA).get(property) -
+                                    this.evaluateFeatureConfiguration(configB).get(property))).orElse(null);
+            FeatureConfiguration optimizedConfig;
+            try {
+                optimizedConfig = this.findLocalOptimum(sampledConfig, property.getName(), 3);
+            } catch (Exception ignored) {
+                optimizedConfig = sampledConfig;
+            }
+            this.globalOptimumPerProperty.put(property.getName(), optimizedConfig);
+        }
+    }
+
+    private Map<String, Integer> calculateGlobalOptimum(Property property) {
+        Map<String, Integer> map = new HashMap<>();
+        FeatureConfiguration conf = this.getMinimalConfiguration();
+        for (Feature numericFeature :
+                this.getFeatures().stream().filter(feature -> !feature.isBinary()).collect(Collectors.toSet())) {
+            conf.getNumericFeatures().put(numericFeature.getName(), numericFeature.getMinValue());
+            double valueForMin = this.performanceModel.evaluateConfiguration(conf).get(property);
+            conf.getNumericFeatures().put(numericFeature.getName(), numericFeature.getMaxValue());
+            double valueForMax = this.performanceModel.evaluateConfiguration(conf).get(property);
+            boolean minIsBetter = (valueForMin < valueForMax) == property.isToMinimize();
+            map.put(numericFeature.getName(),
+                    minIsBetter ? numericFeature.getMinValue() : numericFeature.getMaxValue());
+        }
+        return map;
     }
 
     /**

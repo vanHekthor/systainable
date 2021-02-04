@@ -2,6 +2,8 @@ package org.swtp15.models;
 
 import lombok.Getter;
 
+import java.util.function.Function;
+
 /**
  * Class that saves one Feature of a {@link FeatureModel}.
  */
@@ -11,16 +13,19 @@ public class Feature {
     private final String name;
 
     @Getter
-    private boolean isBinary;
+    private final boolean isBinary;
 
     @Getter
-    private Integer minValue;
+    private final Integer minValue;
 
     @Getter
-    private Integer maxValue;
+    private final Integer maxValue;
 
     @Getter
-    private String stepFunction;
+    private final String stepFunction;
+
+    @Getter
+    private Function<Integer, Integer> parsedStepFunction = null;
 
     /**
      * Instantiates a binary Feature.
@@ -49,6 +54,7 @@ public class Feature {
         this.minValue     = minValue;
         this.maxValue     = maxValue;
         this.stepFunction = stepFunction;
+        this.parseStepFunction();
     }
 
 
@@ -58,5 +64,40 @@ public class Feature {
     @Override
     public String toString() {
         return "Feature: " + name;
+    }
+
+    /**
+     * Returns the next valid value of a numeric feature.
+     *
+     * @param currentValue The current value to which the next value is required.
+     *
+     * @return The next value of the numeric features.
+     *
+     * @throws IllegalArgumentException      If the next value would exceed the maximum value of the feature.
+     * @throws UnsupportedOperationException If this feature is not a numeric feature
+     */
+    public int getNextValidValue(int currentValue) throws IllegalArgumentException, UnsupportedOperationException {
+        if (this.stepFunction != null) {
+            int nextValue = this.parsedStepFunction.apply(currentValue);
+            if (nextValue > this.maxValue) {
+                throw ModelExceptions.NUMERIC_FEATURE_VALUE_OVER_BOUNDS;
+            } else {
+                return nextValue;
+            }
+        } else {
+            throw ModelExceptions.FEATURE_NOT_A_NUMERIC_FEATURE;
+        }
+    }
+
+    private void parseStepFunction() {
+        if (stepFunction.contains("+")) {
+            int changeNumber = Integer.parseInt(stepFunction.replace(" ", "").split("\\+")[1]);
+            this.parsedStepFunction = (i -> i + changeNumber);
+        } else if (stepFunction.contains("*")) {
+            int changeNumber = Integer.parseInt(stepFunction.replace(" ", "").split("\\*")[1]);
+            this.parsedStepFunction = (i -> i * changeNumber);
+        } else {
+            this.parsedStepFunction = null;
+        }
     }
 }
