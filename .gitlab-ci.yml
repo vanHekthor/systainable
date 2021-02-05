@@ -42,19 +42,6 @@ gradle-test:
             - build/jacoco/
         expire_in: 1 day
 
-gradle-integration-test:
-
-    stage: test
-    script:
-        - ./gradlew integrationTest -PnodeInstall --no-daemon 
-    artifacts:
-        reports:
-            junit: build/test-results/integrationTest/TEST-*.xml
-        paths:
-            - build/test-results/
-            - build/jacoco/
-        expire_in: 1 day
-
 
 gradle-package:
     stage: package
