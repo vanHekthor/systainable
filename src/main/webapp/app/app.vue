@@ -62,6 +62,7 @@
             :optimized-config-found="optimizedConfigFound"
             :configuration-features="configurationFeatures"
             :optimized-config="optiConfig"
+            :unoptimized-config="selectedConfig"
             :property-attributes="configurationProperties"
             @search-optimized-config="searchOptimizedConfig"
             @ok="acceptOptimizedConfig"
@@ -112,6 +113,7 @@ export default {
             displayModal: false,
             displayOptimizationModal: false,
             selectedOptimizationConfigName: "",
+            selectedConfig: {},
             selectedOptimizationPropName: "",
             optimizationDistance: 1,
             optimizedConfigFound: false,
@@ -260,7 +262,7 @@ export default {
         searchOptimizedConfig: async function(optiModalEvent, configName, propName, maxDifference) {
             optiModalEvent.preventDefault();
 
-            const config = this.configurations.find(conf => { return conf.name === configName });
+            this.selectedConfig = this.configurations.find(conf => { return conf.name === configName });
             let optiConfig = await this.requestOptimizedConfig(configName, propName, maxDifference);
 
             if (optiConfig === "") {
@@ -269,7 +271,7 @@ export default {
             } else {
                 this.optimizedConfigFound = true;
                 this.searchedForOptimizedConfig = true;
-                optiConfig.name = config.name + "[+]";
+                optiConfig.name = this.selectedConfig.name + "[+]";
                 this.optiConfig = optiConfig;
             }
         },
