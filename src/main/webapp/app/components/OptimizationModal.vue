@@ -40,7 +40,7 @@
                 <b-row v-if="searchedForOptimizedConfig && optimizedConfigFound">
                     <b-col cols="12" lg="6">
                         <div class="d-flex align-items-center justify-content-center">
-                            <ConfigCard class="mt-2" :configurationFeatures="configurationFeatures" :config="optimizedConfig"/>
+                            <ConfigCard class="mt-2" :configurationFeatures="configurationFeatures" :config="optimizedConfig" :original-config="unoptimizedConfig"/>
                         </div>
                     </b-col>
                     <b-col cols="12" lg="6">
@@ -129,6 +129,11 @@ export default {
         optimizedConfig: {
             type: Object,
             required: true,
+            default: null
+        },
+        unoptimizedConfig: {
+            type: Object,
+            required: false,
             default: null
         },
         propertyAttributes: {
