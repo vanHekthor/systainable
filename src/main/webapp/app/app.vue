@@ -43,7 +43,8 @@
                 <font-awesome-icon class="m-2" icon="arrow-right" size="lg" fixed-width/>
                 <ConfigCard class="m-2"
                             :configurationFeatures="configurationFeatures"
-                            :config="alternativeConfig"/>
+                            :config="alternativeConfig"
+                            :original-config="invalidConfig"/>
             </div>
             <template #footer>
                 <Button label="Decline" icon="pi pi-times" @click="closeModal" class="p-button-text"/>
@@ -188,11 +189,6 @@ export default {
     },
 
     computed: {
-        requestAlternativeConfig: async function() {
-            let altConfig = await requestHandler.getInitConfig(this.selectedSoftSystem);
-            altConfig.name = "alternative"
-            return altConfig;
-        },
         maxOptimizationDistance: function() {
             if (this.softSystemLoaded) {
                 return this.configurationFeatures.binaryFeatures.length;
@@ -316,13 +312,19 @@ export default {
                 console.log(`${config.name} is ${valid}`);
                 if (!valid) {
                     this.invalidConfig = config;
-                    this.alternativeConfig = await this.requestAlternativeConfig;
+                    this.alternativeConfig = await this.requestAlternativeConfig(config);
                     this.openModal();
 
                     return;
                 }
             }
             await this.submitConfigs();
+        },
+
+        requestAlternativeConfig: async function(config) {
+            let altConfig = await requestHandler.getAlternativeConfig(this.selectedSoftSystem, config, this.configurationProperties);
+            altConfig.name = "alternative"
+            return altConfig;
         },
 
         submitConfigs: async function() {
