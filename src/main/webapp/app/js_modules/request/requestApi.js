@@ -69,6 +69,11 @@ export default {
     return response.data;
   },
 
+  getAlternativeConfig: async function (featureConfiguration) {
+    let response = await instance.post('featuremodel/alternative', { featureConfiguration }).catch(error => console.log(error));
+    return response.data;
+  },
+
   /**
    * This method sends a POST request to /performance/optimum/local?featuresystem=${systemName}&property=${propertyName}. The request body contains a configuration in request format.
    * @param propName Name of the property to be improved

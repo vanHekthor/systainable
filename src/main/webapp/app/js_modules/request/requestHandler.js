@@ -123,6 +123,17 @@ export default {
     return responseData.featureConfiguration.properties;
   },
 
+  getAlternativeConfig: async function (systemName, config, properties) {
+    const requestConfig = createRequestConfig(systemName, config, properties);
+
+    let responseData = await api.getAlternativeConfig(requestConfig);
+    responseData.featureConfiguration.features = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
+
+    const altConfig = Object.assign({ name: 'config' }, responseData.featureConfiguration.features);
+
+    return altConfig;
+  },
+
   /**
    * This method requests the optimization of a configuration given a selected property and a max. difference of configuration features/options.
    * Underscores in response object keys get replaced by non-break spaces.
