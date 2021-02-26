@@ -28,6 +28,15 @@ function createRequestConfig(systemName, config, properties) {
   return requestConfig;
 }
 
+function convertResponse(responseData) {
+  responseData.features = underscoreUtil.replaceUnderscores(responseData.features);
+  responseData.properties = underscoreUtil.replaceUnderscores(responseData.properties);
+  let config = Object.assign({ name: 'config' }, responseData.features);
+  config.properties = responseData.properties;
+
+  return config;
+}
+
 export default {
   /**
    * This method request the backend to load the available systems.
@@ -42,7 +51,7 @@ export default {
    * This method makes requests for available software systems.
    * @returns {Promise<*>} String array with names of available systems
    */
-  getAvailableSystems: async function getAvailableSystems() {
+  getAvailableSystems: async function () {
     let responseData = await api.getAvailableSystems();
     return responseData.systemNames;
   },
@@ -57,7 +66,7 @@ export default {
    * @param systemName Selected software system
    * @returns {Promise<{}|undefined>} Object with feature attributes
    */
-  getFeatureNames: async function getFeatureNames(systemName) {
+  getFeatureNames: async function (systemName) {
     let responseData = await api.getAttributeNames(systemName);
 
     await Object.keys(responseData.features).forEach(function (key) {
@@ -73,7 +82,7 @@ export default {
    * @param systemName Selected software system
    * @returns {Promise<{}|undefined>} Object with property names as keys and units plus desirable values (lower/higher)
    */
-  getPropNames: async function getPropNames(systemName) {
+  getPropNames: async function (systemName) {
     let responseData = await api.getAttributeNames(systemName);
     responseData.properties = underscoreUtil.replaceUnderscores(responseData.properties);
 
@@ -86,7 +95,7 @@ export default {
    * @param systemName Selected software system
    * @returns {Promise<{name: string}|undefined>} Valid minimal configuration
    */
-  getInitConfig: async function getInitConfig(systemName) {
+  getInitConfig: async function (systemName) {
     let responseData = await api.getInitConfig(systemName);
 
     responseData.featureConfiguration.features = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
@@ -102,7 +111,7 @@ export default {
    * @param properties Configuration properties object
    * @returns {Promise<*>} Validity of the configuration true/false
    */
-  validateConfig: async function validate(systemName, config, properties) {
+  validateConfig: async function (systemName, config, properties) {
     const requestConfig = createRequestConfig(systemName, config, properties);
     return await api.getValidity(requestConfig);
   },
@@ -114,7 +123,7 @@ export default {
    * @param properties Configuration properties object
    * @returns {Promise<{}|undefined>} Object with property values
    */
-  getConfigPropValues: async function getConfigPropValues(systemName, config, properties) {
+  getConfigPropValues: async function (systemName, config, properties) {
     const requestConfig = createRequestConfig(systemName, config, properties);
 
     let responseData = await api.getPropValues(requestConfig);
@@ -144,7 +153,7 @@ export default {
    * @param properties Configuration properties object
    * @returns {Promise<(string)|({name: string} & Array)|({name: string} & Object)>}
    */
-  getOptimizedConfig: async function getOptimizedConfig(systemName, propName, maxDifference, config, properties) {
+  getOptimizedConfig: async function (systemName, propName, maxDifference, config, properties) {
     const requestConfig = createRequestConfig(systemName, config, properties);
 
     let responseData = await api.getOptimizedConfig(propName.replace(/\u00a0/g, '_'), maxDifference, requestConfig);
@@ -152,12 +161,13 @@ export default {
     if (responseData === '') {
       return responseData;
     } else {
-      responseData.featureConfiguration.features = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
-      responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.properties);
-      let optiConfig = Object.assign({ name: 'config' }, responseData.featureConfiguration.features);
-      optiConfig.properties = responseData.featureConfiguration.properties;
-
-      return optiConfig;
+      return convertResponse(responseData.featureConfiguration);
     }
+  },
+
+  getNearOptimalConfig: async function (systemName, propName) {
+    let responseData = await api.getNearOptimalConfig(systemName, propName.replace(/\u00a0/g, '_'));
+
+    return convertResponse(responseData);
   },
 };
