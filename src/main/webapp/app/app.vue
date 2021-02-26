@@ -32,6 +32,7 @@
                 :chartDataArray="chartDataArray"
                 :radarData="radarData"
                 @click-optimize="openOptimizationModal"
+                @click-near-optimum="requestNearOptimalConfig"
             />
         </b-container>
         <Dialog :header="invalidConfig.name + ' is invalid'" :visible.sync="displayModal" :style="{width: '50vw'}" :modal="true">
@@ -359,6 +360,15 @@ export default {
             let optiConfig = await requestHandler.getOptimizedConfig(this.selectedSoftSystem, propName, maxDifference, config, this.configurationProperties);
 
             return optiConfig;
+        },
+
+        requestNearOptimalConfig: async function(propName) {
+            let config =  await requestHandler.getNearOptimalConfig(this.selectedSoftSystem, propName);
+            config.name = propName + '[opti]'
+
+            this.addConfig(config);
+
+            return config;
         },
 
         // methods for handling a modals

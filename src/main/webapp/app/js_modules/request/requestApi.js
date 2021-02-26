@@ -21,7 +21,7 @@ export default {
    * This method sends a GET request to /systems.
    * @returns {Promise<any>} String array with names of available systems
    */
-  getAvailableSystems: async function getAvailabeSystems() {
+  getAvailableSystems: async function () {
     let response = await instance.get('systems').catch(error => console.log(error));
 
     return response.data;
@@ -32,7 +32,7 @@ export default {
    * @param systemName Name of the system
    * @returns {Promise<any>} Object with software system feature and property attributes
    */
-  getAttributeNames: async function getAttributeNames(systemName) {
+  getAttributeNames: async function (systemName) {
     let response = await instance.get(`featuremodel?name=${systemName}`).catch(error => console.log(error));
 
     return response.data;
@@ -43,7 +43,7 @@ export default {
    * @param systemName Name of the system
    * @returns {Promise<any>} Valid minimal configuration in request format
    */
-  getInitConfig: async function getConfig(systemName) {
+  getInitConfig: async function (systemName) {
     let response = await instance.get(`featuremodel/initconfig?name=${systemName}`).catch(error => console.log(error));
 
     return response.data;
@@ -54,7 +54,7 @@ export default {
    * @param featureConfiguration Configuration that is put into the request body.
    * @returns {Promise<any>} Validity of sent configuration true/false
    */
-  getValidity: async function getValidity(featureConfiguration) {
+  getValidity: async function (featureConfiguration) {
     let response = await instance.post('featuremodel/valid', { featureConfiguration }).catch(error => console.log(error));
     return response.data;
   },
@@ -64,7 +64,7 @@ export default {
    * @param featureConfiguration Configuration that is put into the request body
    * @returns {Promise<any>} Object with property values of sent configuration
    */
-  getPropValues: async function getPropValues(featureConfiguration) {
+  getPropValues: async function (featureConfiguration) {
     let response = await instance.post('performance', { featureConfiguration }).catch(error => console.log(error));
     return response.data;
   },
@@ -81,9 +81,16 @@ export default {
    * @param featureConfiguration Configuration that is put into the request body and shall be optimized
    * @returns {Promise<any>} Object with optimized configuration or message similar to 'no better configuration found'
    */
-  getOptimizedConfig: async function getOptimizedConfig(propName, maxDifference, featureConfiguration) {
+  getOptimizedConfig: async function (propName, maxDifference, featureConfiguration) {
     let response = await instance
       .post(`performance/optimum/local?property=${propName}&maxDifference=${maxDifference}`, { featureConfiguration })
+      .catch(error => console.log(error));
+    return response.data;
+  },
+
+  getNearOptimalConfig: async function (systemName, propName) {
+    let response = await instance
+      .get(`performance/optimum/global?featuresystem=${systemName}&property=${propName}`)
       .catch(error => console.log(error));
     return response.data;
   },
