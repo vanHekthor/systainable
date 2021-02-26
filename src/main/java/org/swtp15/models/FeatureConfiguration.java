@@ -193,7 +193,7 @@ public class FeatureConfiguration implements Cloneable {
                 dissectedLine.put("properties", propertyInfluences);
                 for (Map.Entry<Property, Double> singleInflunece : dissected.getKey().getPropertyInfluence()
                         .entrySet()) {
-                    propertyInfluences.put(singleInflunece.getKey(),
+                    propertyInfluences.put(singleInflunece.getKey().getName(),
                                            singleInflunece.getValue() * dissected.getValue());
                 }
                 dissectedLine.put("multiplier", dissected.getValue());
