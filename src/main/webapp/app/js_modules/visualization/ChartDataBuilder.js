@@ -1,12 +1,4 @@
-const backgroundColors = ['#9c27b0', '#0288D1', '#D32F2F'];
-const radarColors = {
-  backgroundColor: ['rgb(255,102,0,0.5)', 'rgba(0,255,60,0.2)'],
-  borderColor: ['rgb(255,102,0)', 'rgba(61,164,91,0.7)'],
-  pointBackgroundColor: ['rgba(255,102,0,1)', 'rgb(32,171,65)'],
-  pointBorderColor: ['#fff', '#fff'],
-  pointHoverBackgroundColor: ['rgba(255,102,0,1)', 'rgb(27,215,78)'],
-  pointHoverBorderColor: ['rgba(255,99,132,1)', 'rgba(27,215,78,1)'],
-};
+import colorPalette from '@/js_modules/visualization/colorPalette';
 
 /**
  * This function generates a evaluation hint based on the property attributes that shows if it is more desirable to have a low or a high property value.
@@ -38,6 +30,7 @@ export default {
   buildBarChartData: function buildBarChartData(configNames, propertyAttributes, propertyMaps) {
     let configLabels = configNames;
     let propertyLabels = [...propertyMaps[0].keys()];
+    let color = colorPalette.colorArrayChart(propertyLabels);
 
     let label = '';
     let chartDataArray = [];
@@ -64,7 +57,7 @@ export default {
         datasets: [
           {
             label: label,
-            backgroundColor: backgroundColors[i % 3],
+            backgroundColor: color[i],
             data: values,
           },
         ],
@@ -105,15 +98,16 @@ export default {
     };
 
     let i = 0;
+    let radarColors = colorPalette.colorArrayRadar([...propertyMaps[0].keys()]);
     for (let configName of configNames) {
       let dataset = {
         label: configName,
-        backgroundColor: radarColors.backgroundColor[i % 2],
-        borderColor: radarColors.borderColor[i % 2],
-        pointBackgroundColor: radarColors.pointBackgroundColor[i % 2],
-        pointBorderColor: radarColors.pointBorderColor[i % 2],
-        pointHoverBackgroundColor: radarColors.pointHoverBackgroundColor[i % 2],
-        pointHoverBorderColor: radarColors.pointHoverBorderColor[i % 2],
+        backgroundColor: radarColors.backgroundColor[i],
+        borderColor: radarColors.borderColor[i],
+        pointBackgroundColor: radarColors.pointBackgroundColor[i],
+        pointBorderColor: radarColors.pointBorderColor[i],
+        pointHoverBackgroundColor: radarColors.pointHoverBackgroundColor[i],
+        pointHoverBorderColor: radarColors.pointHoverBorderColor[i],
         data: [...propertyMaps[i].values()],
       };
       radarData.datasets.push(dataset);
