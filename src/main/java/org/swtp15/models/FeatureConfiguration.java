@@ -157,13 +157,11 @@ public class FeatureConfiguration implements Cloneable {
     @SuppressWarnings("unchecked")
     @Override
     public String toString() {
-        final JSONObject root = new JSONObject();
         final JSONObject conf = new JSONObject();
         final JSONObject properties = new JSONObject();
         final JSONObject features = new JSONObject();
         final JSONObject dissectedProperties = new JSONObject();
 
-        root.put("featureConfiguration", conf);
         conf.put("featureModel", this.featureModelName);
         conf.put("features", features);
         for (String featureName : this.binaryFeatures.keySet()) {
@@ -199,7 +197,7 @@ public class FeatureConfiguration implements Cloneable {
                 dissectedLine.put("multiplier", dissected.getValue());
             }
         }
-        return root.toJSONString();
+        return conf.toJSONString();
     }
 
 }
