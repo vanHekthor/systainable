@@ -15,6 +15,7 @@
     "bootstrap": "4.5.0",
     "bootstrap-vue": "2.14.0",
     "chart.js": "^2.9.4",
+    "chroma-js": "^2.1.0",
     "core-js": "^3.6.5",
     "date-fns": "2.14.0",
     "primeflex": "^2.0.0",

@@ -1,7 +1,7 @@
 apply plugin: "com.heroku.sdk.heroku-gradle"
 
 heroku {
-  appName = "greenconfplusplus"
+  appName = "systainable"
   buildpacks = ["heroku/jvm"]
 }
 

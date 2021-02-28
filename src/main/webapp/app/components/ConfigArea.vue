@@ -19,7 +19,7 @@
                                                     :numericFeatures="Object.keys(configurationFeatures.numericFeatures)"
                                                     :fileCheck="true" @load-data="loadData"/>
                                 <b-dropdown-item-button @click="$emit('click-optimize', '')">
-                                    <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>Optimize
+                                    <font-awesome-icon icon="compass" class="mr-1 text-secondary" fixed-width/>Optimize
                                 </b-dropdown-item-button>
                             </b-dropdown>
                         </div>
@@ -49,23 +49,23 @@
                                     <div>
                                         <b-button class="p-1 no-outline" variant="link"
                                                   @click.stop="toggle($event, index)">
-                                            <font-awesome-icon icon="plus" :style="{ color: '#6c757d' }" fixed-width/>
+                                            <font-awesome-icon icon="plus" class="text-secondary" fixed-width/>
                                         </b-button>
                                         <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" no-caret
                                                     @toggle="untoggle()">
                                             <template #button-content>
-                                                <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
+                                                <font-awesome-icon icon="cog" class="text-secondary" fixed-width/>
                                             </template>
                                             <b-dropdown-item-button @click="$emit('duplicate-config',index)">
-                                                <font-awesome-icon icon="copy" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                                                <font-awesome-icon icon="copy" class="mr-1 text-secondary" fixed-width/>
                                                 duplicate
                                             </b-dropdown-item-button>
                                             <b-dropdown-item-button v-b-modal="'modal-' + config.name" @click="renamedConfigString=config.name">
-                                                <font-awesome-icon icon="edit" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                                                <font-awesome-icon icon="edit" class="mr-1 text-secondary" fixed-width/>
                                                 rename
                                             </b-dropdown-item-button>
                                             <b-dropdown-item-button @click="$emit('del-config', index)">
-                                                <font-awesome-icon icon="trash" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                                                <font-awesome-icon icon="trash" class="mr-1 text-danger" fixed-width/>
                                                 delete
                                             </b-dropdown-item-button>
                                         </b-dropdown>

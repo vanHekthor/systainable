@@ -56,11 +56,11 @@ public class PerformanceController {
      */
     @GetMapping("/optimum/global")
     public @ResponseBody
-    ResponseEntity<FeatureConfiguration> getGlobalOptimum(@RequestParam String featuresystem,
+    ResponseEntity<String> getGlobalOptimum(@RequestParam String featuresystem,
                                                           @RequestParam String property) {
         FeatureSystem selectedSystem = this.systemCache.getFeatureSystemByName(featuresystem);
         FeatureConfiguration nearOptimum = selectedSystem.getGlobalOptimumPerProperty().get(property);
-        return new ResponseEntity<>(nearOptimum, HttpStatus.OK);
+        return new ResponseEntity<>(nearOptimum.toString(), HttpStatus.OK);
     }
 
 
