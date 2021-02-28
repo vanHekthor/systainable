@@ -168,6 +168,6 @@ export default {
   getNearOptimalConfig: async function (systemName, propName) {
     let responseData = await api.getNearOptimalConfig(systemName, propName.replace(/\u00a0/g, '_'));
 
-    return convertResponse(responseData);
+    return convertResponse(responseData.featureConfiguration);
   },
 };

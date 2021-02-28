@@ -229,7 +229,7 @@ export default {
             this.configCount = this.configurations.length;
             config.name += this.configCount.toString();
             this.configurations.push(config);
-            this.updateConfigName(this.configurations.length - 1, config.name)
+            this.updateConfigName(this.configurations.length - 1, config.name);
         },
 
         deleteConfig(index) {
@@ -364,9 +364,9 @@ export default {
 
         requestNearOptimalConfig: async function(propName) {
             let config =  await requestHandler.getNearOptimalConfig(this.selectedSoftSystem, propName);
-            config.name = propName + '[opti]'
 
             this.addConfig(config);
+            config.name = propName + '[opti]';
 
             return config;
         },
