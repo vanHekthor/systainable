@@ -19,7 +19,7 @@
                 @update-feature="updateFeature"
                 @update-config-name="updateConfigName"
                 @del-config="deleteConfig"
-                @submit-configs="requestValidityCheck"
+                @submit-configs="submitConfigs"
                 @get-config-example="requestInitConfig"
                 @load-data="loadConfigs"
                 @duplicate-config="duplicateConfig"
@@ -34,7 +34,11 @@
                 @click-optimize="openOptimizationModal"
             />
         </b-container>
-        <Dialog :header="invalidConfig.name + ' is invalid'" :visible.sync="displayModal" :style="{width: '50vw'}" :modal="true">
+
+        <b-modal id="alternative-config-modal" @ok="closeModalAcceptAlternative" centered>
+            <template #modal-title>
+                {{ invalidConfig.name + ' is invalid'}}
+            </template>
             <h6>Suggestion:</h6>
             <div class="p-d-flex p-jc-center p-ai-center" style="overflow-x: auto">
                 <ConfigCard class="m-2"
@@ -46,11 +50,8 @@
                             :config="alternativeConfig"
                             :original-config="invalidConfig"/>
             </div>
-            <template #footer>
-                <Button label="Decline" icon="pi pi-times" @click="closeModal" class="p-button-text"/>
-                <Button label="Accept" icon="pi pi-check" @click="closeModalAcceptAlternative" autofocus />
-            </template>
-        </Dialog>
+        </b-modal>
+
         <OptimizationModal
             :display-optimization-modal.sync="displayOptimizationModal"
             :selected-optimization-config-name.sync="selectedOptimizationConfigName"
@@ -263,16 +264,20 @@ export default {
             optiModalEvent.preventDefault();
 
             this.selectedConfig = this.configurations.find(conf => { return conf.name === configName });
-            let optiConfig = await this.requestOptimizedConfig(configName, propName, maxDifference);
 
-            if (optiConfig === "") {
-                this.optimizedConfigFound = false;
-                this.searchedForOptimizedConfig = true;
-            } else {
-                this.optimizedConfigFound = true;
-                this.searchedForOptimizedConfig = true;
-                optiConfig.name = this.selectedConfig.name + "[+]";
-                this.optiConfig = optiConfig;
+            if (await this.requestSingleValidityCheck(this.selectedConfig)) {
+                await this.requestConfigEvaluation(this.selectedConfig);
+                let optiConfig = await this.requestOptimizedConfig(this.selectedConfig, propName, maxDifference);
+
+                if (optiConfig === "") {
+                    this.optimizedConfigFound = false;
+                    this.searchedForOptimizedConfig = true;
+                } else {
+                    this.optimizedConfigFound = true;
+                    this.searchedForOptimizedConfig = true;
+                    optiConfig.name = this.selectedConfig.name + "[+]";
+                    this.optiConfig = optiConfig;
+                }
             }
         },
 
@@ -309,18 +314,27 @@ export default {
         requestValidityCheck: async function() {
             let config = {};
             for (config of this.configurations) {
-                let valid = await requestHandler.validateConfig(this.selectedSoftSystem, config, this.configurationProperties);
-                console.log(config);
-                console.log(`${config.name} is ${valid}`);
-                if (!valid) {
-                    this.invalidConfig = config;
-                    this.alternativeConfig = await this.requestAlternativeConfig(config);
-                    this.openModal();
-
-                    return;
+                if (!await this.requestSingleValidityCheck(config)) {
+                    return false;
                 }
             }
-            await this.submitConfigs();
+            return true;
+        },
+
+        requestSingleValidityCheck: async function(config) {
+            let valid = await requestHandler.validateConfig(this.selectedSoftSystem, config, this.configurationProperties);
+            console.log(config);
+            console.log(`${config.name} is ${valid}`);
+
+            if (!valid) {
+                this.invalidConfig = config;
+                this.alternativeConfig = await this.requestAlternativeConfig(config);
+                this.$bvModal.show('alternative-config-modal');
+
+                return false;
+            }
+
+            return true;
         },
 
         requestAlternativeConfig: async function(config) {
@@ -330,46 +344,41 @@ export default {
         },
 
         submitConfigs: async function() {
-            let configNames = [];
-            let config = {};
-            let propertyValueMaps = [];
+            if (await this.requestValidityCheck()) {
+                let configNames = [];
+                let config = {};
+                let propertyValueMaps = [];
 
-            for (config of this.configurations) {
-                configNames.push(config.name);
+                for (config of this.configurations) {
+                    configNames.push(config.name);
 
-                let predictedProps = await requestHandler.getConfigPropValues(this.selectedSoftSystem, config, this.configurationProperties);
-                config.properties = predictedProps;
+                    await this.requestConfigEvaluation(config);
 
-                let propMap = new Map();
-                Object.keys(this.configurationProperties).forEach(function(key) {
-                    propMap.set(key, predictedProps[key]);
-                })
+                    let propMap = new Map();
+                    Object.keys(this.configurationProperties).forEach(function(key) {
+                        propMap.set(key, config.properties[key]);
+                    })
 
-                propertyValueMaps.push(propMap);
+                    propertyValueMaps.push(propMap);
+                }
+
+                this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, this.configurationProperties, propertyValueMaps);
+                this.radarData = chartDataBuilder.buildRadarData(configNames, this.configurationProperties, propertyValueMaps);
+                this.drawCharts();
             }
-
-            this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, this.configurationProperties, propertyValueMaps);
-            this.radarData = chartDataBuilder.buildRadarData(configNames, this.configurationProperties, propertyValueMaps);
-            this.drawCharts();
         },
 
-        requestOptimizedConfig: async function(configName, propName, maxDifference) {
-            const config = this.configurations.find(conf => { return conf.name === configName });
+        requestConfigEvaluation: async function(config) {
+            config.properties =  await requestHandler.getConfigPropValues(this.selectedSoftSystem, config, this.configurationProperties);
+        },
 
+        requestOptimizedConfig: async function(config, propName, maxDifference) {
             let optiConfig = await requestHandler.getOptimizedConfig(this.selectedSoftSystem, propName, maxDifference, config, this.configurationProperties);
 
             return optiConfig;
         },
 
         // methods for handling a modals
-        openModal() {
-            this.displayModal = true;
-        },
-
-        closeModal() {
-            this.displayModal = false;
-        },
-
         closeModalAcceptAlternative() {
             Object.keys(this.invalidConfig).forEach(key => {
                 if (key === 'name') {
