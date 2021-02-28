@@ -1,6 +1,6 @@
 <template>
     <b-dropdown-item-button @click="handleImport">
-        <font-awesome-icon icon="file-upload" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>{{ label }}
+        <font-awesome-icon icon="file-upload" class="mr-1 text-secondary" fixed-width/>{{ label }}
     </b-dropdown-item-button>
 </template>
 
