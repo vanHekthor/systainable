@@ -389,9 +389,11 @@ export default {
             this.displayModal = false;
         },
 
-        openOptimizationModal(optimizationPropName) {
+        openOptimizationModal(configName = "", optimizationPropName = "") {
             if (this.configurations.length === 1) {
                 this.selectedOptimizationConfigName = this.configurations[0].name;
+            } else {
+                this.selectedOptimizationConfigName = configName;
             }
             this.selectedOptimizationPropName = optimizationPropName;
             this.displayOptimizationModal = true;
