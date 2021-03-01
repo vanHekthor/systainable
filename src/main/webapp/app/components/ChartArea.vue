@@ -21,7 +21,7 @@
                                     <template #button-content>
                                         <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
                                     </template>
-                                    <b-dropdown-item-button @click="$emit('click-optimize', chartData.datasets[0].label)">
+                                    <b-dropdown-item-button @click="$emit('click-optimize', '', chartData.datasets[0].label)">
                                         <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
                                         optimize
                                     </b-dropdown-item-button>
