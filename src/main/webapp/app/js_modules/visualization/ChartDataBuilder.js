@@ -30,7 +30,7 @@ export default {
   buildBarChartData: function buildBarChartData(configNames, propertyAttributes, propertyMaps) {
     let configLabels = configNames;
     let propertyLabels = [...propertyMaps[0].keys()];
-    let color = colorPalette.colorArrayChart(propertyLabels);
+    let color = colorPalette.colorArrayChart(propertyLabels.length);
 
     let label = '';
     let chartDataArray = [];
@@ -98,7 +98,7 @@ export default {
     };
 
     let i = 0;
-    let radarColors = colorPalette.colorArrayRadar([...propertyMaps[0].keys()]);
+    let radarColors = colorPalette.colorArrayRadar(configNames.length);
     for (let configName of configNames) {
       let dataset = {
         label: configName,
