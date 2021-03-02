@@ -56,6 +56,10 @@ import Vue2Filters from 'vue2-filters';
 import * as filters from '@/shared/date/filters';
 import { accountStore } from '@/shared/config/store/account-store';
 import { alertStore } from '@/shared/config/store/alert-store';
+import { configurationStore } from '@/shared/config/store/configuration-store';
+import { uiLogicStore } from '@/shared/config/store/ui-logic-store';
+
+import createPersistedState from 'vuex-persistedstate';
 
 export function initVueApp(vue) {
   vue.use(VueCookie);
@@ -137,9 +141,17 @@ export function initFortAwesome(vue) {
 export function initVueXStore(vue) {
   vue.use(Vuex);
   return new Vuex.Store({
+    plugins: [
+      createPersistedState({
+        storage: window.sessionStorage,
+        paths: ['configurationStore', 'uiLogicStore.softSystemLoaded'],
+      }),
+    ],
     modules: {
       accountStore,
       alertStore,
+      configurationStore,
+      uiLogicStore,
     },
   });
 }
