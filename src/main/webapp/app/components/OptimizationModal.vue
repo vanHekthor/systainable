@@ -42,7 +42,7 @@
                         <div class="d-flex align-items-center justify-content-center">
                             <ConfigCard
                               class="mt-2"
-                              :configurationFeatures="configurationFeatures"
+                              :systemFeatures="systemFeatures"
                               :config="optimizedConfig"
                               :original-config="unoptimizedConfig"/>
                         </div>
@@ -130,7 +130,7 @@ export default {
             required: true,
             default: false
         },
-        configurationFeatures: {
+        systemFeatures: {
             type: [Object, Array],
             required: true,
             default: null

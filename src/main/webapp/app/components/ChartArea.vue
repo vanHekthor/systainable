@@ -96,7 +96,6 @@ export default {
     },
 
     props: [
-        "propNames",
         "chartDataArray",
         "radarData"
     ],
