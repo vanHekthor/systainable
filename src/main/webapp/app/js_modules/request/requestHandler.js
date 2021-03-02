@@ -89,10 +89,10 @@ export default {
   getInitConfig: async function getInitConfig(systemName) {
     let responseData = await api.getInitConfig(systemName);
 
-    responseData.featureConfiguration.features = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
-    responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.properties);
+    responseData.features = underscoreUtil.replaceUnderscores(responseData.features);
+    responseData.properties = underscoreUtil.replaceUnderscores(responseData.properties);
 
-    return Object.assign({ name: 'config' }, responseData.featureConfiguration.features);
+    return Object.assign({ name: 'config' }, responseData.features);
   },
 
   /**
@@ -118,18 +118,18 @@ export default {
     const requestConfig = createRequestConfig(systemName, config, properties);
 
     let responseData = await api.getPropValues(requestConfig);
-    responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.properties);
+    responseData.properties = underscoreUtil.replaceUnderscores(responseData.properties);
 
-    return responseData.featureConfiguration.properties;
+    return responseData.properties;
   },
 
   getAlternativeConfig: async function (systemName, config, properties) {
     const requestConfig = createRequestConfig(systemName, config, properties);
 
     let responseData = await api.getAlternativeConfig(requestConfig);
-    responseData.featureConfiguration.features = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
+    responseData.features = underscoreUtil.replaceUnderscores(responseData.features);
 
-    const altConfig = Object.assign({ name: 'config' }, responseData.featureConfiguration.features);
+    const altConfig = Object.assign({ name: 'config' }, responseData.features);
 
     return altConfig;
   },
@@ -152,10 +152,10 @@ export default {
     if (responseData === '') {
       return responseData;
     } else {
-      responseData.featureConfiguration.features = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.features);
-      responseData.featureConfiguration.properties = underscoreUtil.replaceUnderscores(responseData.featureConfiguration.properties);
-      let optiConfig = Object.assign({ name: 'config' }, responseData.featureConfiguration.features);
-      optiConfig.properties = responseData.featureConfiguration.properties;
+      responseData.features = underscoreUtil.replaceUnderscores(responseData.features);
+      responseData.properties = underscoreUtil.replaceUnderscores(responseData.properties);
+      let optiConfig = Object.assign({ name: 'config' }, responseData.features);
+      optiConfig.properties = responseData.properties;
 
       return optiConfig;
     }
