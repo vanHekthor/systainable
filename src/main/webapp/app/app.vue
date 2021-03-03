@@ -24,11 +24,24 @@
                 @click-optimize="openOptimizationModal"
             />
 
+            <b-container class="p-0" fluid>
+                <b-button v-if="showInfluences" class="px-2 mb-3 w-100" @click="toggleInfluenceArea()" variant="primary">Back to overview</b-button>
+            </b-container>
+
+            <InfluenceArea
+                v-if="chartsDrawn && showInfluences"
+                :configurations="configurations"
+                :selected-property="selectedInfluenceViewProp"
+                @click-back="toggleInfluenceArea"
+            >
+            </InfluenceArea>
+
             <ChartArea
-                v-if="chartsDrawn & configurations.length > 0"
+                v-if="chartsDrawn && configurations.length > 0 && !showInfluences"
                 :chartDataArray="chartDataArray"
                 :radarData="radarData"
                 @click-optimize="openOptimizationModal"
+                @click-lens="toggleInfluenceArea"
             />
         </b-container>
 
@@ -70,17 +83,18 @@
 </template>
 
 <script>
-import chartDataBuilder from './js_modules/visualization/ChartDataBuilder';
-import ConfigArea from './components/ConfigArea';
-import ChartArea from './components/ChartArea';
+import chartDataBuilder from "./js_modules/visualization/ChartDataBuilder";
+import ConfigArea from "./components/ConfigArea";
+import ChartArea from "./components/ChartArea";
+import InfluenceArea from "./components/InfluenceArea";
 import ConfigCard from "./components/ConfigCard";
 import OptimizationModal from "./components/OptimizationModal";
 
-import Dropdown from 'primevue/dropdown';
-import Button from 'primevue/button';
-import Dialog from 'primevue/dialog';
+import Dropdown from "primevue/dropdown";
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 
-import requestHandler from './js_modules/request/requestHandler';
+import requestHandler from "./js_modules/request/requestHandler";
 
 import { mapFields } from "vuex-map-fields";
 import { mapMutations } from "vuex";
@@ -90,6 +104,7 @@ export default {
     components: {
         ConfigArea,
         ChartArea,
+        InfluenceArea,
         Dropdown,
         Button,
         Dialog,
@@ -114,6 +129,9 @@ export default {
             optimizationDistance: 1,
             optimizedConfigFound: false,
             searchedForOptimizedConfig: false,
+            selectedInfluenceViewProp: "",
+
+            showInfluences: false,
 
             // chart data
             chartDataArray: [],
@@ -161,7 +179,8 @@ export default {
                 "insertConfigToStore",
                 "updateConfigNameFromStore",
                 "updateConfigFeature",
-                "setConfigProperties"
+                "setConfigProperties",
+                "setDissectedConfigProperties"
             ]
         ),
 
@@ -228,6 +247,11 @@ export default {
             this.chartsDrawn = true;
         },
 
+        toggleInfluenceArea(selectedProperty) {
+            this.selectedInfluenceViewProp = selectedProperty;
+            this.showInfluences = !this.showInfluences;
+        },
+
         searchOptimizedConfig: async function(optiModalEvent, configName, propName, maxDifference) {
             optiModalEvent.preventDefault();
 
@@ -268,11 +292,13 @@ export default {
             this.systemProperties = await requestHandler.getPropNames(event.value);
 
             if (event.value !== this.previousSelection) {
+                this.chartsDrawn = false;
+                this.showInfluences = false;
+
                 this.configurations = [];
                 this.configCount = 0;
                 await this.requestInitConfig();
                 this.previousSelection = event.value;
-                this.chartsDrawn = false;
             }
         },
 
@@ -316,7 +342,6 @@ export default {
         submitConfigs: async function() {
             if (await this.requestValidityCheck()) {
                 let configNames = [];
-                let config = {};
                 let propertyValueMaps = [];
 
                 for (const [index, config] of this.configurations.entries()) {
@@ -339,8 +364,9 @@ export default {
         },
 
         requestConfigEvaluation: async function(index) {
-            const configProperties = await requestHandler.getConfigPropValues(this.selectedSoftSystem, this.configurations[index], this.systemProperties);
-            this.setConfigProperties({index: index, properties: configProperties});
+            const evaluatedConfig = await requestHandler.getEvaluatedConfig(this.selectedSoftSystem, this.configurations[index], this.systemProperties);
+            this.setConfigProperties({ index: index, properties: evaluatedConfig.properties });
+            this.setDissectedConfigProperties({ index: index, dissectedProperties: evaluatedConfig.dissectedProperties });
         },
 
         requestOptimizedConfig: async function(config, propName, maxDifference) {

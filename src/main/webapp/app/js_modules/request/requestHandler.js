@@ -16,7 +16,7 @@ function createRequestConfig(systemName, config, properties) {
   };
 
   Object.keys(config).forEach(function (key) {
-    if (key !== 'name' && key !== 'properties') {
+    if (key !== 'name' && key !== 'properties' && key !== 'dissectedProperties') {
       requestConfig.features[key.replace(/\u00a0/g, '_')] = config[key];
     }
   });
@@ -108,19 +108,24 @@ export default {
   },
 
   /**
-   * This method requests the property values of a configuration. Underscores in response object keys get replaced by non-break spaces.
+   * This method requests the evaluation of a configuration. Underscores in response config attribute names get replaced by non-break spaces.
    * @param systemName Selected software system
    * @param config Configuration to be evaluated
    * @param properties Configuration properties object
-   * @returns {Promise<{}|undefined>} Object with property values
+   * @returns {Promise<{}|undefined>} Fully evaluated configuration object
    */
-  getConfigPropValues: async function getConfigPropValues(systemName, config, properties) {
+  getEvaluatedConfig: async function getEvaluatedConfig(systemName, config, properties) {
     const requestConfig = createRequestConfig(systemName, config, properties);
 
     let responseData = await api.getPropValues(requestConfig);
+    responseData.features = underscoreUtil.replaceUnderscores(responseData.features);
     responseData.properties = underscoreUtil.replaceUnderscores(responseData.properties);
 
-    return responseData.properties;
+    let evaluatedConfig = Object.assign({ name: 'config' }, responseData.features);
+    evaluatedConfig.properties = responseData.properties;
+    evaluatedConfig.dissectedProperties = responseData.dissectedProperties;
+
+    return evaluatedConfig;
   },
 
   getAlternativeConfig: async function (systemName, config, properties) {

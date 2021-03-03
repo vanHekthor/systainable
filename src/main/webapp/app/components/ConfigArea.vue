@@ -268,14 +268,15 @@ export default {
     computed: {
         ...mapFields(
             'configurationStore',
-            [
-                'systemFeatures'
-            ]
+            {
+                systemFeatures: 'systemFeatures',
+                configs: 'configurations'
+            }
         ),
         ...mapMultiRowFields(
             'configurationStore',
             [
-            "configurations"
+                "configurations"
             ]
         ),
     },
@@ -317,8 +318,8 @@ export default {
             this.$emit('load-data', data);
         },
         generateExportData() {
-            let exportData = [...this.configurations];
-            exportData.forEach(function(obj) { delete obj.properties });
+            let exportData = [...this.configs];
+            exportData.forEach(function(obj) { delete obj.properties; delete obj.dissectedProperties });
 
             this.exportData = exportData;
         },
