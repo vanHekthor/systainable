@@ -2,7 +2,7 @@
     <div>
         <div class="top-bar p-d-flex p-ai-center p-shadow-2 mb-3 p-3">
             <b-container class="d-inline-flex flex-wrap align-items-center" fluid>
-                <h3 class="mb-0 mr-3 ">Green Configurator</h3>
+                <h3 class="mb-0 mr-3 ">Systainable</h3>
                 <div class="d-inline-flex align-items-center">
                     <Dropdown class="mr-2" id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems"
                               placeholder="Select a system"
