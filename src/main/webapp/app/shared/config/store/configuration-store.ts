@@ -36,5 +36,8 @@ export const configurationStore: Module<any, any> = {
     setConfigProperties(state, { index, properties }) {
       Vue.set(state.configurations[index], 'properties', properties);
     },
+    setDissectedConfigProperties(state, { index, dissectedProperties }) {
+      Vue.set(state.configurations[index], 'dissectedProperties', dissectedProperties);
+    },
   },
 };
