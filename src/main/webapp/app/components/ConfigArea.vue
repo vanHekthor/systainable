@@ -139,6 +139,10 @@
                                               @click="$emit('del-config', slotProps.index)">
                                         <font-awesome-icon icon="times" class="" fixed-width/>
                                     </b-button>
+                                    <b-button class="m-0" variant="success" size="sm"
+                                              @click="$emit('click-optimize', slotProps.data['name'])">
+                                        <font-awesome-icon icon="compass" class="" fixed-width/>
+                                    </b-button>
                                 </div>
                             </div>
                         </template>
