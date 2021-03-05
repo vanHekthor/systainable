@@ -6,7 +6,6 @@ export const configurationStore: Module<any, any> = {
   namespaced: true,
   state: {
     softSystems: [],
-    selectedSoftSystem: '',
     systemFeatures: {},
     systemProperties: {},
     configurations: [],

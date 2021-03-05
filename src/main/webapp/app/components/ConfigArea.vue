@@ -175,12 +175,11 @@
                         </template>
                     </Column>
                 </DataTable>
-                <div class="panel-footer p-d-flex p-jc-center">
-                    <Button v-if="configurations.length < 1"
-                            class="p-button" label="Submit" disabled="disabled"/>
-                    <Button v-else
-                            class="p-button" label="Submit"
-                            @click="$emit('submit-configs')"/>
+                <div class="panel-footer d-flex justify-content-center">
+                    <b-button :disabled="configurations.length < 1 ? true : false" variant="primary"
+                              @click="$emit('submit-configs')">
+                        Submit
+                    </b-button>
                 </div>
             </b-collapse>
         </Panel>
