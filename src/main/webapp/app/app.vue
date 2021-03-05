@@ -2,7 +2,7 @@
     <div>
         <div class="top-bar p-d-flex p-ai-center p-shadow-2 mb-3 p-3">
             <b-container class="d-inline-flex flex-wrap align-items-center" fluid>
-                <h3 class="mb-0 mr-3 ">Green Configurator</h3>
+                <h3 class="mb-0 mr-3 ">Systainable</h3>
                 <div class="d-inline-flex align-items-center">
                     <Dropdown class="mr-2" id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems"
                               placeholder="Select a system"
@@ -13,58 +13,69 @@
         <b-container fluid>
             <ConfigArea
                 :systemName="selectedSoftSystem"
-                :configurationFeatures="configurationFeatures"
-                :configurations="configurations"
                 :softSystemLoaded="softSystemLoaded"
                 @update-feature="updateFeature"
                 @update-config-name="updateConfigName"
                 @del-config="deleteConfig"
-                @submit-configs="requestValidityCheck"
+                @submit-configs="submitConfigs"
                 @get-config-example="requestInitConfig"
                 @load-data="loadConfigs"
                 @duplicate-config="duplicateConfig"
                 @click-optimize="openOptimizationModal"
             />
 
+            <b-container class="p-0" fluid>
+                <b-button v-if="showInfluences" class="px-2 mb-3 w-100" @click="toggleInfluenceArea()" variant="primary">Back to overview</b-button>
+            </b-container>
+
+            <InfluenceArea
+                v-if="chartsDrawn && showInfluences"
+                :configurations="configurations"
+                :selected-property="selectedInfluenceViewProp"
+                @click-back="toggleInfluenceArea"
+            >
+            </InfluenceArea>
+
             <ChartArea
-                v-if="draw & configurations.length > 0"
-                :configurationProperties="configurationProperties"
+                v-if="chartsDrawn && configurations.length > 0 && !showInfluences"
                 :chartDataArray="chartDataArray"
                 :radarData="radarData"
                 @click-optimize="openOptimizationModal"
                 @click-near-optimum="requestNearOptimalConfig"
+                @click-lens="toggleInfluenceArea"
             />
         </b-container>
-        <Dialog :header="invalidConfig.name + ' is invalid'" :visible.sync="displayModal" :style="{width: '50vw'}" :modal="true">
+
+        <b-modal id="alternative-config-modal" @ok="closeModalAcceptAlternative" centered>
+            <template #modal-title>
+                {{ invalidConfig.name + ' is invalid'}}
+            </template>
             <h6>Suggestion:</h6>
             <div class="p-d-flex p-jc-center p-ai-center" style="overflow-x: auto">
                 <ConfigCard class="m-2"
-                            :configurationFeatures="configurationFeatures"
+                            :systemFeatures="systemFeatures"
                             :config="invalidConfig"/>
                 <font-awesome-icon class="m-2" icon="arrow-right" size="lg" fixed-width/>
                 <ConfigCard class="m-2"
-                            :configurationFeatures="configurationFeatures"
+                            :systemFeatures="systemFeatures"
                             :config="alternativeConfig"
                             :original-config="invalidConfig"/>
             </div>
-            <template #footer>
-                <Button label="Decline" icon="pi pi-times" @click="closeModal" class="p-button-text"/>
-                <Button label="Accept" icon="pi pi-check" @click="closeModalAcceptAlternative" autofocus />
-            </template>
-        </Dialog>
+        </b-modal>
+
         <OptimizationModal
             :display-optimization-modal.sync="displayOptimizationModal"
             :selected-optimization-config-name.sync="selectedOptimizationConfigName"
             :selected-optimization-prop-name.sync="selectedOptimizationPropName"
             :config-names="configurations.map(config => { return config.name })"
-            :prop-names="Object.keys(configurationProperties)"
+            :prop-names="Object.keys(systemProperties)"
             :max-optimization-distance="maxOptimizationDistance"
             :searched-for-optimized-config="searchedForOptimizedConfig"
             :optimized-config-found="optimizedConfigFound"
-            :configuration-features="configurationFeatures"
+            :system-features="systemFeatures"
             :optimized-config="optiConfig"
             :unoptimized-config="selectedConfig"
-            :property-attributes="configurationProperties"
+            :property-attributes="systemProperties"
             @search-optimized-config="searchOptimizedConfig"
             @ok="acceptOptimizedConfig"
             @hide="closeOptimizationModal">
@@ -73,23 +84,28 @@
 </template>
 
 <script>
-import chartDataBuilder from './js_modules/visualization/ChartDataBuilder';
-import ConfigArea from './components/ConfigArea';
-import ChartArea from './components/ChartArea';
+import chartDataBuilder from "./js_modules/visualization/ChartDataBuilder";
+import ConfigArea from "./components/ConfigArea";
+import ChartArea from "./components/ChartArea";
+import InfluenceArea from "./components/InfluenceArea";
 import ConfigCard from "./components/ConfigCard";
 import OptimizationModal from "./components/OptimizationModal";
 
-import Dropdown from 'primevue/dropdown';
-import Button from 'primevue/button';
-import Dialog from 'primevue/dialog';
+import Dropdown from "primevue/dropdown";
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
 
-import requestHandler from './js_modules/request/requestHandler';
+import requestHandler from "./js_modules/request/requestHandler";
+
+import { mapFields } from "vuex-map-fields";
+import { mapMutations } from "vuex";
 
 export default {
     name: 'App',
     components: {
         ConfigArea,
         ChartArea,
+        InfluenceArea,
         Dropdown,
         Button,
         Dialog,
@@ -99,16 +115,11 @@ export default {
     data() {
         return {
             // system and config data
-            softSystems: [],
-            configurationFeatures: [],
-            configurationProperties: {},
-            configurations: [],
             invalidConfig: {},
             alternativeConfig: {},
             optiConfig: {},
 
             // UI logic data
-            selectedSoftSystem: "",
             previousSelection: "",
             configCount: 0,
             displayModal: false,
@@ -119,71 +130,13 @@ export default {
             optimizationDistance: 1,
             optimizedConfigFound: false,
             searchedForOptimizedConfig: false,
+            selectedInfluenceViewProp: "",
 
-            draw: false,
-            softSystemLoaded: false,
+            showInfluences: false,
 
             // chart data
             chartDataArray: [],
             radarData: {},
-        }
-    },
-    mounted() {
-        if(sessionStorage.selectedSoftSystem) {
-            this.selectedSoftSystem = JSON.parse(sessionStorage.selectedSoftSystem);
-        }
-        if(sessionStorage.configurationFeatures) {
-            this.configurationFeatures = JSON.parse(sessionStorage.configurationFeatures);
-        }
-        if(sessionStorage.configurationProperties) {
-            this.configurationProperties = JSON.parse(sessionStorage.configurationProperties);
-        }
-        if(sessionStorage.configurations) {
-            this.configurations = JSON.parse(sessionStorage.configurations);
-        }
-        if (sessionStorage.softSystemLoaded) {
-            this.softSystemLoaded = JSON.parse(sessionStorage.softSystemLoaded);
-        }
-        if (sessionStorage.configCount) {
-            this.configCount = JSON.parse(sessionStorage.configCount);
-        }
-    },
-    watch: {
-        selectedSoftSystem: {
-            handler(newSystem) {
-                sessionStorage.selectedSoftSystem = JSON.stringify(newSystem);
-            },
-            deep: true
-        },
-        configurationFeatures: {
-            handler(newConfigFeat) {
-                sessionStorage.configurationFeatures = JSON.stringify(newConfigFeat);
-            },
-            deep: true
-        },
-        configurationProperties: {
-            handler(newConfigProp) {
-                sessionStorage.configurationProperties = JSON.stringify(newConfigProp);
-            },
-            deep: true
-        },
-        configurations: {
-            handler(newConfig) {
-                sessionStorage.configurations = JSON.stringify(newConfig);
-            },
-            deep: true
-        },
-        softSystemLoaded: {
-            handler(newSoftSystemLoaded) {
-                sessionStorage.softSystemLoaded = JSON.stringify(newSoftSystemLoaded);
-            },
-            deep: true
-        },
-        configCount: {
-            handler(newConfigCount) {
-                sessionStorage.configCount = JSON.stringify(newConfigCount);
-            },
-            deep: true
         }
     },
 
@@ -192,9 +145,26 @@ export default {
     },
 
     computed: {
+        ...mapFields(
+            `configurationStore`,
+            [
+                "softSystems",
+                "selectedSoftSystem",
+                "configurations",
+                "systemFeatures",
+                "systemProperties",
+            ]
+        ),
+        ...mapFields(
+            `uiLogicStore`,
+            [
+                "softSystemLoaded",
+                "chartsDrawn"
+            ]
+        ),
         maxOptimizationDistance: function() {
             if (this.softSystemLoaded) {
-                return this.configurationFeatures.binaryFeatures.length;
+                return this.systemFeatures.binaryFeatures.length;
             } else {
                 return 1;
             }
@@ -202,12 +172,25 @@ export default {
     },
 
     methods: {
+        ...mapMutations(
+            'configurationStore',
+            [
+                "addConfigToStore",
+                "deleteConfigFromStore",
+                "insertConfigToStore",
+                "updateConfigNameFromStore",
+                "updateConfigFeature",
+                "setConfigProperties",
+                "setDissectedConfigProperties"
+            ]
+        ),
+
         updateFeature(index, featureName, value) {
-            this.configurations[index][featureName] = value;
+            this.updateConfigFeature({ index, featureName, value });
         },
 
         updateFeatureNames(features) {
-            this.configurationFeatures = features;
+            this.systemFeatures = features;
             this.softSystemLoaded = true;
         },
 
@@ -222,20 +205,27 @@ export default {
             if (count > 0) {
                 configName += `(${count})`
             }
-            this.configurations[index].name = configName;
+
+            this.updateConfigNameFromStore({ index: index, configName: configName });
         },
 
-        addConfig(config) {
-            this.configCount = this.configurations.length;
-            config.name += this.configCount.toString();
-            this.configurations.push(config);
+        addConfig(config, configName) {
+            if (configName == null) {
+                configName = "config";
+                this.configCount = this.configurations.length;
+                config.name = configName + this.configCount.toString();
+            }
+
+            this.addConfigToStore(config);
+
             this.updateConfigName(this.configurations.length - 1, config.name);
         },
 
         deleteConfig(index) {
-            this.configurations.splice(index, 1);
+            this.deleteConfigFromStore(index);
+
             if (this.configurations.length < 1) {
-                this.draw = false;
+                this.chartsDrawn = false;
             }
         },
 
@@ -243,62 +233,73 @@ export default {
             let configDuplicate = Object.assign({}, this.configurations[index]);
             configDuplicate.name = configDuplicate.name + "(copy)"
 
-            const insert = (arr, index, newItem) => [
-                ...arr.slice(0, index),
-                newItem,
-                ...arr.slice(index)
-            ]
-
-            this.configurations = insert(this.configurations, index + 1, configDuplicate);
+            this.insertConfigToStore({index: index, config: configDuplicate});
         },
 
         loadConfigs(configs) {
-            this.configurations = this.configurations.concat(configs);
+            // this.configurations = this.configurations.concat(configs);
+
+            for (let config of configs) {
+                this.addConfig(config, config.name);
+            }
         },
 
         drawCharts() {
-            this.draw = true;
+            this.chartsDrawn = true;
+        },
+
+        toggleInfluenceArea(selectedProperty) {
+            this.selectedInfluenceViewProp = selectedProperty;
+            this.showInfluences = !this.showInfluences;
         },
 
         searchOptimizedConfig: async function(optiModalEvent, configName, propName, maxDifference) {
             optiModalEvent.preventDefault();
 
-            this.selectedConfig = this.configurations.find(conf => { return conf.name === configName });
-            let optiConfig = await this.requestOptimizedConfig(configName, propName, maxDifference);
+            const selectedConfigIndex = this.configurations.findIndex(conf => conf.name === configName);
+            this.selectedConfig = this.configurations[selectedConfigIndex]
 
-            if (optiConfig === "") {
-                this.optimizedConfigFound = false;
-                this.searchedForOptimizedConfig = true;
-            } else {
-                this.optimizedConfigFound = true;
-                this.searchedForOptimizedConfig = true;
-                optiConfig.name = this.selectedConfig.name + "[+]";
-                this.optiConfig = optiConfig;
+            if (await this.requestSingleValidityCheck(this.selectedConfig)) {
+                await this.requestConfigEvaluation(selectedConfigIndex);
+                let optiConfig = await this.requestOptimizedConfig(this.selectedConfig, propName, maxDifference);
+
+                if (optiConfig === "") {
+                    this.optimizedConfigFound = false;
+                    this.searchedForOptimizedConfig = true;
+                } else {
+                    this.optimizedConfigFound = true;
+                    this.searchedForOptimizedConfig = true;
+                    optiConfig.name = this.selectedConfig.name + "[+]";
+                    this.optiConfig = optiConfig;
+                }
             }
         },
 
         acceptOptimizedConfig() {
-            this.configurations.push(this.optiConfig);
             this.optimizedConfigFound = false;
             this.searchedForOptimizedConfig = false;
 
             this.$nextTick(() => {
                 this.$bvModal.hide('optiModal');
             });
+
+            this.addConfig(this.optiConfig, this.optiConfig.name);
         },
 
         // requests to backend
         requestSystemAttributes: async function(event) {
             let featureNames = await requestHandler.getFeatureNames(event.value);
             this.updateFeatureNames(featureNames);
-            this.configurationProperties = await requestHandler.getPropNames(event.value);
+            this.systemProperties = await requestHandler.getPropNames(event.value);
 
             if (event.value !== this.previousSelection) {
+                this.chartsDrawn = false;
+                this.showInfluences = false;
+
                 this.configurations = [];
                 this.configCount = 0;
                 await this.requestInitConfig();
                 this.previousSelection = event.value;
-                this.draw = false;
             }
         },
 
@@ -310,54 +311,67 @@ export default {
         requestValidityCheck: async function() {
             let config = {};
             for (config of this.configurations) {
-                let valid = await requestHandler.validateConfig(this.selectedSoftSystem, config, this.configurationProperties);
-                console.log(config);
-                console.log(`${config.name} is ${valid}`);
-                if (!valid) {
-                    this.invalidConfig = config;
-                    this.alternativeConfig = await this.requestAlternativeConfig(config);
-                    this.openModal();
-
-                    return;
+                if (!await this.requestSingleValidityCheck(config)) {
+                    return false;
                 }
             }
-            await this.submitConfigs();
+            return true;
+        },
+
+        requestSingleValidityCheck: async function(config) {
+            let valid = await requestHandler.validateConfig(this.selectedSoftSystem, config, this.systemProperties);
+            console.log(config);
+            console.log(`${config.name} is ${valid}`);
+
+            if (!valid) {
+                this.invalidConfig = config;
+                this.alternativeConfig = await this.requestAlternativeConfig(config);
+                this.$bvModal.show('alternative-config-modal');
+
+                return false;
+            }
+
+            return true;
         },
 
         requestAlternativeConfig: async function(config) {
-            let altConfig = await requestHandler.getAlternativeConfig(this.selectedSoftSystem, config, this.configurationProperties);
+            let altConfig = await requestHandler.getAlternativeConfig(this.selectedSoftSystem, config, this.systemProperties);
             altConfig.name = "alternative"
             return altConfig;
         },
 
         submitConfigs: async function() {
-            let configNames = [];
-            let config = {};
-            let propertyValueMaps = [];
+            if (await this.requestValidityCheck()) {
+                let configNames = [];
+                let propertyValueMaps = [];
 
-            for (config of this.configurations) {
-                configNames.push(config.name);
+                for (const [index, config] of this.configurations.entries()) {
+                    configNames.push(config.name);
 
-                let predictedProps = await requestHandler.getConfigPropValues(this.selectedSoftSystem, config, this.configurationProperties);
-                config.properties = predictedProps;
+                    await this.requestConfigEvaluation(index);
 
-                let propMap = new Map();
-                Object.keys(this.configurationProperties).forEach(function(key) {
-                    propMap.set(key, predictedProps[key]);
-                })
+                    let propMap = new Map();
+                    Object.keys(this.systemProperties).forEach(function(key) {
+                        propMap.set(key, config.properties[key]);
+                    })
 
-                propertyValueMaps.push(propMap);
+                    propertyValueMaps.push(propMap);
+                }
+
+                this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, this.systemProperties, propertyValueMaps);
+                this.radarData = chartDataBuilder.buildRadarData(configNames, this.systemProperties, propertyValueMaps);
+                this.drawCharts();
             }
-
-            this.chartDataArray = chartDataBuilder.buildBarChartData(configNames, this.configurationProperties, propertyValueMaps);
-            this.radarData = chartDataBuilder.buildRadarData(configNames, this.configurationProperties, propertyValueMaps);
-            this.drawCharts();
         },
 
-        requestOptimizedConfig: async function(configName, propName, maxDifference) {
-            const config = this.configurations.find(conf => { return conf.name === configName });
+        requestConfigEvaluation: async function(index) {
+            const evaluatedConfig = await requestHandler.getEvaluatedConfig(this.selectedSoftSystem, this.configurations[index], this.systemProperties);
+            this.setConfigProperties({ index: index, properties: evaluatedConfig.properties });
+            this.setDissectedConfigProperties({ index: index, dissectedProperties: evaluatedConfig.dissectedProperties });
+        },
 
-            let optiConfig = await requestHandler.getOptimizedConfig(this.selectedSoftSystem, propName, maxDifference, config, this.configurationProperties);
+        requestOptimizedConfig: async function(config, propName, maxDifference) {
+            let optiConfig = await requestHandler.getOptimizedConfig(this.selectedSoftSystem, propName, maxDifference, config, this.systemProperties);
 
             return optiConfig;
         },
@@ -372,14 +386,6 @@ export default {
         },
 
         // methods for handling a modals
-        openModal() {
-            this.displayModal = true;
-        },
-
-        closeModal() {
-            this.displayModal = false;
-        },
-
         closeModalAcceptAlternative() {
             Object.keys(this.invalidConfig).forEach(key => {
                 if (key === 'name') {
@@ -390,9 +396,11 @@ export default {
             this.displayModal = false;
         },
 
-        openOptimizationModal(optimizationPropName) {
+        openOptimizationModal(configName = "", optimizationPropName = "") {
             if (this.configurations.length === 1) {
                 this.selectedOptimizationConfigName = this.configurations[0].name;
+            } else {
+                this.selectedOptimizationConfigName = configName;
             }
             this.selectedOptimizationPropName = optimizationPropName;
             this.displayOptimizationModal = true;

@@ -1,4 +1,8 @@
 import colorPalette from '@/js_modules/visualization/colorPalette';
+import underscoreUtil from '@/js_modules/util/underscoreUtil';
+
+const INFLUENCE_LABEL = 0;
+const INFLUENCE_VALUE = 1;
 
 /**
  * This function generates a evaluation hint based on the property attributes that shows if it is more desirable to have a low or a high property value.
@@ -19,6 +23,137 @@ function getPropEvalHint(hintString) {
   return evalHint;
 }
 
+/**
+ * This function extracts all influences (i.e. features and feature interactions) on a property which exist for a configuration out of that configuration and
+ * then constructs an array containing pairs of influence labels and influence values as elements. For example [["feature1", 10.0], ["feature2 + feature3", -5.0],
+ * ["feature1 + feature3", -2.0]]. <br>
+ * The array is sorted by influence value in descending order.
+ * @param config Already evaluated configuration containing the influence information.
+ * @param propertyName Property for which the influences shall be extracted.
+ * @returns {[]} Array containing pairs of influence labels and influence values [<label>, <value>] as elements.
+ */
+function constructInfluenceData(config, propertyName) {
+  const propName = underscoreUtil.replaceNonBreakSpaces(propertyName);
+
+  let influences = Object.keys(config.dissectedProperties).map(function (key) {
+    return [config.dissectedProperties[key].features.join(' + '), config.dissectedProperties[key].properties[propName]];
+  });
+
+  influences = influences.filter(influence => {
+    return influence[INFLUENCE_VALUE] !== 0;
+  });
+
+  influences.sort(function (a, b) {
+    return b[1] - a[1];
+  });
+
+  return influences;
+}
+
+/**
+ * This function constructs the dataset for each relevant influence which is needed for visualizing it in a stacked bar chart and returns an array of datasets.
+ * @param config Already evaluated configuration containing the influence information
+ * @param propertyName Property for which the stacked bar chart shall be made
+ * @returns {[]} Array containing influence datasets
+ */
+function constructStackedInfluencesDatasets(config, propertyName) {
+  let stackedInfluencesDatasets = [];
+  let addedAllPosInfluences = false;
+  let addedInfluenceSum = false;
+
+  const sortedInfluences = constructInfluenceData(config, propertyName);
+
+  let posInfluencesCount = 0;
+  for (let influence of sortedInfluences) {
+    if (influence[INFLUENCE_VALUE] > 0) {
+      posInfluencesCount++;
+    } else {
+      // point reached where all pos. influences were counted
+      break;
+    }
+  }
+
+  const posInfluenceColors = colorPalette.posInfluencesColorArray(posInfluencesCount);
+  const negInfluenceColors = colorPalette.negInfluencesColorArray(sortedInfluences.length - posInfluencesCount);
+
+  // generating a dataset for each influence in sortedInfluences plus the dataset for the sum of influences
+  for (let [index, influence] of sortedInfluences.entries()) {
+    let influenceDataset = null;
+
+    if (influence[INFLUENCE_VALUE] > 0) {
+      // positive influence dataset
+      influenceDataset = {
+        type: 'horizontalBar',
+        label: influence[INFLUENCE_LABEL],
+        backgroundColor: colorPalette.setOpacity(posInfluenceColors[index], 0.7),
+        borderWidth: 2,
+        borderColor: posInfluenceColors[index],
+        hoverBackgroundColor: colorPalette.setOpacity(posInfluenceColors[index], 0.7),
+        data: [influence[INFLUENCE_VALUE]],
+        stack: 1,
+      };
+    } else {
+      addedAllPosInfluences = true;
+
+      if (!addedInfluenceSum) {
+        // dataset for sum of all influences
+        const influenceSumDataset = {
+          type: 'horizontalBar',
+          label: 'Sum of influences',
+          backgroundColor: colorPalette.influenceSumColor,
+          data: [config.properties[propertyName]],
+          stack: 2,
+        };
+        stackedInfluencesDatasets.push(influenceSumDataset);
+
+        addedInfluenceSum = true;
+      }
+    }
+
+    // influences with value == 0 were already filtered out in constructInfluenceData()
+
+    if (addedAllPosInfluences) {
+      // relative position in array part with neg. influences
+      const relativeIndex = index - posInfluencesCount;
+
+      // reversed index for going through neg. influences in reversed order
+      const reversedIndex = sortedInfluences.length - 1 - relativeIndex;
+
+      if (sortedInfluences[reversedIndex][INFLUENCE_VALUE] < 0) {
+        // negative influence dataset
+        influenceDataset = {
+          type: 'horizontalBar',
+          label: sortedInfluences[reversedIndex][INFLUENCE_LABEL],
+          backgroundColor: colorPalette.setOpacity(negInfluenceColors[relativeIndex], 0.7),
+          borderWidth: 2,
+          borderColor: negInfluenceColors[index - posInfluencesCount],
+          hoverBackgroundColor: colorPalette.setOpacity(negInfluenceColors[relativeIndex], 0.7),
+          data: [sortedInfluences[reversedIndex][INFLUENCE_VALUE] * -1],
+          stack: 2,
+        };
+      }
+    }
+
+    if (influenceDataset != null) {
+      stackedInfluencesDatasets.push(influenceDataset);
+    }
+  }
+  // if only positive influences exist the sum was not added yet therefore:
+  if (!addedInfluenceSum) {
+    // dataset for sum of all influences
+    const influenceSumDataset = {
+      type: 'horizontalBar',
+      label: 'Sum of influences',
+      backgroundColor: colorPalette.influenceSumColor,
+      data: [config.properties[propertyName]],
+      stack: 2,
+    };
+    stackedInfluencesDatasets.push(influenceSumDataset);
+  }
+
+  return stackedInfluencesDatasets;
+}
+
 export default {
   /**
    * This method builds the chart data for the bar charts that show property values.
@@ -30,7 +165,7 @@ export default {
   buildBarChartData: function buildBarChartData(configNames, propertyAttributes, propertyMaps) {
     let configLabels = configNames;
     let propertyLabels = [...propertyMaps[0].keys()];
-    let color = colorPalette.colorArrayChart(propertyLabels);
+    let color = colorPalette.colorArrayChart(propertyLabels.length);
 
     let label = '';
     let chartDataArray = [];
@@ -98,7 +233,7 @@ export default {
     };
 
     let i = 0;
-    let radarColors = colorPalette.colorArrayRadar([...propertyMaps[0].keys()]);
+    let radarColors = colorPalette.colorArrayRadar(configNames.length);
     for (let configName of configNames) {
       let dataset = {
         label: configName,
@@ -114,5 +249,60 @@ export default {
       i++;
     }
     return radarData;
+  },
+
+  /**
+   * This method builds the chart data for the not-stacked bar chart in the influence area that displays influences on a property as bars in descending order.
+   * @param config Already evaluated configuration containing the influence information.
+   * @param propertyName Property for which the influences shall be extracted.
+   * @returns {{datasets: [{backgroundColor: string, data: [], label: string, type: string}], labels: []}} Bar chart data object
+   */
+  buildOrderedInfluencesBarChartData: function (config, propertyName) {
+    let influences = constructInfluenceData(config, propertyName);
+
+    let influenceLabels = [];
+    let influenceValues = [];
+
+    for (let influence of influences) {
+      if (Math.abs(influence[INFLUENCE_VALUE]) > 0) {
+        influenceLabels.push(influence[INFLUENCE_LABEL]);
+        influenceValues.push(influence[INFLUENCE_VALUE]);
+      }
+    }
+
+    let chartData = {
+      labels: influenceLabels,
+      // unit: unit,
+      // evalHint: evalHint,
+      datasets: [
+        {
+          type: 'horizontalBar',
+          label: `effect on ${propertyName}`,
+          backgroundColor: colorPalette.setOpacity(colorPalette.influenceSumColor, 0.67),
+          hoverBackgroundColor: colorPalette.influenceSumColor,
+          data: influenceValues,
+        },
+      ],
+    };
+
+    return chartData;
+  },
+
+  /**
+   * This method builds the chart data for the stacked bar chart in the influence view that displays influences on a property separated into one stack with positive influences and
+   * another stack containing the sum of all influences and negative influences.
+   * @param config Already evaluated configuration containing the influence information.
+   * @param propertyName Property for which the influences shall be extracted.
+   * @returns {{datasets: [], labels: [*]}} Stacked bar chart data object
+   */
+  buildStackedInfluencesBarChartData: function (config, propertyName) {
+    const stackedInfluencesDatasets = constructStackedInfluencesDatasets(config, propertyName);
+
+    let stackedData = {
+      labels: [config.name],
+      datasets: stackedInfluencesDatasets,
+    };
+
+    return stackedData;
   },
 };
