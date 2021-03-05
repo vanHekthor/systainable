@@ -413,19 +413,20 @@ export default {
 </script>
 
 <style>
-    #app{
-    }
+#app{
+}
 
-    html {
-        font-size: 14px;
-    }
+html {
+    font-size: 14px;
+}
 
-    html, body {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
+html, body {
+    padding: 0 !important;
+    margin: 0 !important;
+}
 
-    .top-bar {
-        background-color: white;
-    }
+.top-bar {
+    background-color: white;
+}
 </style>
+
