@@ -40,11 +40,20 @@
                 <b-row v-if="searchedForOptimizedConfig && optimizedConfigFound">
                     <b-col cols="12" lg="6">
                         <div class="d-flex align-items-center justify-content-center">
-                            <ConfigCard class="mt-2" :configurationFeatures="configurationFeatures" :config="optimizedConfig" :original-config="unoptimizedConfig"/>
+                            <ConfigCard
+                              class="mt-2"
+                              :systemFeatures="systemFeatures"
+                              :config="optimizedConfig"
+                              :original-config="unoptimizedConfig"/>
                         </div>
                     </b-col>
                     <b-col cols="12" lg="6">
-                        <ConfigValuesTable class="mt-2" :config="optimizedConfig" :property-attributes="propertyAttributes"></ConfigValuesTable>
+                        <ConfigValuesTable
+                          class="mt-2"
+                          :config="optimizedConfig"
+                          :original-config="unoptimizedConfig"
+                          :property-attributes="propertyAttributes">
+                        </ConfigValuesTable>
                     </b-col>
                 </b-row>
             </b-container>
@@ -121,7 +130,7 @@ export default {
             required: true,
             default: false
         },
-        configurationFeatures: {
+        systemFeatures: {
             type: [Object, Array],
             required: true,
             default: null

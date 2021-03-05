@@ -15,10 +15,10 @@
                                     <font-awesome-icon class="mr-1" icon="plus" fixed-width/>Add
                                 </template>
                                 <ImportDropdownItem :systemName="systemName"
-                                                    :binaryFeatures="configurationFeatures.binaryFeatures"
-                                                    :numericFeatures="Object.keys(configurationFeatures.numericFeatures)"
+                                                    :binaryFeatures="systemFeatures.binaryFeatures"
+                                                    :numericFeatures="Object.keys(systemFeatures.numericFeatures)"
                                                     :fileCheck="true" @load-data="loadData"/>
-                                <b-dropdown-item-button @click="$emit('click-optimize', '')">
+                                <b-dropdown-item-button @click="$emit('click-optimize')">
                                     <font-awesome-icon icon="compass" class="mr-1 text-secondary" fixed-width/>Optimize
                                 </b-dropdown-item-button>
                             </b-dropdown>
@@ -49,27 +49,32 @@
                                     <div>
                                         <b-button class="p-1 no-outline" variant="link"
                                                   @click.stop="toggle($event, index)">
-                                            <font-awesome-icon icon="plus" class="text-secondary" fixed-width/>
+                                            <font-awesome-icon icon="plus" :style="{ color: '#6c757d' }" fixed-width/>
                                         </b-button>
-                                        <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" no-caret
+                                        <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" boundary="viewport" no-caret
                                                     @toggle="untoggle()">
                                             <template #button-content>
-                                                <font-awesome-icon icon="cog" class="text-secondary" fixed-width/>
+                                                <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
                                             </template>
                                             <b-dropdown-item-button @click="$emit('duplicate-config',index)">
-                                                <font-awesome-icon icon="copy" class="mr-1 text-secondary" fixed-width/>
+                                                <font-awesome-icon icon="copy" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
                                                 duplicate
                                             </b-dropdown-item-button>
-                                            <b-dropdown-item-button v-b-modal="'modal-' + config.name" @click="renamedConfigString=config.name">
-                                                <font-awesome-icon icon="edit" class="mr-1 text-secondary" fixed-width/>
+                                            <b-dropdown-item-button v-b-modal="'modal-' + index" @click="renamedConfigString=config.name">
+                                                <font-awesome-icon icon="edit" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
                                                 rename
                                             </b-dropdown-item-button>
                                             <b-dropdown-item-button @click="$emit('del-config', index)">
-                                                <font-awesome-icon icon="trash" class="mr-1 text-danger" fixed-width/>
+                                                <font-awesome-icon icon="trash" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
                                                 delete
                                             </b-dropdown-item-button>
+                                            <b-dropdown-divider></b-dropdown-divider>
+                                            <b-dropdown-item-button @click="$emit('click-optimize', config.name, '')">
+                                                <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                                                optimize
+                                            </b-dropdown-item-button>
                                         </b-dropdown>
-                                        <b-modal :id="'modal-' + config.name" centered :title="'Rename configuration: ' + config.name"
+                                        <b-modal :id="'modal-' + index" centered :title="'Rename configuration: ' + config.name"
                                                  @ok="$emit('update-config-name', index, renamedConfigString)">
                                             <b-form-input type="text" :value="config.name" v-model="renamedConfigString" maxlength="24"></b-form-input>
                                         </b-modal>
@@ -79,12 +84,12 @@
                             <div class="config-card-content p-p-1"
                                  style="min-height: 6rem; max-height: 16rem; overflow-y: auto">
                                 <div class="badges p-d-flex p-flex-wrap p-jc-center">
-                                    <template v-for="(featureName) in configurationFeatures.binaryFeatures">
+                                    <template v-for="(featureName) in systemFeatures.binaryFeatures">
                                         <Chip v-if="featureName !== 'name' && config[featureName]"
                                               class="binary-chip p-m-1" :label="featureName" removable
                                               @remove="$emit('update-feature', index, featureName, false)"/>
                                     </template>
-                                    <template v-for="(featureName) in Object.keys(configurationFeatures.numericFeatures)">
+                                    <template v-for="(featureName) in Object.keys(systemFeatures.numericFeatures)">
                                         <Chip :id="'numeric-chip' + index + featureName"
                                               class="numeric-chip p-m-1" :label="featureName + ': ' + config[featureName]"/>
                                         <b-popover
@@ -96,9 +101,9 @@
                                             <CustomSpinButton
                                                 :value="config[featureName]"
                                                 :value.sync="config[featureName]"
-                                                :step-function="configurationFeatures.numericFeatures[featureName].stepFunction"
-                                                :min="configurationFeatures.numericFeatures[featureName].min"
-                                                :max="configurationFeatures.numericFeatures[featureName].max"
+                                                :step-function="systemFeatures.numericFeatures[featureName].stepFunction"
+                                                :min="systemFeatures.numericFeatures[featureName].min"
+                                                :max="systemFeatures.numericFeatures[featureName].max"
                                             />
                                         </b-popover>
                                     </template>
@@ -110,7 +115,7 @@
                     </div>
                 </div>
                 <DataTable v-if="selectedViewOption==='extended'"
-                           class="editable-cells-table panel-content"
+                           class="p-datatable editable-cells-table panel-content"
                            :rowHover="true"
                            :autoLayout="true"
                            :value="configurations"
@@ -118,8 +123,11 @@
                     <Column field="name"
                             header="name"
                             key="name">
+                        <template #body="slotProps">
+                            {{slotProps.data['name']}}
+                        </template>
                         <template #editor="slotProps">
-                            <div class="p-grid p-ai-center">
+                            <div class="align-items-center">
                                 <InputText v-model="slotProps.data['name']"
                                            class="p-inputtext-sm mr-1 my-1" />
                                 <div>
@@ -131,22 +139,26 @@
                                               @click="$emit('del-config', slotProps.index)">
                                         <font-awesome-icon icon="times" class="" fixed-width/>
                                     </b-button>
+                                    <b-button class="m-0" variant="success" size="sm"
+                                              @click="$emit('click-optimize', slotProps.data['name'])">
+                                        <font-awesome-icon icon="compass" class="" fixed-width/>
+                                    </b-button>
                                 </div>
                             </div>
                         </template>
                     </Column>
-                    <Column v-for="feature of configurationFeatures.binaryFeatures"
+                    <Column v-for="feature of systemFeatures.binaryFeatures"
                             :field="feature"
                             :header="feature"
                             :key="feature">
                         <template #body="slotProps">
-                            <label>
+                            <label class="m-0">
                                 <input type="checkbox" :checked="slotProps.data[feature]"
                                        @change="$emit('update-feature', slotProps.index, feature, !slotProps.data[feature])"/>
                             </label>
                         </template>
                     </Column>
-                    <Column v-for="feature of Object.keys(configurationFeatures.numericFeatures)"
+                    <Column v-for="feature of Object.keys(systemFeatures.numericFeatures)"
                             :field="feature"
                             :header="feature"
                             :key="feature">
@@ -155,9 +167,9 @@
                                 <CustomSpinButton
                                     :value="slotProps.data[feature]"
                                     :value.sync="slotProps.data[feature]"
-                                    :step-function="configurationFeatures.numericFeatures[feature].stepFunction"
-                                    :min="configurationFeatures.numericFeatures[feature].min"
-                                    :max="configurationFeatures.numericFeatures[feature].max"
+                                    :step-function="systemFeatures.numericFeatures[feature].stepFunction"
+                                    :min="systemFeatures.numericFeatures[feature].min"
+                                    :max="systemFeatures.numericFeatures[feature].max"
                                 />
                             </label>
                         </template>
@@ -216,6 +228,7 @@ import ExportButton from "./ExportButton";
 import ImportDropdownItem from "./ImportDropdownItem";
 import CustomSpinButton  from "./SpinButton";
 
+import { mapFields, mapMultiRowFields } from "vuex-map-fields";
 
 export default {
     name: "ConfigArea",
@@ -236,8 +249,6 @@ export default {
     },
     props: [
         "systemName",
-        "configurationFeatures",
-        "configurations",
         "softSystemLoaded"
     ],
 
@@ -259,7 +270,19 @@ export default {
     },
 
     computed: {
-
+        ...mapFields(
+            'configurationStore',
+            {
+                systemFeatures: 'systemFeatures',
+                configs: 'configurations'
+            }
+        ),
+        ...mapMultiRowFields(
+            'configurationStore',
+            [
+                "configurations"
+            ]
+        ),
     },
 
     methods: {
@@ -270,11 +293,12 @@ export default {
             } else {
                 this.collapseButtonIcon = 'pi pi-chevron-down';
             }
+            console.log(this.configurations);
         },
         toggle(event, index) {
             this.configIndex = index;
             this.unselectedFeatures = [];
-            for (let featureName of this.configurationFeatures.binaryFeatures) {
+            for (let featureName of this.systemFeatures.binaryFeatures) {
                 if (!this.configurations[index][featureName]) {
                     this.unselectedFeatures.push({feature: featureName});
                 }
@@ -298,8 +322,8 @@ export default {
             this.$emit('load-data', data);
         },
         generateExportData() {
-            let exportData = [...this.configurations];
-            exportData.forEach(function(obj) { delete obj.properties });
+            let exportData = [...this.configs];
+            exportData.forEach(function(obj) { delete obj.properties; delete obj.dissectedProperties });
 
             this.exportData = exportData;
         },

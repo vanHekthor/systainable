@@ -43,7 +43,7 @@ export default {
             type: Object,
             required: true,
         },
-        configurationFeatures: {
+        systemFeatures: {
             type: Object,
             required: true,
         },
@@ -64,7 +64,7 @@ export default {
             let chips = [];
 
             if (this.originalConfig !== null) {
-                for (let binaryFeatureName of this.configurationFeatures.binaryFeatures) {
+                for (let binaryFeatureName of this.systemFeatures.binaryFeatures) {
                     if (this.originalConfig[binaryFeatureName] === true && this.config[binaryFeatureName] === false) {
                         chips.push({featureName: binaryFeatureName, type: 'removed'});
                     } else if (this.originalConfig[binaryFeatureName] === false && this.config[binaryFeatureName] === true) {
@@ -74,7 +74,7 @@ export default {
                     }
                 }
 
-                for (let numericFeatureName of Object.keys(this.configurationFeatures.numericFeatures)) {
+                for (let numericFeatureName of Object.keys(this.systemFeatures.numericFeatures)) {
                     if (this.originalConfig[numericFeatureName] !== this.config[numericFeatureName]) {
                         chips.push({featureName: numericFeatureName, type: 'modified'});
                     } else {
@@ -83,12 +83,12 @@ export default {
                 }
 
             } else {
-                for (let binaryFeatureName of this.configurationFeatures.binaryFeatures) {
+                for (let binaryFeatureName of this.systemFeatures.binaryFeatures) {
                     if (this.config[binaryFeatureName]) {
                         chips.push({featureName: binaryFeatureName, type: 'binary-default'});
                     }
                 }
-                for (let numericFeatureName of Object.keys(this.configurationFeatures.numericFeatures)) {
+                for (let numericFeatureName of Object.keys(this.systemFeatures.numericFeatures)) {
                     chips.push({featureName: numericFeatureName, type: 'numeric-default'});
                 }
             }

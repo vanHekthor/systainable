@@ -23,6 +23,7 @@
     "primevue": "^2.3.0",
     "swagger-ui-dist": "3.25.4",
     "vue": "2.6.11",
+    "vue-chartjs": "^3.5.1",
     "vue-class-component": "7.2.3",
     "vue-cookie": "1.1.4",
     "vue-i18n": "8.17.7",
@@ -32,7 +33,8 @@
     "vue2-filters": "0.11.0",
     "vuelidate": "0.7.5",
     "vuex": "3.4.0",
-    "vuex-persist": "^3.1.3"
+    "vuex-map-fields": "^1.4.1",
+    "vuex-persistedstate": "^4.0.0-beta.3"
   },
   "devDependencies": {
     "@types/jest": "25.2.3",
