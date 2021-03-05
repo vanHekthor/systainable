@@ -39,6 +39,7 @@ import { BListGroup } from 'bootstrap-vue';
 import { BListGroupItem } from 'bootstrap-vue';
 import { BDropdown } from 'bootstrap-vue';
 import { BDropdownItemButton } from 'bootstrap-vue';
+import { BFormGroup } from 'bootstrap-vue';
 
 /* tslint:disable */
 
@@ -61,6 +62,7 @@ Vue.component('b-list-group', BListGroup);
 Vue.component('b-list-group-item', BListGroupItem);
 Vue.component('b-dropdown', BDropdown);
 Vue.component('b-dropdown-item-button', BDropdownItemButton);
+Vue.component('b-form-group', BFormGroup);
 
 // Note: Vue automatically prefixes the directive name with 'v-'
 Vue.directive('b-toggle', VBToggle);

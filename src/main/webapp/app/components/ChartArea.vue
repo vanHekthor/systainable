@@ -32,7 +32,7 @@
                                         <template #button-content>
                                             <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
                                         </template>
-                                        <b-dropdown-item-button @click="$emit('click-optimize', '', chartData.datasets[0].label)">
+                                        <b-dropdown-item-button @click="$emit('click-optimize', chartData.datasets[0].label)">
                                             <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
                                             optimize
                                         </b-dropdown-item-button>
@@ -49,41 +49,19 @@
                 </template>
             </b-row>
             <b-row>
-                <b-col cols="12" lg="6" md="6"
-                       class="px-2 mb-3">
+                <b-col class="px-2 mb-3"
+                       cols="12" md="6">
+                    <b-card>
+                        <PropertyCard/>
+                    </b-card>
+                </b-col>
+                <b-col class="px-2 mb-3"
+                       cols="12" lg="6" md="6">
                     <b-card>
                         <div class="p-d-flex p-jc-between">
                             <div><h5 class="p-m-0">normalized values</h5></div>
                         </div>
                         <Chart type="radar" :data="updateRadarData()" :options="radarOptions" />
-                    </b-card>
-                </b-col>
-                <b-col cols="12" lg="6" md="6"
-                       class="px-2 mb-3">
-                    <b-card>
-                        <div class="p-d-flex p-jc-between">
-                            <div class="d-inline-flex"><h5 class="p-m-0">absolute differences</h5></div>
-                        </div>
-                        <div class="p-grid p-text-center">
-                            <div class="p-col p-md-4">
-                                <Knob :modelValue="deltaEnergy" :readonly="true" :min="-1500" :max="1500"
-                                      valueColor="#9c27b0"/>
-                                Property 1
-                            </div>
-                            <div class="p-col p-md-4">
-                                <Knob :modelValue="deltaCpu" :readonly="true" :min="-100" :max="100"
-                                      valueColor="#0288D1"/>
-                                Property 2
-                            </div>
-                            <div class="p-col p-md-4">
-                                <Knob :modelValue="deltaTime" :readonly="true" :min="-150" :max="150"
-                                      valueColor="#D32F2F"/>
-                                Property 3
-                            </div>
-                        </div>
-                        <div class="p-d-flex p-jc-center">
-                            <h4 class="p-m-0">config 1 - config 2</h4>
-                        </div>
                     </b-card>
                 </b-col>
             </b-row>
@@ -96,7 +74,7 @@ import Card from 'primevue/card';
 import Chart from 'primevue/chart';
 import Button from 'primevue/button';
 import Knob from './Knob';
-
+import PropertyCard from "./PropertyCard";
 import { mapFields } from 'vuex-map-fields';
 import { mapMutations } from 'vuex';
 
@@ -107,7 +85,8 @@ export default {
         Card,
         Chart,
         Button,
-        Knob
+        Knob,
+        PropertyCard
     },
 
     props: [
@@ -123,39 +102,6 @@ export default {
 
     data() {
         return {
-            deltaEnergy: 2345-1245,
-            deltaCpu: 321-243,
-            deltaTime: 401-506,
-            differenceEnergyData: {
-                labels: ['Delta Energy'],
-                datasets: [
-                    {
-                        label: 'config 1 - config 2',
-                        backgroundColor: '#9c27b0',
-                        data: [2345-1245]
-                    },
-                ]
-            },
-            differenceCPUData: {
-                labels: ['Delta CPU'],
-                datasets: [
-                    {
-                        label: 'config 1 - config 2',
-                        backgroundColor: '#9c27b0',
-                        data: [321-243]
-                    },
-                ]
-            },
-            differenceTimeData: {
-                labels: ['Delta Time'],
-                datasets: [
-                    {
-                        label: 'config 1 - config 2',
-                        backgroundColor: '#9c27b0',
-                        data: [401-506]
-                    },
-                ]
-            },
             radarOptions: {
                 scale: {
                     ticks: {
@@ -166,10 +112,6 @@ export default {
                 },
             },
         }
-    },
-
-    created() {
-        // this.updateRadarData();
     },
 
     computed: {

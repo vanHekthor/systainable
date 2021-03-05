@@ -139,7 +139,7 @@ export default {
             }
         },
         onTouchMove(event) {
-            if (!this.disabled && !this.readonly && event.touches.length == 1) {
+            if (!this.disabled && !this.readonly && event.touches.length === 1) {
                 const rect = this.$el.getBoundingClientRect();
                 const touch = event.targetTouches.item(0);
                 const offsetX = touch.clientX - rect.left;
