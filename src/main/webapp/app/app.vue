@@ -120,7 +120,6 @@ export default {
             optiConfig: {},
 
             // UI logic data
-            previousSelection: "",
             configCount: 0,
             displayModal: false,
             displayOptimizationModal: false,
@@ -131,8 +130,6 @@ export default {
             optimizedConfigFound: false,
             searchedForOptimizedConfig: false,
             selectedInfluenceViewProp: "",
-
-            showInfluences: false,
 
             // chart data
             chartDataArray: [],
@@ -149,7 +146,6 @@ export default {
             `configurationStore`,
             [
                 "softSystems",
-                "selectedSoftSystem",
                 "configurations",
                 "systemFeatures",
                 "systemProperties",
@@ -159,7 +155,11 @@ export default {
             `uiLogicStore`,
             [
                 "softSystemLoaded",
-                "chartsDrawn"
+                "selectedSoftSystem",
+                "previousSelection",
+                "chartsDrawn",
+                "showInfluences",
+                "visibleProperties"
             ]
         ),
         maxOptimizationDistance: function() {
@@ -195,30 +195,42 @@ export default {
         },
 
         updateConfigName(index, configName) {
-            let count = 0;
-
-            this.configurations.forEach(function(config, idx) {
-                if (index !== idx  && config.name === configName) {
-                    count++;
-                }
-            })
-            if (count > 0) {
-                configName += `(${count})`
-            }
-
-            this.updateConfigNameFromStore({ index: index, configName: configName });
+            this.updateConfigNameFromStore({ index: index, configName: this.findUniqueName(configName, index) });
         },
 
-        addConfig(config, configName) {
+        addConfig(config, configName = null) {
             if (configName == null) {
                 configName = "config";
                 this.configCount = this.configurations.length;
                 config.name = configName + this.configCount.toString();
             }
 
-            this.addConfigToStore(config);
+            config.name = this.findUniqueName(config.name);
 
-            this.updateConfigName(this.configurations.length - 1, config.name);
+            this.addConfigToStore(config);
+        },
+
+        findUniqueName(configName, index = null) {
+            const vm = this;
+            let lookForNewName = function (name, count) {
+                let nameToBeChecked = name;
+                if (count !== 0) {
+                    nameToBeChecked = `${name}(${count})`;
+                }
+                for (let i = 0; i < vm.configurations.length; i++) {
+                    if (i == index) {
+                        continue;
+                    }
+                    if (vm.configurations[i].name === nameToBeChecked) {
+                        count++;
+                        return lookForNewName(name, count);
+                    }
+                }
+                return nameToBeChecked;
+            }
+
+            const count = 0;
+            return lookForNewName(configName, count);
         },
 
         deleteConfig(index) {
@@ -231,7 +243,7 @@ export default {
 
         duplicateConfig(index) {
             let configDuplicate = Object.assign({}, this.configurations[index]);
-            configDuplicate.name = configDuplicate.name + "(copy)"
+            configDuplicate.name = this.findUniqueName(configDuplicate.name + "(copy)");
 
             this.insertConfigToStore({index: index, config: configDuplicate});
         },
@@ -288,13 +300,19 @@ export default {
 
         // requests to backend
         requestSystemAttributes: async function(event) {
-            let featureNames = await requestHandler.getFeatureNames(event.value);
-            this.updateFeatureNames(featureNames);
-            this.systemProperties = await requestHandler.getPropNames(event.value);
-
             if (event.value !== this.previousSelection) {
+                let featureNames = await requestHandler.getFeatureNames(event.value);
+                this.updateFeatureNames(featureNames);
+                this.systemProperties = await requestHandler.getPropNames(event.value);
+
                 this.chartsDrawn = false;
                 this.showInfluences = false;
+
+                const visibleProperties = {};
+                Object.keys(this.systemProperties).forEach(key => {
+                    visibleProperties[key] = true;
+                });
+                this.visibleProperties = visibleProperties;
 
                 this.configurations = [];
                 this.configCount = 0;
@@ -417,19 +435,20 @@ export default {
 </script>
 
 <style>
-    #app{
-    }
+#app{
+}
 
-    html {
-        font-size: 14px;
-    }
+html {
+    font-size: 14px;
+}
 
-    html, body {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
+html, body {
+    padding: 0 !important;
+    margin: 0 !important;
+}
 
-    .top-bar {
-        background-color: white;
-    }
+.top-bar {
+    background-color: white;
+}
 </style>
+
