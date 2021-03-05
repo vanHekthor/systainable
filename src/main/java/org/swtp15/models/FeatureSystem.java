@@ -30,6 +30,8 @@ public class FeatureSystem {
 
     final Thread globalNearOptimumThread = new Thread(this::generateNearOptimalConfigurations);
 
+    private boolean threadRuns = false;
+
 
     /**
      * The constructor.
@@ -212,15 +214,19 @@ public class FeatureSystem {
     @SneakyThrows
     public Map<String, FeatureConfiguration> getGlobalOptimumPerProperty() {
         this.featureModel.waitOnModelsGenerated();
-        this.startGenerateGlobalOptimum();
+        if (!this.threadRuns) {
+            this.startGenerateGlobalOptimum();
+        }
         this.globalNearOptimumThread.join();
         return this.globalOptimumPerProperty;
     }
+
 
     /**
      * Generates a very good estimate for a global optimum for all {@link Property} instances of this System.
      */
     private void generateNearOptimalConfigurations() {
+        this.threadRuns = true;
         Random rand = new Random();
         for (Property property : this.getProperties()) {
             Map<String, Integer> optimalNumericValues = this.calculateGlobalOptimum(property);
