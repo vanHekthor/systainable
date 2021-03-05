@@ -119,7 +119,6 @@ export default {
             optiConfig: {},
 
             // UI logic data
-            previousSelection: "",
             configCount: 0,
             displayModal: false,
             displayOptimizationModal: false,
@@ -130,8 +129,6 @@ export default {
             optimizedConfigFound: false,
             searchedForOptimizedConfig: false,
             selectedInfluenceViewProp: "",
-
-            showInfluences: false,
 
             // chart data
             chartDataArray: [],
@@ -148,7 +145,6 @@ export default {
             `configurationStore`,
             [
                 "softSystems",
-                "selectedSoftSystem",
                 "configurations",
                 "systemFeatures",
                 "systemProperties",
@@ -158,7 +154,11 @@ export default {
             `uiLogicStore`,
             [
                 "softSystemLoaded",
-                "chartsDrawn"
+                "selectedSoftSystem",
+                "previousSelection",
+                "chartsDrawn",
+                "showInfluences",
+                "visibleProperties"
             ]
         ),
         maxOptimizationDistance: function() {
@@ -287,13 +287,19 @@ export default {
 
         // requests to backend
         requestSystemAttributes: async function(event) {
-            let featureNames = await requestHandler.getFeatureNames(event.value);
-            this.updateFeatureNames(featureNames);
-            this.systemProperties = await requestHandler.getPropNames(event.value);
-
             if (event.value !== this.previousSelection) {
+                let featureNames = await requestHandler.getFeatureNames(event.value);
+                this.updateFeatureNames(featureNames);
+                this.systemProperties = await requestHandler.getPropNames(event.value);
+
                 this.chartsDrawn = false;
                 this.showInfluences = false;
+
+                const visibleProperties = {};
+                Object.keys(this.systemProperties).forEach(key => {
+                    visibleProperties[key] = true;
+                });
+                this.visibleProperties = visibleProperties;
 
                 this.configurations = [];
                 this.configCount = 0;
