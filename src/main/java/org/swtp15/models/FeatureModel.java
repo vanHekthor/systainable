@@ -320,7 +320,7 @@ public class FeatureModel {
      */
     private Set<Integer> convertConfigToIntegerSet(FeatureConfiguration featureConfiguration) {
         Map<String, Integer> featureNameToInt = new HashMap<>();
-        this.binaryFeatures.keySet().parallelStream()
+        this.binaryFeatures.keySet().stream()
                 .forEach(FeatureAsInt ->
                                  featureNameToInt
                                          .put(this.binaryFeatures.get(FeatureAsInt).getName(), FeatureAsInt));
