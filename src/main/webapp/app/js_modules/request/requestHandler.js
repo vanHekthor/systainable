@@ -28,6 +28,11 @@ function createRequestConfig(systemName, config, properties) {
   return requestConfig;
 }
 
+/**
+ * This function converts the a configuration object on request format to the app-internal format.
+ * @param responseData Response configuration
+ * @returns Object configuration in app-internal format
+ */
 function convertResponse(responseData) {
   responseData.features = underscoreUtil.replaceUnderscores(responseData.features);
   responseData.properties = underscoreUtil.replaceUnderscores(responseData.properties);
@@ -93,7 +98,7 @@ export default {
    * This method requests an initial valid minimal configuration of a selected software system. The received configuration gets adapted to the app-internal format by
    * adding a name property. Underscores in object keys get replaced with non-break spaces.
    * @param systemName Selected software system
-   * @returns {Promise<{name: string}|undefined>} Valid minimal configuration
+   * @returns {Promise<{}>} Valid minimal configuration
    */
   getInitConfig: async function (systemName) {
     let responseData = await api.getInitConfig(systemName);
@@ -109,7 +114,7 @@ export default {
    * @param systemName Selected software system
    * @param config Configuration to be checked
    * @param properties Configuration properties object
-   * @returns {Promise<*>} Validity of the configuration true/false
+   * @returns {Promise<boolean>} Validity of the configuration true/false
    */
   validateConfig: async function (systemName, config, properties) {
     const requestConfig = createRequestConfig(systemName, config, properties);
@@ -143,9 +148,7 @@ export default {
     let responseData = await api.getAlternativeConfig(requestConfig);
     responseData.features = underscoreUtil.replaceUnderscores(responseData.features);
 
-    const altConfig = Object.assign({ name: 'config' }, responseData.features);
-
-    return altConfig;
+    return Object.assign({ name: 'config' }, responseData.features);
   },
 
   /**
@@ -156,7 +159,7 @@ export default {
    * @param maxDifference Max. feature/option difference to original configuration
    * @param config Configuration to be optimized (alias original configuration)
    * @param properties Configuration properties object
-   * @returns {Promise<(string)|({name: string} & Array)|({name: string} & Object)>}
+   * @returns {Promise<{}>} Optimized configuration
    */
   getOptimizedConfig: async function (systemName, propName, maxDifference, config, properties) {
     const requestConfig = createRequestConfig(systemName, config, properties);
@@ -170,6 +173,12 @@ export default {
     }
   },
 
+  /**
+   * This method requests a near optimal configuration in a selected property.
+   * @param systemName Selected software system
+   * @param propName Selected property name
+   * @returns {Promise<{}>} Near optimal configuration
+   */
   getNearOptimalConfig: async function (systemName, propName) {
     let responseData = await api.getNearOptimalConfig(systemName, propName.replace(/\u00a0/g, '_'));
 

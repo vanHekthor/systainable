@@ -202,10 +202,10 @@ export default {
             if (configName == null) {
                 configName = "config";
                 this.configCount = this.configurations.length;
-                config.name = configName + this.configCount.toString();
+                configName = configName + this.configCount.toString();
             }
 
-            config.name = this.findUniqueName(config.name);
+            config.name = this.findUniqueName(configName);
 
             this.addConfigToStore(config);
         },
@@ -396,9 +396,7 @@ export default {
 
         requestNearOptimalConfig: async function(propName) {
             let config =  await requestHandler.getNearOptimalConfig(this.selectedSoftSystem, propName);
-
-            this.addConfig(config);
-            config.name = propName + '[opti]';
+            this.addConfig(config, propName + '[opti]');
 
             return config;
         },
