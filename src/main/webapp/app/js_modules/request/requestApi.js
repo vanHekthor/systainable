@@ -75,7 +75,8 @@ export default {
   },
 
   /**
-   * This method sends a POST request to /performance/optimum/local?featuresystem=${systemName}&property=${propertyName}. The request body contains a configuration in request format.
+   * This method sends a POST request to /performance/optimum/local?property=${propName}&maxDifference=${maxDifference}.
+   * The request body contains a configuration in request format.
    * @param propName Name of the property to be improved
    * @param maxDifference Max. difference of optimized configuration to sent configuration
    * @param featureConfiguration Configuration that is put into the request body and shall be optimized
@@ -88,6 +89,12 @@ export default {
     return response.data;
   },
 
+  /**
+   * This method sends a GET request to /performance/optimum/global?featuresystem=${systemName}&property=${propName}.
+   * @param systemName Selected software system
+   * @param propName Selected property name for which near optimum is wished for.
+   * @returns {Promise<any>} Near optimal configuration in request format
+   */
   getNearOptimalConfig: async function (systemName, propName) {
     let response = await instance
       .get(`performance/optimum/global?featuresystem=${systemName}&property=${propName}`)
