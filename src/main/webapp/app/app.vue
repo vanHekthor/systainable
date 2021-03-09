@@ -101,6 +101,7 @@ import { mapMutations } from "vuex";
 
 export default {
     name: 'App',
+    title: 'Systainable',
     components: {
         ConfigArea,
         ChartArea,
