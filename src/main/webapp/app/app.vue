@@ -6,7 +6,7 @@
                 <div class="d-inline-flex align-items-center">
                     <Dropdown class="mr-2" id="selectDropdown" v-model="selectedSoftSystem" :options="softSystems"
                               placeholder="Select a system"
-                              @change="requestSystemAttributes"/>
+                              @change="loadSoftSystem"/>
                 </div>
             </b-container>
         </div>
@@ -16,12 +16,12 @@
                 :softSystemLoaded="softSystemLoaded"
                 @update-feature="updateFeature"
                 @update-config-name="updateConfigName"
-                @del-config="deleteConfig"
+                @del-config="startConfigDeletion"
                 @submit-configs="submitConfigs"
-                @get-config-example="requestInitConfig"
+                @get-config-example="addInitialConfig"
                 @load-data="loadConfigs"
                 @duplicate-config="duplicateConfig"
-                @click-optimize="openOptimizationModal"
+                @click-optimize="startConfigOptimization"
             />
 
             <b-container class="p-0" fluid>
@@ -40,7 +40,7 @@
                 v-if="chartsDrawn && configurations.length > 0 && !showInfluences"
                 :chartDataArray="chartDataArray"
                 :radarData="radarData"
-                @click-optimize="openOptimizationModal"
+                @click-optimize="startConfigOptimization"
                 @click-lens="toggleInfluenceArea"
             />
         </b-container>
@@ -73,7 +73,7 @@
             :optimized-config-found="optimizedConfigFound"
             :system-features="systemFeatures"
             :optimized-config="optiConfig"
-            :unoptimized-config="selectedConfig"
+            :unoptimized-config="selectedUnoptimizedConfig"
             :property-attributes="systemProperties"
             @search-optimized-config="searchOptimizedConfig"
             @ok="acceptOptimizedConfig"
@@ -91,77 +91,32 @@ import ConfigCard from "./components/ConfigCard";
 import OptimizationModal from "./components/OptimizationModal";
 
 import Dropdown from "primevue/dropdown";
-import Button from "primevue/button";
-import Dialog from "primevue/dialog";
 
-import requestHandler from "./js_modules/request/requestHandler";
-
-import { mapFields } from "vuex-map-fields";
-import { mapMutations } from "vuex";
+import requestMixin from "./mixins/requestMixin";
+import configManagerMixin from "./mixins/configManagementMixin";
+import uiLogicMixin from "./mixins/uiLogicMixin";
 
 export default {
     name: 'App',
     title: 'Systainable',
+    mixins: [requestMixin, configManagerMixin, uiLogicMixin],
     components: {
         ConfigArea,
         ChartArea,
         InfluenceArea,
         Dropdown,
-        Button,
-        Dialog,
         ConfigCard,
         OptimizationModal
     },
     data() {
         return {
-            // system and config data
-            invalidConfig: {},
-            alternativeConfig: {},
-            optiConfig: {},
-
-            // UI logic data
-            configCount: 0,
-            displayModal: false,
-            displayOptimizationModal: false,
-            selectedOptimizationConfigName: "",
-            selectedConfig: {},
-            selectedOptimizationPropName: "",
-            optimizationDistance: 1,
-            optimizedConfigFound: false,
-            searchedForOptimizedConfig: false,
-            selectedInfluenceViewProp: "",
-
             // chart data
             chartDataArray: [],
             radarData: {},
         }
     },
 
-    created: async function() {
-        this.softSystems = await requestHandler.activateExampleModels();
-    },
-
     computed: {
-        ...mapFields(
-            `configurationStore`,
-            [
-                "softSystems",
-                "configurations",
-                "systemFeatures",
-                "systemProperties",
-            ]
-        ),
-        ...mapFields(
-            `uiLogicStore`,
-            [
-                "softSystemLoaded",
-                "selectedSoftSystem",
-                "previousSelection",
-                "chartsDrawn",
-                "showInfluences",
-                "visibleProperties"
-            ]
-        ),
         maxOptimizationDistance: function() {
             if (this.softSystemLoaded) {
                 return this.systemFeatures.binaryFeatures.length;
@@ -172,190 +127,26 @@ export default {
     },
 
     methods: {
-        ...mapMutations(
-            'configurationStore',
-            [
-                "addConfigToStore",
-                "deleteConfigFromStore",
-                "insertConfigToStore",
-                "updateConfigNameFromStore",
-                "updateConfigFeature",
-                "setConfigProperties",
-                "setDissectedConfigProperties"
-            ]
-        ),
-
-        updateFeature(index, featureName, value) {
-            this.updateConfigFeature({ index, featureName, value });
-        },
-
-        updateFeatureNames(features) {
-            this.systemFeatures = features;
-            this.softSystemLoaded = true;
-        },
-
-        updateConfigName(index, configName) {
-            this.updateConfigNameFromStore({ index: index, configName: this.findUniqueName(configName, index) });
-        },
-
-        addConfig(config, configName = null) {
-            if (configName == null) {
-                configName = "config";
-                this.configCount = this.configurations.length;
-                config.name = configName + this.configCount.toString();
+        loadSoftSystem: async function(event) {
+            if (this.softSystemHasChanged()) {
+                this.requestSystemAttributes(event).then(
+                    this.resetUI
+                );
+                this.deleteAllConfigs();
+                await this.addInitialConfig();
             }
-
-            config.name = this.findUniqueName(config.name);
-
-            this.addConfigToStore(config);
         },
 
-        findUniqueName(configName, index = null) {
-            const vm = this;
-            let lookForNewName = function (name, count) {
-                let nameToBeChecked = name;
-                if (count !== 0) {
-                    nameToBeChecked = `${name}(${count})`;
-                }
-                for (let i = 0; i < vm.configurations.length; i++) {
-                    if (i == index) {
-                        continue;
-                    }
-                    if (vm.configurations[i].name === nameToBeChecked) {
-                        count++;
-                        return lookForNewName(name, count);
-                    }
-                }
-                return nameToBeChecked;
-            }
-
-            const count = 0;
-            return lookForNewName(configName, count);
+        addInitialConfig: async function() {
+            this.addConfig(await this.requestInitConfig());
         },
 
-        deleteConfig(index) {
-            this.deleteConfigFromStore(index);
+        startConfigDeletion(index) {
+            this.deleteConfig(index);
 
             if (this.configurations.length < 1) {
-                this.chartsDrawn = false;
+                this.eraseCharts();
             }
-        },
-
-        duplicateConfig(index) {
-            let configDuplicate = Object.assign({}, this.configurations[index]);
-            configDuplicate.name = this.findUniqueName(configDuplicate.name + "(copy)");
-
-            this.insertConfigToStore({index: index, config: configDuplicate});
-        },
-
-        loadConfigs(configs) {
-            // this.configurations = this.configurations.concat(configs);
-
-            for (let config of configs) {
-                this.addConfig(config, config.name);
-            }
-        },
-
-        drawCharts() {
-            this.chartsDrawn = true;
-        },
-
-        toggleInfluenceArea(selectedProperty) {
-            this.selectedInfluenceViewProp = selectedProperty;
-            this.showInfluences = !this.showInfluences;
-        },
-
-        searchOptimizedConfig: async function(optiModalEvent, configName, propName, maxDifference) {
-            optiModalEvent.preventDefault();
-
-            const selectedConfigIndex = this.configurations.findIndex(conf => conf.name === configName);
-            this.selectedConfig = this.configurations[selectedConfigIndex]
-
-            if (await this.requestSingleValidityCheck(this.selectedConfig)) {
-                await this.requestConfigEvaluation(selectedConfigIndex);
-                let optiConfig = await this.requestOptimizedConfig(this.selectedConfig, propName, maxDifference);
-
-                if (optiConfig === "") {
-                    this.optimizedConfigFound = false;
-                    this.searchedForOptimizedConfig = true;
-                } else {
-                    this.optimizedConfigFound = true;
-                    this.searchedForOptimizedConfig = true;
-                    optiConfig.name = this.selectedConfig.name + "[+]";
-                    this.optiConfig = optiConfig;
-                }
-            }
-        },
-
-        acceptOptimizedConfig() {
-            this.optimizedConfigFound = false;
-            this.searchedForOptimizedConfig = false;
-
-            this.$nextTick(() => {
-                this.$bvModal.hide('optiModal');
-            });
-
-            this.addConfig(this.optiConfig, this.optiConfig.name);
-        },
-
-        // requests to backend
-        requestSystemAttributes: async function(event) {
-            if (event.value !== this.previousSelection) {
-                let featureNames = await requestHandler.getFeatureNames(event.value);
-                this.updateFeatureNames(featureNames);
-                this.systemProperties = await requestHandler.getPropNames(event.value);
-
-                this.chartsDrawn = false;
-                this.showInfluences = false;
-
-                const visibleProperties = {};
-                Object.keys(this.systemProperties).forEach(key => {
-                    visibleProperties[key] = true;
-                });
-                this.visibleProperties = visibleProperties;
-
-                this.configurations = [];
-                this.configCount = 0;
-                await this.requestInitConfig();
-                this.previousSelection = event.value;
-            }
-        },
-
-        requestInitConfig: async function() {
-            let config = await requestHandler.getInitConfig(this.selectedSoftSystem);
-            this.addConfig(config);
-        },
-
-        requestValidityCheck: async function() {
-            let config = {};
-            for (config of this.configurations) {
-                if (!await this.requestSingleValidityCheck(config)) {
-                    return false;
-                }
-            }
-            return true;
-        },
-
-        requestSingleValidityCheck: async function(config) {
-            let valid = await requestHandler.validateConfig(this.selectedSoftSystem, config, this.systemProperties);
-            console.log(config);
-            console.log(`${config.name} is ${valid}`);
-
-            if (!valid) {
-                this.invalidConfig = config;
-                this.alternativeConfig = await this.requestAlternativeConfig(config);
-                this.$bvModal.show('alternative-config-modal');
-
-                return false;
-            }
-
-            return true;
-        },
-
-        requestAlternativeConfig: async function(config) {
-            let altConfig = await requestHandler.getAlternativeConfig(this.selectedSoftSystem, config, this.systemProperties);
-            altConfig.name = "alternative"
-            return altConfig;
         },
 
         submitConfigs: async function() {
@@ -382,44 +173,26 @@ export default {
             }
         },
 
-        requestConfigEvaluation: async function(index) {
-            const evaluatedConfig = await requestHandler.getEvaluatedConfig(this.selectedSoftSystem, this.configurations[index], this.systemProperties);
-            this.setConfigProperties({ index: index, properties: evaluatedConfig.properties });
-            this.setDissectedConfigProperties({ index: index, dissectedProperties: evaluatedConfig.dissectedProperties });
-        },
-
-        requestOptimizedConfig: async function(config, propName, maxDifference) {
-            let optiConfig = await requestHandler.getOptimizedConfig(this.selectedSoftSystem, propName, maxDifference, config, this.systemProperties);
-
-            return optiConfig;
-        },
-
-        // methods for handling a modals
-        closeModalAcceptAlternative() {
-            Object.keys(this.invalidConfig).forEach(key => {
-                if (key === 'name') {
-                    return;
-                }
-                this.invalidConfig[key] = this.alternativeConfig[key];
-            })
-            this.displayModal = false;
-        },
-
-        openOptimizationModal(configName = "", optimizationPropName = "") {
+        startConfigOptimization(configName = "", optimizationProbName = "") {
             if (this.configurations.length === 1) {
-                this.selectedOptimizationConfigName = this.configurations[0].name;
-            } else {
-                this.selectedOptimizationConfigName = configName;
+                configName = this.configurations[0].name;
             }
-            this.selectedOptimizationPropName = optimizationPropName;
-            this.displayOptimizationModal = true;
+            this.openOptimizationModal(configName, optimizationProbName);
         },
 
-        closeOptimizationModal() {
-            this.optimizedConfigFound = false;
-            this.searchedForOptimizedConfig = false;
-            this.displayOptimizationModal = false;
-        }
+        searchOptimizedConfig: async function(optiModalEvent, configName, propName, maxDifference) {
+            optiModalEvent.preventDefault();
+
+            const selectedConfigIndex = this.findConfigIndex(configName);
+            const unoptimizedConfig = this.configurations[selectedConfigIndex];
+
+            if (await this.requestSingleValidityCheck(unoptimizedConfig)) {
+                await this.requestConfigEvaluation(selectedConfigIndex);
+                let optimizedConfig = await this.requestOptimizedConfig(unoptimizedConfig, propName, maxDifference);
+
+                this.updateOptimizationStatus(optimizedConfig, unoptimizedConfig);
+            }
+        },
     }
 
 }
