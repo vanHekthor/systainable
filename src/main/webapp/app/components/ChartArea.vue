@@ -119,7 +119,7 @@ export default {
 
         updatePropertyVisibility(event, prop) {
             if (event != null && prop != null) {
-                this.setPropertyVisibility({ property: prop, visible: event })
+                this.setPropertyVisibility({ property: prop, visible: event });
                 this.updateRadarData();
             }
         },
