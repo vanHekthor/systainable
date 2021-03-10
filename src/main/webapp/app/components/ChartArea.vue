@@ -1,72 +1,68 @@
 <template>
-    <div>
-        <b-container fluid>
-            <b-row class="justify-content-center">
-                <div class="mb-1">
-                    <template v-for="prop in Object.keys(visibleProperties)">
-                        <b-form-checkbox class="mx-1 mb-2 text-secondary" v-model="visibleProperties[prop]" :name="'check-button-' + prop"
-                                         @input="updatePropertyVisibility($event, prop)" button button-variant="outline-primary" size="sm" >
-                            {{ prop }}
-                            <font-awesome-icon :icon="visibleProperties[prop]? 'eye' : 'eye-slash'" fixed-width/>
-                        </b-form-checkbox>
-                    </template>
-                </div>
-            </b-row>
-            <b-row>
-                <template v-for="(chartData, index) in chartDataArray">
-                    <b-col v-if="visibleProperties[chartData.datasets[0].label]"
-                        class="px-2 mb-3" cols="12" lg="4" md="6">
-                        <b-card>
-                            <div class="p-d-flex p-jc-between">
-                                <div v-if="chartData.datasets[0].data.length === 1"
-                                     class="d-flex align-items-center justify-content-center">
-                                    <h5 class="p-m-0">{{chartData.datasets[0].label + ': ' + chartData.datasets[0].data[0].toFixed(2) + chartData.unit}}</h5>
-                                </div>
-                                <div v-else><h5 class="p-m-0">{{chartData.datasets[0].label}}</h5></div>
-                                <div class="d-inline-flex">
-                                    <b-button class="p-1" variant="link"
-                                              @click="$emit('click-lens', chartData.datasets[0].label)">
-                                        <font-awesome-icon icon="search" :style="{ color: '#6c757d' }" fixed-width/>
-                                    </b-button>
-                                    <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" right no-caret>
-                                        <template #button-content>
-                                            <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
-                                        </template>
-                                        <b-dropdown-item-button @click="$emit('click-optimize', chartData.datasets[0].label)">
-                                            <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
-                                            optimize
-                                        </b-dropdown-item-button>
-                                        <b-dropdown-item-button @click="$emit('del-config', index)">
-                                            <font-awesome-icon icon="chart-line" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
-                                            find the best
-                                        </b-dropdown-item-button>
-                                    </b-dropdown>
-                                </div>
-                            </div>
-                            <Chart type="horizontalBar" :data="chartData" :options="barChartsOptions(chartData)"/>
-                        </b-card>
-                    </b-col>
+    <b-container fluid>
+        <b-row class="justify-content-center">
+            <div class="mb-1">
+                <template v-for="prop in Object.keys(visibleProperties)">
+                    <b-form-checkbox class="mx-1 mb-2 text-secondary" v-model="visibleProperties[prop]" :name="'check-button-' + prop"
+                                     @input="updatePropertyVisibility($event, prop)" button button-variant="outline-primary" size="sm" >
+                        {{ prop }}
+                        <font-awesome-icon :icon="visibleProperties[prop]? 'eye' : 'eye-slash'" fixed-width/>
+                    </b-form-checkbox>
                 </template>
-            </b-row>
-            <b-row>
-                <b-col class="px-2 mb-3"
-                       cols="12" md="6">
-                    <b-card>
-                        <PropertyCard/>
-                    </b-card>
-                </b-col>
-                <b-col class="px-2 mb-3"
-                       cols="12" lg="6" md="6">
+            </div>
+        </b-row>
+        <b-row>
+            <template v-for="(chartData, index) in chartDataArray">
+                <b-col v-if="visibleProperties[chartData.datasets[0].label]"
+                    class="px-2 mb-3" cols="12" lg="4" md="6">
                     <b-card>
                         <div class="p-d-flex p-jc-between">
-                            <div><h5 class="p-m-0">normalized values</h5></div>
+                            <div v-if="chartData.datasets[0].data.length === 1"
+                                 class="d-flex align-items-center justify-content-center">
+                                <h5 class="p-m-0">{{chartData.datasets[0].label + ': ' + chartData.datasets[0].data[0].toFixed(2) + chartData.unit}}</h5>
+                            </div>
+                            <div v-else><h5 class="p-m-0">{{chartData.datasets[0].label}}</h5></div>
+                            <div class="d-inline-flex">
+                                <b-button class="p-1" variant="link"
+                                          @click="$emit('click-lens', chartData.datasets[0].label)">
+                                    <font-awesome-icon icon="search" :style="{ color: '#6c757d' }" fixed-width/>
+                                </b-button>
+                                <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" right no-caret>
+                                    <template #button-content>
+                                        <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
+                                    </template>
+                                    <b-dropdown-item-button @click="$emit('click-optimize', chartData.datasets[0].label)">
+                                        <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                                        optimize
+                                    </b-dropdown-item-button>
+                                    <b-dropdown-item-button @click="$emit('del-config', index)">
+                                        <font-awesome-icon icon="chart-line" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                                        find the best
+                                    </b-dropdown-item-button>
+                                </b-dropdown>
+                            </div>
                         </div>
-                        <Chart type="radar" :data="updateRadarData()" :options="radarOptions" />
+                        <Chart type="horizontalBar" :data="chartData" :options="barChartsOptions(chartData)"/>
                     </b-card>
                 </b-col>
-            </b-row>
-        </b-container>
-    </div>
+            </template>
+        </b-row>
+        <b-row>
+            <b-col class="px-2 mb-3"
+                   cols="12" md="6">
+                <PropertyCard/>
+            </b-col>
+            <b-col class="px-2 mb-3"
+                   cols="12" lg="6" md="6">
+                <b-card>
+                    <div class="p-d-flex p-jc-between">
+                        <div><h5 class="p-m-0">normalized values</h5></div>
+                    </div>
+                    <Chart type="radar" :data="updateRadarData()" :options="radarOptions" />
+                </b-card>
+            </b-col>
+        </b-row>
+    </b-container>
 </template>
 
 <script>
