@@ -22,6 +22,7 @@
                 @load-data="loadConfigs"
                 @duplicate-config="duplicateConfig"
                 @click-optimize="openOptimizationModal"
+                @click-near-optimum=""
             />
 
             <b-container class="p-0" fluid>
@@ -64,6 +65,7 @@
         </b-modal>
 
         <OptimizationModal
+            :global-optimization = "globalOptimization"
             :display-optimization-modal.sync="displayOptimizationModal"
             :selected-optimization-config-name.sync="selectedOptimizationConfigName"
             :selected-optimization-prop-name.sync="selectedOptimizationPropName"
@@ -130,6 +132,7 @@ export default {
             optimizedConfigFound: false,
             searchedForOptimizedConfig: false,
             selectedInfluenceViewProp: "",
+            globalOptimization: false,
 
             // chart data
             chartDataArray: [],
@@ -412,7 +415,9 @@ export default {
             this.displayModal = false;
         },
 
-        openOptimizationModal(configName = "", optimizationPropName = "") {
+        openOptimizationModal(configName = "", optimizationPropName = "", global = false) {
+            this.globalOptimization = global;
+
             if (this.configurations.length === 1) {
                 this.selectedOptimizationConfigName = this.configurations[0].name;
             } else {

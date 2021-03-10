@@ -21,6 +21,9 @@
                                 <b-dropdown-item-button @click="$emit('click-optimize')">
                                     <font-awesome-icon icon="compass" class="mr-1 text-secondary" fixed-width/>Optimize
                                 </b-dropdown-item-button>
+                                <b-dropdown-item-button @click="$emit('click-near-optimum')">
+                                    <font-awesome-icon icon="chart-line" class="mr-1 text-secondary" fixed-width/>Find Near-Optimum
+                                </b-dropdown-item-button>
                             </b-dropdown>
                         </div>
                         <div class="p-mr-2">
