@@ -1,108 +1,107 @@
 <template>
-    <b-container fluid>
-        <div class="mb-3 d-flex justify-content-between">
-            <div><h5 class="m-0">absolute values</h5></div>
-        </div>
-        <br>
-        <b-col>
-            <template>
-                <div class="d-flex justify-content-between">
-                <b-table
-                    :items="generatedConfigItems"
-                    :fields="generateFields"
-                    :no-border-collapse="noCollapse"
-                    responsive
-                >
-                </b-table>
-                </div>
-            </template>
-        </b-col>
-        <hr>
-        <div class="mb-3 d-flex justify-content-between">
-            <div><h5 class="m-0">absolute differences</h5></div>
-        </div>
-        <b-row class="mb-2">
-            <b-col>
-                <div>
-                    <b-input-group>
-                        <b-form-select v-model="selectedConfigA" :options="generatedConfigItems.map(item => item.config)">
-                            <template #first>
-                                <b-form-select-option value="" disabled>-- Please select first configuration --</b-form-select-option>
-                            </template>
-                        </b-form-select>
-                        <div class="d-flex align-items-center">
-                            <font-awesome-icon class="mx-1 text-secondary" icon="minus"  fixed-width/>
-                        </div>
-                        <b-form-select v-model="selectedConfigB" :options="generatedConfigItems.map(item => item.config)">
-                            <template #first>
-                                <b-form-select-option value="" disabled>-- Please select second configuration --</b-form-select-option>
-                            </template>
-                        </b-form-select>
-                    </b-input-group>
-                </div>
-            </b-col>
-        </b-row>
-        <b-row class="px-3" style="max-height: 24rem; overflow-y: auto">
-            <template v-if="differenceArray !== []" v-for="(item) in differenceArray">
-                <template v-if="item.propName === 'output' || item.propName === 'Geschwindigkeit'">
-                    <b-col class="px-1 py-1" xl="4" lg="6" md="12">
-                        <div v-if="item.valueDiff > 0">
-                            <b-card class="text-center" bg-variant="success" text-variant="white">
-                                <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
-                                <template #footer>
-                                    <h6>{{ item.propName }}</h6>
+    <b-card>
+        <b-container class="p-0" fluid>
+            <div class="mb-3 d-flex justify-content-between">
+                <div><h5 class="m-0">absolute values</h5></div>
+            </div>
+            <b-row>
+                <b-col class="overflow-hidden">
+                    <b-table
+                        responsive
+                        :items="generatedConfigItems"
+                        :fields="generateFields"
+                        :no-border-collapse="noCollapse"
+                    >
+                    </b-table>
+                </b-col>
+            </b-row>
+            <hr>
+            <div class="mb-3 d-flex justify-content-between">
+                <div><h5 class="m-0">absolute differences</h5></div>
+            </div>
+            <b-row class="mb-2">
+                <b-col>
+                    <div>
+                        <b-input-group>
+                            <b-form-select v-model="selectedConfigA" :options="generatedConfigItems.map(item => item.config)">
+                                <template #first>
+                                    <b-form-select-option value="" disabled>-- Please select first configuration --</b-form-select-option>
                                 </template>
-                            </b-card>
-                        </div>
-                        <div v-else-if ="item.valueDiff < 0">
-                            <b-card class="text-center" bg-variant="warning" text-variant="white">
-                                <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
-                                <template #footer>
-                                    <h6>{{ item.propName }}</h6>
+                            </b-form-select>
+                            <div class="d-flex align-items-center">
+                                <font-awesome-icon class="mx-1 text-secondary" icon="minus"  fixed-width/>
+                            </div>
+                            <b-form-select v-model="selectedConfigB" :options="generatedConfigItems.map(item => item.config)">
+                                <template #first>
+                                    <b-form-select-option value="" disabled>-- Please select second configuration --</b-form-select-option>
                                 </template>
-                            </b-card>
-                        </div>
-                        <div v-else>
-                            <b-card class="text-center" bg-variant="secondary" text-variant="white">
-                                <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
-                                <template #footer>
-                                    <h6>{{ item.propName }}</h6>
-                                </template>
-                            </b-card>
-                        </div>
-                    </b-col>
+                            </b-form-select>
+                        </b-input-group>
+                    </div>
+                </b-col>
+            </b-row>
+            <b-row class="px-3" style="max-height: 24rem; overflow-y: auto">
+                <template v-if="differenceArray !== []" v-for="(item) in differenceArray">
+                    <template v-if="item.propName === 'output' || item.propName === 'Geschwindigkeit'">
+                        <b-col class="px-1 py-1" xl="4" lg="6" md="12">
+                            <div v-if="item.valueDiff > 0">
+                                <b-card class="text-center" bg-variant="success" text-variant="white">
+                                    <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
+                                    <template #footer>
+                                        <h6>{{ item.propName }}</h6>
+                                    </template>
+                                </b-card>
+                            </div>
+                            <div v-else-if ="item.valueDiff < 0">
+                                <b-card class="text-center" bg-variant="warning" text-variant="white">
+                                    <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
+                                    <template #footer>
+                                        <h6>{{ item.propName }}</h6>
+                                    </template>
+                                </b-card>
+                            </div>
+                            <div v-else>
+                                <b-card class="text-center" bg-variant="secondary" text-variant="white">
+                                    <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
+                                    <template #footer>
+                                        <h6>{{ item.propName }}</h6>
+                                    </template>
+                                </b-card>
+                            </div>
+                        </b-col>
+                    </template>
+                    <template v-else>
+                        <b-col class="px-1 py-1" xl="4" lg="6" md="12">
+                            <div v-if="item.valueDiff > 0">
+                                <b-card class="text-center" bg-variant="warning" text-variant="white">
+                                    <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
+                                    <template #footer>
+                                        <h6>{{ item.propName }}</h6>
+                                    </template>
+                                </b-card>
+                            </div>
+                            <div v-else-if="item.valueDiff < 0">
+                                <b-card class="text-center" bg-variant="success" text-variant="white">
+                                    <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
+                                    <template #footer>
+                                        <h6>{{ item.propName }}</h6>
+                                    </template>
+                                </b-card>
+                            </div>
+                            <div v-else>
+                                <b-card class="text-center" bg-variant="secondary" text-variant="white">
+                                    <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
+                                    <template #footer>
+                                        <h6>{{ item.propName }}</h6>
+                                    </template>
+                                </b-card>
+                            </div>
+                        </b-col>
+                    </template>
                 </template>
-                <template v-else>
-                    <b-col class="px-1 py-1" xl="4" lg="6" md="12">
-                        <div v-if="item.valueDiff > 0">
-                            <b-card class="text-center" bg-variant="warning" text-variant="white">
-                                <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
-                                <template #footer>
-                                    <h6>{{ item.propName }}</h6>
-                                </template>
-                            </b-card>
-                        </div>
-                        <div v-else-if="item.valueDiff < 0">
-                            <b-card class="text-center" bg-variant="success" text-variant="white">
-                                <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
-                                <template #footer>
-                                    <h6>{{ item.propName }}</h6>
-                                </template>
-                            </b-card>
-                        </div>
-                        <div v-else>
-                            <b-card class="text-center" bg-variant="secondary" text-variant="white">
-                                <b-card-text>{{ item.valueDiff + item.unit }}</b-card-text>
-                                <template #footer>
-                                    <h6>{{ item.propName }}</h6>
-                                </template>
-                            </b-card>
-                        </div>
-                    </b-col>
-                </template>
-            </template>
-        </b-row>
-    </b-container>
+            </b-row>
+        </b-container>
+    </b-card>
 </template>
 
 <script>
