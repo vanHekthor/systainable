@@ -3,7 +3,7 @@
              @ok="$emit('ok')" @hide="$emit('hide')">
         <template #default>
             <b-container>
-                <b-row class="mb-2 align-items-center">
+                <b-row v-if="!globalOptimization" class="mb-2 align-items-center">
                     <b-col cols="4">Configuration:</b-col>
                     <b-col>
                         <b-form-select :value="selectedOptimizationConfigName" @change="onChangeConfig" :options="configNames">
@@ -20,15 +20,16 @@
                             <template #first>
                                 <b-form-select-option value="" disabled>-- Please select a property --</b-form-select-option>
                             </template>
-                        </b-form-select></b-col>
+                        </b-form-select>
+                    </b-col>
                 </b-row>
-                <b-row class="mb-2 align-items-center">
+                <b-row v-if="!globalOptimization" class="mb-2 align-items-center">
                     <b-col cols="4">max. Difference:</b-col>
                     <b-col>
                         <b-form-spinbutton v-model="optimizationDistance" min="1" :max="maxOptimizationDistance"></b-form-spinbutton>
                     </b-col>
                 </b-row>
-                <b-row class="mb-2 px-3 justify-content-center">
+                <b-row v-if="!globalOptimization" class="mb-2 px-3 justify-content-center">
                     <b-button class="w-100" variant="primary" :disabled="disableSearch"
                               @click="$emit('search-optimized-config', $event, selectedOptimizationConfigName, selectedOptimizationPropName, optimizationDistance)">
                         search
@@ -90,6 +91,11 @@ export default {
     },
 
     props: {
+        globalOptimization: {
+            type: Boolean,
+            required: true,
+            default: false,
+        },
         displayOptimizationModal: {
             type: Boolean,
             required: true,
