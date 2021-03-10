@@ -41,6 +41,8 @@ import { BDropdown } from 'bootstrap-vue';
 import { BDropdownItemButton } from 'bootstrap-vue';
 import { BFormGroup } from 'bootstrap-vue';
 
+import titleMixin from './mixins/titleMixin';
+
 /* tslint:disable */
 
 // jhipster-needle-add-entity-service-to-main-import - JHipster will import entities services here
@@ -63,6 +65,8 @@ Vue.component('b-list-group-item', BListGroupItem);
 Vue.component('b-dropdown', BDropdown);
 Vue.component('b-dropdown-item-button', BDropdownItemButton);
 Vue.component('b-form-group', BFormGroup);
+
+Vue.mixin(titleMixin);
 
 // Note: Vue automatically prefixes the directive name with 'v-'
 Vue.directive('b-toggle', VBToggle);
