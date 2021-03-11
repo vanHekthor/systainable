@@ -29,10 +29,10 @@ export default {
     addConfig(config, configName = null) {
       if (configName == null) {
         configName = 'config';
-        config.name = configName + this.configurations.length.toString();
+        configName = configName + this.configurations.length.toString();
       }
 
-      config.name = this.findUniqueName(config.name);
+      config.name = this.findUniqueName(configName);
 
       this.addConfigToStore(config);
     },

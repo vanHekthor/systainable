@@ -35,9 +35,9 @@
                                         <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
                                         optimize
                                     </b-dropdown-item-button>
-                                    <b-dropdown-item-button @click="$emit('click-near-optimum', chartData.datasets[0].label)">
+                                    <b-dropdown-item-button @click="$emit('click-near-optimum', '', chartData.datasets[0].label, true)">
                                         <font-awesome-icon icon="chart-line" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
-                                        find the near-optimum
+                                        near-optimum
                                     </b-dropdown-item-button>
                                 </b-dropdown>
                             </div>

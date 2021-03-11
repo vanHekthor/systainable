@@ -1,5 +1,5 @@
 <template>
-    <b-modal id="optiModal" :visible="displayOptimizationModal" @change="onChange" title="Optimization Search" size="lg" centered
+    <b-modal id="optiModal" :visible="displayOptimizationModal" @change="onChange" :title="globalOptimization ? 'Find Near-Optimal Configuration' : 'Optimization Search'" size="lg" centered
              @ok="$emit('ok')" @hide="$emit('hide')">
         <template #default>
             <b-container>
@@ -173,6 +173,9 @@ export default {
         },
         onChangeProp(propName) {
             this.$emit('update:selectedOptimizationPropName', propName);
+            if (this.globalOptimization) {
+                this.$emit('change-global-prop', propName);
+            }
         }
     }
 

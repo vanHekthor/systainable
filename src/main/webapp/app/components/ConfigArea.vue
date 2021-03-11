@@ -21,8 +21,8 @@
                                 <b-dropdown-item-button @click="$emit('click-optimize')">
                                     <font-awesome-icon icon="compass" class="mr-1 text-secondary" fixed-width/>Optimize
                                 </b-dropdown-item-button>
-                                <b-dropdown-item-button @click="$emit('click-near-optimum')">
-                                    <font-awesome-icon icon="chart-line" class="mr-1 text-secondary" fixed-width/>Find Near-Optimum
+                                <b-dropdown-item-button @click="$emit('click-near-optimum', '', '', true)">
+                                    <font-awesome-icon icon="chart-line" class="mr-1 text-secondary" fixed-width/>Near-Optimum
                                 </b-dropdown-item-button>
                             </b-dropdown>
                         </div>
@@ -179,7 +179,7 @@
                     </Column>
                 </DataTable>
                 <div class="panel-footer d-flex justify-content-center">
-                    <b-button :disabled="configurations.length < 1 ? true : false" variant="primary"
+                    <b-button :disabled="configurations.length < 1" variant="primary"
                               @click="$emit('submit-configs')">
                         Submit
                     </b-button>

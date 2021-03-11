@@ -22,7 +22,7 @@
                 @load-data="loadConfigs"
                 @duplicate-config="duplicateConfig"
                 @click-optimize="startConfigOptimization"
-                @click-near-optimum=""
+                @click-near-optimum="startConfigOptimization"
             />
 
             <b-container class="p-0" fluid>
@@ -42,7 +42,7 @@
                 :chartDataArray="chartDataArray"
                 :radarData="radarData"
                 @click-optimize="startConfigOptimization"
-                @click-near-optimum="requestNearOptimalConfig"
+                @click-near-optimum="startConfigOptimization"
                 @click-lens="toggleInfluenceArea"
             />
         </b-container>
@@ -79,6 +79,7 @@
             :unoptimized-config="selectedUnoptimizedConfig"
             :property-attributes="systemProperties"
             @search-optimized-config="searchOptimizedConfig"
+            @change-global-prop="searchNearOptimalConfig"
             @ok="acceptOptimizedConfig"
             @hide="closeOptimizationModal">
         </OptimizationModal>
@@ -113,7 +114,6 @@ export default {
     },
     data() {
         return {
-            globalOptimization: false,
             // chart data
             chartDataArray: [],
             radarData: {},
@@ -177,20 +177,16 @@ export default {
             }
         },
 
-        requestNearOptimalConfig: async function(propName) {
-            let config =  await requestHandler.getNearOptimalConfig(this.selectedSoftSystem, propName);
-            this.addConfig(config, propName + '[opti]');
-
-            return config;
-        },
-
-        startConfigOptimization(configName = "", optimizationProbName = "", global = false) {
-            this.globalOptimization = global;
-
+        startConfigOptimization: async function(configName = "", optimizationProbName = "", global = false) {
             if (this.configurations.length === 1) {
                 configName = this.configurations[0].name;
             }
-            this.openOptimizationModal(configName, optimizationProbName);
+
+            this.openOptimizationModal(configName, optimizationProbName, global);
+
+            if (global && optimizationProbName !== "") {
+                await this.searchNearOptimalConfig(optimizationProbName);
+            }
         },
 
         searchOptimizedConfig: async function(optiModalEvent, configName, propName, maxDifference) {
@@ -206,6 +202,10 @@ export default {
                 this.updateOptimizationStatus(optimizedConfig, unoptimizedConfig);
             }
         },
+
+        searchNearOptimalConfig: async function(propName) {
+            this.updateOptimizationStatus(await this.requestNearOptimalConfig(propName));
+        }
     }
 
 }
