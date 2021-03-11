@@ -13,7 +13,8 @@ export default {
       displayOptimizationModal: false,
       selectedOptimizationConfigName: '',
       selectedOptimizationPropName: '',
-      selectedUnoptimizedConfig: {},
+      globalOptimization: false,
+      selectedUnoptimizedConfig: null,
       optimizedConfigFound: false,
       searchedForOptimizedConfig: false,
       selectedInfluenceViewProp: '',
@@ -65,7 +66,7 @@ export default {
       this.showInfluences = !this.showInfluences;
     },
 
-    updateOptimizationStatus(optimizedConfig, unoptimizedConfig) {
+    updateOptimizationStatus(optimizedConfig, unoptimizedConfig = null) {
       if (optimizedConfig === '') {
         this.optimizedConfigFound = false;
         this.searchedForOptimizedConfig = true;
@@ -73,7 +74,11 @@ export default {
         this.optimizedConfigFound = true;
         this.searchedForOptimizedConfig = true;
 
-        optimizedConfig.name = unoptimizedConfig.name + '[+]';
+        if (!this.globalOptimization) {
+          optimizedConfig.name = unoptimizedConfig.name + '[+]';
+        } else {
+          optimizedConfig.name = this.selectedOptimizationPropName + '[opti]';
+        }
         this.optiConfig = optimizedConfig;
         this.selectedUnoptimizedConfig = unoptimizedConfig;
       }
@@ -86,14 +91,12 @@ export default {
     },
 
     acceptOptimizedConfig() {
-      this.optimizedConfigFound = false;
-      this.searchedForOptimizedConfig = false;
-
       this.$nextTick(() => {
         this.$bvModal.hide('optiModal');
       });
 
       this.addConfig(this.optiConfig, this.optiConfig.name);
+      this.closeOptimizationModal();
     },
 
     closeModalAcceptAlternative() {
@@ -106,9 +109,10 @@ export default {
       this.displayModal = false;
     },
 
-    openOptimizationModal(configName = '', optimizationPropName = '') {
+    openOptimizationModal(configName = '', optimizationPropName = '', global = false) {
       this.selectedOptimizationConfigName = configName;
       this.selectedOptimizationPropName = optimizationPropName;
+      this.globalOptimization = global;
       this.displayOptimizationModal = true;
     },
 
@@ -116,6 +120,7 @@ export default {
       this.optimizedConfigFound = false;
       this.searchedForOptimizedConfig = false;
       this.displayOptimizationModal = false;
+      this.selectedUnoptimizedConfig = null;
     },
   },
 };

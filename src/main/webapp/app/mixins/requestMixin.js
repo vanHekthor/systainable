@@ -74,5 +74,10 @@ export default {
 
       return optiConfig;
     },
+
+    requestNearOptimalConfig: async function (propName) {
+      // this.addConfig(config, propName + '[opti]');
+      return await requestHandler.getNearOptimalConfig(this.selectedSoftSystem, propName);
+    },
   },
 };
