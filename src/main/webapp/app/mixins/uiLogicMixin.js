@@ -39,14 +39,15 @@ export default {
       this.softSystemLoaded = true;
       this.chartsDrawn = false;
       this.showInfluences = false;
+      this.previousSelection = this.selectedSoftSystem;
+    },
 
+    resetPropertyVisibility() {
       const visibleProperties = {};
       Object.keys(this.systemProperties).forEach(key => {
         visibleProperties[key] = true;
       });
       this.visibleProperties = visibleProperties;
-
-      this.previousSelection = this.selectedSoftSystem;
     },
 
     softSystemHasChanged() {
