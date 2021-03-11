@@ -133,9 +133,9 @@ export default {
     methods: {
         loadSoftSystem: async function(event) {
             if (this.softSystemHasChanged()) {
-                this.requestSystemAttributes(event).then(
-                    this.resetUI
-                );
+                this.resetUI();
+                await this.requestSystemAttributes(event);
+                this.resetPropertyVisibility();
                 this.deleteAllConfigs();
                 await this.addInitialConfig();
             }
