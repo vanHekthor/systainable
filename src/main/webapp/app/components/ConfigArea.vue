@@ -33,7 +33,7 @@
                             </ExportButton>
                         </div>
                     </div>
-                    <div class="p-ml-auto"><SelectButton v-model="selectedViewOption" :options="options"/></div>
+                    <div class="p-ml-auto p-mt-2"><SelectButton v-model="selectedViewOption" :options="options"/></div>
                 </div>
             </template>
             <b-collapse id="collapse-configs" v-model="visible">
