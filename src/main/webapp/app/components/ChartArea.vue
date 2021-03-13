@@ -23,7 +23,7 @@
                             </div>
                             <div v-else><h5 class="p-m-0">{{chartData.datasets[0].label}}</h5></div>
                             <div class="d-inline-flex">
-                                <b-button class="p-1" variant="link"
+                                <b-button v-b-popover.hover.left="'show details'" class="p-1" variant="link"
                                           @click="$emit('click-lens', chartData.datasets[0].label)">
                                     <font-awesome-icon icon="search" :style="{ color: '#6c757d' }" fixed-width/>
                                 </b-button>
