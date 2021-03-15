@@ -167,18 +167,20 @@ public class FeatureSystem {
         evaluateFeatureConfiguration(configToOptimize);
 
         // get local config(s) as feature map
-        Set<Map<String, Boolean>> localConfigMaps = this.featureModel.getNearModels(configToOptimize, maxDifference);
+        Set<Map<String, Boolean>> localConfigMapsBinary = this.featureModel.getNearModelsBinary(configToOptimize,
+                                                                                                maxDifference);
+        Map<String, Integer> localConfigMapNumeric = getNearModelNumeric(configToOptimize, maxDifference, propertyName);
 
         // create FeatureConfiguration(s) from feature map
-        Set<FeatureConfiguration> localConfigs = localConfigMaps.parallelStream()
+        Set<FeatureConfiguration> localConfigs = localConfigMapsBinary.stream()
                 .map(binaryFeatureMap -> new FeatureConfiguration(this.name,
                                                                   binaryFeatureMap,
-                                                                  configToOptimize.getNumericFeatures(),
+                                                                  localConfigMapNumeric,
                                                                   performanceModel.getInitialPropertyMap()))
                 .collect(Collectors.toSet());
 
         // evaluate FeatureConfiguration(s) and set values
-        localConfigs.parallelStream().forEach(this::evaluateFeatureConfiguration);
+        localConfigs.forEach(this::evaluateFeatureConfiguration);
 
         // find best-in-property
         Boolean isToMinimize = this.performanceModel.propertyIsToMinimize(propertyName);
@@ -188,6 +190,7 @@ public class FeatureSystem {
                 localOptimum = config;
             }
         }
+
         if (configToOptimize.equals(localOptimum)) {
             throw SystemExceptions.IS_ALREADY_OPTIMUM;
         }
@@ -256,16 +259,10 @@ public class FeatureSystem {
 
     private Map<String, Integer> calculateGlobalOptimum(Property property) {
         Map<String, Integer> map = new HashMap<>();
-        FeatureConfiguration conf = this.getMinimalConfiguration();
-        for (Feature numericFeature :
-                this.getFeatures().stream().filter(feature -> !feature.isBinary()).collect(Collectors.toSet())) {
-            conf.getNumericFeatures().put(numericFeature.getName(), numericFeature.getMinValue());
-            double valueForMin = this.performanceModel.evaluateConfiguration(conf).get(property);
-            conf.getNumericFeatures().put(numericFeature.getName(), numericFeature.getMaxValue());
-            double valueForMax = this.performanceModel.evaluateConfiguration(conf).get(property);
-            boolean minIsBetter = (valueForMin < valueForMax) == property.isToMinimize();
+        for (Feature numericFeature : getNumericFeatures()) {
             map.put(numericFeature.getName(),
-                    minIsBetter ? numericFeature.getMinValue() : numericFeature.getMaxValue());
+                    numericFeatureIsToMinimize(numericFeature, property) ? numericFeature.getMinValue() :
+                    numericFeature.getMaxValue());
         }
         return map;
     }
@@ -287,7 +284,7 @@ public class FeatureSystem {
 
         // increase maximum difference between configurations until alternative is found
         for (int maxDiff = 0; maxDiff < this.featureModel.getFeatures().size(); maxDiff++) {
-            Set<Map<String, Boolean>> nearModels = this.featureModel.getNearModels(featureConfiguration, maxDiff);
+            Set<Map<String, Boolean>> nearModels = this.featureModel.getNearModelsBinary(featureConfiguration, maxDiff);
             if (!nearModels.isEmpty()) {
                 Map<String, Boolean> biFeatureMap = nearModels.iterator().next();
                 alternative = new FeatureConfiguration(this.name, biFeatureMap,
@@ -326,6 +323,117 @@ public class FeatureSystem {
             return valueOther < valueOpt;
         } else {
             return valueOther > valueOpt;
+        }
+    }
+
+    private Set<Feature> getNumericFeatures() {
+        return this.getFeatures().stream().filter(feature -> !feature.isBinary()).collect(Collectors.toSet());
+    }
+
+    /**
+     * Checks, if numeric {@link Feature} values for a given {@link Property} should be minimized or maximized.
+     *
+     * @param numericFeature Numeric {@link Feature} that should be checked
+     * @param property       Relevant {@link Property} in optimization
+     *
+     * @return Returns true, if smaller values are better, else false
+     */
+    private boolean numericFeatureIsToMinimize(Feature numericFeature, Property property) {
+        FeatureConfiguration conf = this.getMinimalConfiguration();
+        conf.getNumericFeatures().put(numericFeature.getName(), numericFeature.getMinValue());
+        double valueForMin = this.performanceModel.evaluateConfiguration(conf).get(property);
+        conf.getNumericFeatures().put(numericFeature.getName(), numericFeature.getMaxValue());
+        double valueForMax = this.performanceModel.evaluateConfiguration(conf).get(property);
+        return (valueForMin < valueForMax) == property.isToMinimize();
+    }
+
+    /**
+     * Validates values of numeric features in given {@link FeatureConfiguration} and calculates best possible
+     * configuration by going a maximum of maxDiff steps in any direction on step function of {@link Feature}.
+     *
+     * @param featureConfiguration {@link FeatureConfiguration} that needs optimization
+     * @param maxDiff              Maximum possible steps on step function
+     * @param propertyName         Property, which should get optimized
+     *
+     * @return Map with optimized values for every numeric feature
+     */
+    private Map<String, Integer> getNearModelNumeric(FeatureConfiguration featureConfiguration, int maxDiff,
+                                                     String propertyName) {
+
+        @SuppressWarnings("unchecked")
+        Set<Feature> numericFeatures = new HashSet(this.getNumericFeatures());
+        Set<String> numericFeatureNames = numericFeatures.stream().map(Feature::getName).collect(
+                Collectors.toSet());
+        Map<String, Integer> numericMapInConfig = featureConfiguration.getNumericFeatures();
+
+        if (!numericFeatureNames.containsAll(numericMapInConfig.keySet()) ||
+            !numericMapInConfig.keySet().containsAll(numericFeatureNames))
+            throw ModelExceptions.NUMERIC_FEATURES_IN_CONFIG_DONT_MATCH_MODEL;
+
+        Map<String, Feature> nameToFeature = new HashMap<>();
+        numericFeatures.forEach(feature -> nameToFeature.put(feature.getName(), feature));
+
+        Map<String, ArrayList<Integer>> nameToValidValues = new HashMap<>();
+        numericFeatureNames.forEach(name -> {
+            nameToValidValues.put(name, calculateFeatureValues(nameToFeature.get(name)));
+            ArrayList<Integer> validValues = nameToValidValues.get(name);
+            int valueInConfig = numericMapInConfig.get(name);
+            if (!validValues.contains(valueInConfig))
+                throw ModelExceptions.NUMERIC_VALUE_IN_CONFIG_INVALID;
+        });
+
+        Map<String, Integer> optimizedNumericMap = new HashMap<>();
+        numericFeatures.forEach(feature -> {
+            ArrayList<Integer> values = nameToValidValues.get(feature.getName());
+            int currentIndex = values.indexOf(numericMapInConfig.get(feature.getName()));
+
+            if (numericFeatureIsToMinimize(feature, performanceModel.getPropertyByName(propertyName))) {
+                if (currentIndex - maxDiff < 0)
+                    optimizedNumericMap.put(feature.getName(), values.get(0));
+                else
+                    optimizedNumericMap.put(feature.getName(), values.get(currentIndex - maxDiff));
+            } else {
+                if (currentIndex + maxDiff >= values.size())
+                    optimizedNumericMap.put(feature.getName(), values.get((values.size()) - 1));
+                else
+                    optimizedNumericMap.put(feature.getName(), values.get(currentIndex + maxDiff));
+            }
+        });
+
+        return optimizedNumericMap;
+    }
+
+    /**
+     * Calculates all possible Values of step function of {@link Feature}.
+     *
+     * @param feature Feature, the values should be calculated for
+     *
+     * @return ArrayList containing Integer values
+     */
+    private ArrayList<Integer> calculateFeatureValues(Feature feature) {
+        ArrayList<Integer> values = new ArrayList<>();
+        int minValue = feature.getMinValue();
+        int maxValue = feature.getMaxValue();
+
+        values.add(minValue);
+
+        if (minValue == maxValue)
+            return values;
+
+        int currentValue = minValue;
+        while (true) {
+            try {
+                int newValue = feature.getNextValidValue(currentValue);
+                if (currentValue == newValue)
+                    return values;
+                values.add(newValue);
+                currentValue = newValue;
+            } catch (IllegalArgumentException e) {
+                return values;
+            } catch (UnsupportedOperationException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 }

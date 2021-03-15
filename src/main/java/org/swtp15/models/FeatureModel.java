@@ -292,7 +292,7 @@ public class FeatureModel {
      *
      * @throws InterruptedException If the thread calculating was interrupted before it could finish gracefully
      */
-    public Set<Map<String, Boolean>> getNearModels(FeatureConfiguration featureConfiguration, int maxDiff)
+    public Set<Map<String, Boolean>> getNearModelsBinary(FeatureConfiguration featureConfiguration, int maxDiff)
     throws InterruptedException {
         Set<Integer> configAsIntegerSet = convertConfigToIntegerSet(featureConfiguration);
 

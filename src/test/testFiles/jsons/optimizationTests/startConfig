@@ -10,8 +10,8 @@
             "feature6": false,
             "feature7": true,
             "feature8": true,
-            "numFeature1": 0,
-            "numFeature2": 0,
+            "numFeature1": 1,
+            "numFeature2": 1,
             "numFeature3": 3
         },
         "properties": {

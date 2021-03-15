@@ -140,7 +140,7 @@
             <excludedOptions/>
             <minValue>1</minValue>
             <maxValue>3</maxValue>
-            <stepFunction>numFeature1 * 1</stepFunction>
+            <stepFunction>numFeature1 + 1</stepFunction>
         </configurationOption>
         <configurationOption>
             <name>numFeature2</name>

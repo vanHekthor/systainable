@@ -15,4 +15,9 @@ public class ModelExceptions {
             "The given Feature is not a numeric one");
     public static final IllegalStateException MODEL_HAS_NO_VALID_CONFIGURATIONS
             = new IllegalStateException("This Model has no valid Configurations");
+    public static final IllegalArgumentException NUMERIC_FEATURES_IN_CONFIG_DONT_MATCH_MODEL
+            = new IllegalArgumentException("The numeric features in the configuration don't match the features in " +
+                                           "the model.");
+    public static final IllegalArgumentException NUMERIC_VALUE_IN_CONFIG_INVALID
+            = new IllegalArgumentException("The numeric value in the configuration is invalid.");
 }
