@@ -10,9 +10,9 @@
             "feature6": false,
             "feature7": false,
             "feature8": false,
-            "numFeature1": 0,
-            "numFeature2": 0,
-            "numFeature3": 3
+            "numFeature1": 1,
+            "numFeature2": 1,
+            "numFeature3": 1
         },
         "properties": {
             "time": 0.0,

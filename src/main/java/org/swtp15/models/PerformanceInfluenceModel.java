@@ -135,7 +135,7 @@ public class PerformanceInfluenceModel {
      *
      * @return {@link Property} or NULL if no corresponding property exists
      */
-    private Property getPropertyByName(String propertyName) {
+    public Property getPropertyByName(String propertyName) {
         return properties.parallelStream()
                 .filter(property -> propertyName.equals(property.getName())).findFirst().orElse(null);
     }
