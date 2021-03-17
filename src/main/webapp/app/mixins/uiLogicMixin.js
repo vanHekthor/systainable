@@ -46,13 +46,14 @@ export default {
 
   methods: {
     resetUI() {
-      this.softSystemLoaded = true;
+      this.softSystemLoaded = false;
       this.chartsDrawn = false;
       this.showInfluences = false;
       this.previousSelection = this.selectedSoftSystem;
     },
 
-    resetPropertyVisibility() {
+    setupUI() {
+      this.softSystemLoaded = true;
       const visibleProperties = {};
       Object.keys(this.systemProperties).forEach(key => {
         visibleProperties[key] = true;
