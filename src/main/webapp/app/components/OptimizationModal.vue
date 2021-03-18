@@ -6,7 +6,7 @@
                 <b-row v-if="!globalOptimization" class="mb-2 align-items-center">
                     <b-col cols="4">Configuration:</b-col>
                     <b-col>
-                        <b-form-select :value="selectedOptimizationConfigName" @change="onChangeConfig" :options="configNames">
+                        <b-form-select :value="selectedUnoptimizedConfigName" @change="onChangeConfig" :options="configNames">
                             <template #first>
                                 <b-form-select-option value="" disabled>-- Please select a configuration --</b-form-select-option>
                             </template>
@@ -26,12 +26,12 @@
                 <b-row v-if="!globalOptimization" class="mb-2 align-items-center">
                     <b-col cols="4">max. Difference:</b-col>
                     <b-col>
-                        <b-form-spinbutton v-model="optimizationDistance" min="1" :max="maxOptimizationDistance"></b-form-spinbutton>
+                        <b-form-spinbutton v-model="optimizationDistance" min="1" :max="maxOptimizationDistance" :disabled="spinButtonDisabled"></b-form-spinbutton>
                     </b-col>
                 </b-row>
                 <b-row v-if="!globalOptimization" class="mb-2 px-3 justify-content-center">
-                    <b-button class="w-100" variant="primary" :disabled="disableSearch"
-                              @click="$emit('search-optimized-config', $event, selectedOptimizationConfigName, selectedOptimizationPropName, optimizationDistance)">
+                    <b-button class="w-100" variant="primary" :disabled="searchDisabled"
+                              @click="$emit('search-optimized-config', $event, selectedUnoptimizedConfigName, selectedOptimizationPropName, optimizationDistance)">
                         search
                     </b-button>
                 </b-row>
@@ -101,7 +101,7 @@ export default {
             required: true,
             default: false,
         },
-        selectedOptimizationConfigName: {
+        selectedUnoptimizedConfigName: {
             type: String,
             required: true,
             default: "",
@@ -159,8 +159,19 @@ export default {
     },
 
     computed: {
-        disableSearch: function() {
-            return this.selectedOptimizationConfigName === "" || this.selectedOptimizationPropName === "" || this.optimizationDistance < 1;
+        searchDisabled: function() {
+            return this.selectedUnoptimizedConfigName === "" || this.selectedOptimizationPropName === "" || this.optimizationDistance < 1;
+        },
+        spinButtonDisabled: function() {
+            return (this.selectedUnoptimizedConfigName === "");
+        }
+    },
+
+    watch: {
+        maxOptimizationDistance(newValue, oldValue){
+            if (this.optimizationDistance > newValue) {
+                this.optimizationDistance = newValue;
+            }
         }
     },
 
@@ -169,7 +180,7 @@ export default {
             this.$emit('update:displayOptimizationModal', event.value);
         },
         onChangeConfig(configName) {
-            this.$emit('update:selectedOptimizationConfigName', configName);
+            this.$emit('update:selectedUnoptimizedConfigName', configName);
         },
         onChangeProp(propName) {
             this.$emit('update:selectedOptimizationPropName', propName);

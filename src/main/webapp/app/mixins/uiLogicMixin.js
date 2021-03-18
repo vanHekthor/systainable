@@ -11,10 +11,10 @@ export default {
       // UI logic data
       displayModal: false,
       displayOptimizationModal: false,
-      selectedOptimizationConfigName: '',
+      selectedUnoptimizedConfigName: '',
       selectedOptimizationPropName: '',
       globalOptimization: false,
-      selectedUnoptimizedConfig: null,
+      // selectedUnoptimizedConfig: null,
       optimizedConfigFound: false,
       searchedForOptimizedConfig: false,
       selectedInfluenceViewProp: '',
@@ -32,6 +32,16 @@ export default {
       'showInfluences',
       'visibleProperties',
     ]),
+
+    selectedUnoptimizedConfig() {
+      if (this.selectedUnoptimizedConfigName !== '') {
+        const selectedConfigIndex = this.findConfigIndex(this.selectedUnoptimizedConfigName);
+        this.searchedForOptimizedConfig = false;
+        return this.configurations[selectedConfigIndex];
+      } else {
+        return null;
+      }
+    },
   },
 
   methods: {
@@ -68,7 +78,7 @@ export default {
     },
 
     updateOptimizationStatus(optimizedConfig, unoptimizedConfig = null) {
-      if (optimizedConfig === '') {
+      if (optimizedConfig === '' || optimizedConfig == null) {
         this.optimizedConfigFound = false;
         this.searchedForOptimizedConfig = true;
       } else {
@@ -81,7 +91,7 @@ export default {
           optimizedConfig.name = this.selectedOptimizationPropName + '[opti]';
         }
         this.optiConfig = optimizedConfig;
-        this.selectedUnoptimizedConfig = unoptimizedConfig;
+        // this.selectedUnoptimizedConfig = unoptimizedConfig;
       }
     },
 
@@ -111,7 +121,7 @@ export default {
     },
 
     openOptimizationModal(configName = '', optimizationPropName = '', global = false) {
-      this.selectedOptimizationConfigName = configName;
+      this.selectedUnoptimizedConfigName = configName;
       this.selectedOptimizationPropName = optimizationPropName;
       this.globalOptimization = global;
       this.displayOptimizationModal = true;
@@ -121,7 +131,8 @@ export default {
       this.optimizedConfigFound = false;
       this.searchedForOptimizedConfig = false;
       this.displayOptimizationModal = false;
-      this.selectedUnoptimizedConfig = null;
+      this.selectedUnoptimizedConfigName = '';
+      // this.selectedUnoptimizedConfig = null;
     },
   },
 };
