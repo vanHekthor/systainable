@@ -2,10 +2,9 @@
     <div class="mb-3">
         <Panel v-if="softSystemLoaded">
             <template #header>
-                <div class="panel-header p-d-flex p-jc-between p-flex-wrap" style="width: 100%">
-                    <div class="p-d-flex p-ai-center p-flex-wrap">
-                        <Button class="p-button p-button-text p-button-sm p-button-plain" :icon="collapseButtonIcon" aria-controls="collapse-configs"
-                                @click="collapse"/>
+                <div class="panel-header d-flex justify-content-center flex-wrap" style="width: 100%">
+                    <div class="d-flex align-items-center flex-wrap">
+                        <b-button class="mr-1" variant="link" @click="collapse"><font-awesome-icon :icon="visible ? 'chevron-up' : 'chevron-down'" class="text-secondary"/></b-button>
                         <h5 class="p-mb-0 p-mr-2">Configurations</h5>
                         <div class="p-mr-2">
                             <b-dropdown v-if="softSystemLoaded"
@@ -41,7 +40,7 @@
                      class="panel-content p-d-flex"
                      style="overflow-x: auto;">
                     <div class="p-d-flex">
-                        <div v-for="(config, index) in configurations" :key="index"
+<!--                        <div v-for="(config, index) in configurations" :key="index"
                              class="config-card p-shadow-1"
                              style="width: 18rem">
                             <div class="config-card-header p-p-1">
@@ -55,7 +54,7 @@
                                             <font-awesome-icon icon="plus" :style="{ color: '#6c757d' }" fixed-width/>
                                         </b-button>
                                         <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" boundary="viewport" no-caret
-                                                    @toggle="untoggle()">
+                                                    @toggle="hideFeatureList()">
                                             <template #button-content>
                                                 <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
                                             </template>
@@ -114,7 +113,20 @@
                             </div>
                             <div class="config-card-footer p-d-flex p-jc-center">
                             </div>
-                        </div>
+                        </div>-->
+                        <template v-for="(config, index) in configurations">
+                            <ConfigCard
+                                :config="config"
+                                :system-features="systemFeatures"
+                                editable
+                                @duplicate-config="$emit('duplicate-config', index)"
+                                @del-config="$emit('del-config', index)"
+                                @click-optimize="$emit('click-optimize', config.name, '')"
+                                @update-config-name="$emit('update-config-name', index, $event)"
+                                @add-feature="$emit('update-feature', index, $event, true)"
+                                @remove-feature="$emit('update-feature', index, $event, false)"
+                            />
+                        </template>
                     </div>
                 </div>
                 <DataTable v-if="selectedViewOption==='extended'"
@@ -192,7 +204,7 @@
             </template>
             Please select a software system.
         </Panel>
-        <OverlayPanel class="no-shadow" ref="op" v-click-outside="untoggle">
+        <OverlayPanel class="no-shadow" ref="op" v-click-outside="hideFeatureList">
             <b-input-group size="sm">
                 <b-form-input
                     id="filter-input"
@@ -204,7 +216,8 @@
             </b-input-group>
             <b-table class="m-0"
                      borderless
-                     hover :items="unselectedFeatures"
+                     hover
+                     :items="unselectedFeatures"
                      thead-class="hidden-header"
                      :filter="featureFilter"
                      :filter-included-fields="featureFilterOn"
@@ -220,30 +233,32 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 import Panel from 'primevue/panel';
-import Button from 'primevue/button';
 import SelectButton from 'primevue/selectbutton';
-import Card from 'primevue/card';
 import ScrollPanel from 'primevue/scrollpanel';
 import OverlayPanel from 'primevue/overlaypanel';
+
+import ConfigCard from "./ConfigCard";
 import Chip from './Chip';
 import ExportButton from "./ExportButton";
 import ImportDropdownItem from "./ImportDropdownItem";
 import CustomSpinButton  from "./SpinButton";
 
+import configManagementMixin from "../mixins/configManagementMixin";
+
 import { mapFields, mapMultiRowFields } from "vuex-map-fields";
 
 export default {
     name: "ConfigArea",
+    mixins: [configManagementMixin],
     components: {
         DataTable,
         Column,
         InputText,
         Panel,
-        Button,
         SelectButton,
-        Card,
         ScrollPanel,
         OverlayPanel,
+        ConfigCard,
         Chip,
         ExportButton,
         ImportDropdownItem,
@@ -259,7 +274,6 @@ export default {
             selectedViewOption: 'simple',
             options: ['simple', 'extended'],
             renamedConfigString: '',
-            collapseButtonIcon: 'pi pi-chevron-up',
             visible: true,
             configIndex: 0,
             unselectedFeatures: [],
@@ -290,12 +304,6 @@ export default {
     methods: {
         collapse() {
             this.visible = !this.visible;
-            if (this.visible) {
-                this.collapseButtonIcon = 'pi pi-chevron-up';
-            } else {
-                this.collapseButtonIcon = 'pi pi-chevron-down';
-            }
-            console.log(this.configurations);
         },
         toggle(event, index) {
             this.configIndex = index;
@@ -307,7 +315,7 @@ export default {
             }
             this.$refs.op.toggle(event);
         },
-        untoggle() {
+        hideFeatureList() {
             this.featureFilter=null;
             this.$refs.op.hide();
         },
@@ -318,7 +326,7 @@ export default {
         },
         addFeatureToConfig(item) {
             this.$emit('update-feature', this.configIndex, item.feature, true);
-            this.untoggle();
+            this.hideFeatureList();
         },
         loadData(data) {
             this.$emit('load-data', data);
