@@ -8,7 +8,7 @@
                      {{label}}
                 </div>
             </span>
-            <span v-if="removable" tabindex="0" :class="removeIconClass"
+            <span v-if="removable" tabindex="-1" :class="removeIconClass"
                   @click="close" @keydown.enter="close"></span>
         </slot>
     </div>
@@ -47,7 +47,6 @@ export default {
 
     methods: {
         close(event) {
-            this.visible = false;
             this.$emit('remove', event);
         }
     },

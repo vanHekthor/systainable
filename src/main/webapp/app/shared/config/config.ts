@@ -40,6 +40,8 @@ import { faWrench } from '@fortawesome/free-solid-svg-icons/faWrench';
 // added
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
 import { faChartLine } from '@fortawesome/free-solid-svg-icons/faChartLine';
+import { faChevronUp } from '@fortawesome/free-solid-svg-icons/faChevronUp';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons/faChevronDown';
 import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
 import { faCompass } from '@fortawesome/free-solid-svg-icons/faCompass';
 import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
@@ -128,6 +130,8 @@ export function initFortAwesome(vue) {
     // added:
     faArrowRight,
     faChartLine,
+    faChevronDown,
+    faChevronUp,
     faCog,
     faCompass,
     faCopy,

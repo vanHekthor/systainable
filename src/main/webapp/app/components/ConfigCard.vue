@@ -2,8 +2,41 @@
     <div class="shadow-sm mr-0"
          style="width: 18rem;">
         <div class="config-card-header p-1">
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center justify-content-between">
                 <h6 class="my-0 ml-3">{{config.name}}</h6>
+                <div v-if="editable">
+                    <b-button class="p-1 no-outline" variant="link"
+                              @click.stop="toggleFeatureList($event)">
+                        <font-awesome-icon icon="plus" :style="{ color: '#6c757d' }" fixed-width/>
+                    </b-button>
+                    <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" boundary="viewport" no-caret
+                                @toggle="hideFeatureList">
+                        <template #button-content>
+                            <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
+                        </template>
+                        <b-dropdown-item-button @click="$emit('duplicate-config')">
+                            <font-awesome-icon icon="copy" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                            duplicate
+                        </b-dropdown-item-button>
+                        <b-dropdown-item-button v-b-modal="'modal-' + config.name" @click="renamedConfigString=config.name">
+                            <font-awesome-icon icon="edit" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                            rename
+                        </b-dropdown-item-button>
+                        <b-dropdown-item-button @click="$emit('del-config')">
+                            <font-awesome-icon icon="trash" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                            delete
+                        </b-dropdown-item-button>
+                        <b-dropdown-divider></b-dropdown-divider>
+                        <b-dropdown-item-button @click="$emit('click-optimize', config.name, '')">
+                            <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                            optimize
+                        </b-dropdown-item-button>
+                    </b-dropdown>
+                    <b-modal :id="'modal-' + config.name" centered :title="'Rename configuration: ' + config.name"
+                             @ok="$emit('update-config-name', renamedConfigString)">
+                        <b-form-input type="text" :value="config.name" v-model="renamedConfigString" maxlength="24"></b-form-input>
+                    </b-modal>
+                </div>
             </div>
         </div>
         <div class="config-card-content p-1"
@@ -11,13 +44,29 @@
             <div class="badges d-flex flex-wrap justify-content-center">
                 <div v-for="chip in chips">
                     <Chip v-if="chip.type === 'binary-default'"
-                          class="binary-chip m-1" :label="chip.featureName"/>
+                          class="binary-chip m-1" :label="chip.featureName" :removable="editable"
+                          @remove="$emit('remove-feature', chip.featureName)"/>
                     <Chip v-if="chip.type === 'removed'"
                           class="removed-chip m-1" :label="chip.featureName"/>
                     <Chip v-if="chip.type === 'added'"
                           class="added-chip m-1" :label="chip.featureName"/>
-                    <Chip v-if="chip.type === 'numeric-default'"
-                          class="numeric-chip m-1" :label="chip.featureName + ': ' + config[chip.featureName]"/>
+                    <template v-if="chip.type === 'numeric-default'">
+                        <Chip :id="`numeric-chip-${config.name}-${chip.featureName}`" class="numeric-chip m-1" :label="chip.featureName + ': ' + config[chip.featureName]"/>
+                        <b-popover
+                            :target="`numeric-chip-${config.name}-${chip.featureName}`"
+                            :title="chip.featureName"
+                            triggers="hover"
+                            boundary="viewport"
+                            placement="bottom">
+                            <CustomSpinButton
+                                :value="config[chip.featureName]"
+                                :value.sync="config[chip.featureName]"
+                                :step-function="systemFeatures.numericFeatures[chip.featureName].stepFunction"
+                                :min="systemFeatures.numericFeatures[chip.featureName].min"
+                                :max="systemFeatures.numericFeatures[chip.featureName].max"
+                            />
+                        </b-popover>
+                    </template>
                     <Chip v-if="chip.type === 'modified'"
                           class="modified-chip m-1" :label="chip.featureName + ': ' + config[chip.featureName]"/>
                 </div>
@@ -25,17 +74,43 @@
         </div>
         <div class="config-card-footer d-flex justify-content-center">
         </div>
+        <OverlayPanel class="no-shadow" ref="op" v-click-outside="hideFeatureList">
+            <b-input-group size="sm">
+                <b-form-input
+                    id="filter-input"
+                    v-model="featureFilter"
+                    type="search"
+                    placeholder="Type to Search"
+                    class="mx-2 mb-2"
+                ></b-form-input>
+            </b-input-group>
+            <b-table class="m-0"
+                     borderless
+                     hover
+                     :items="unselectedFeatures"
+                     thead-class="hidden-header"
+                     :filter="featureFilter"
+                     :filter-included-fields="featureFilterOn"
+                     @filtered="onFiltered"
+                     @row-clicked="addFeatureToConfig"
+            ></b-table>
+        </OverlayPanel>
     </div>
 </template>
 
 <script>
 import Chip from './Chip';
+import CustomSpinButton  from "./SpinButton";
+import OverlayPanel from 'primevue/overlaypanel';
+
 
 export default {
     name: "ConfigCard",
 
     components: {
-        Chip
+        Chip,
+        CustomSpinButton,
+        OverlayPanel
     },
 
     props: {
@@ -51,6 +126,20 @@ export default {
             type: Object,
             required: false,
             default: null,
+        },
+        editable: {
+            type: Boolean,
+            required: false,
+            default: false,
+        }
+    },
+
+    data() {
+        return {
+            renamedConfigString: '',
+            unselectedFeatures: [],
+            featureFilter: null,
+            featureFilterOn: [],
         }
     },
 
@@ -63,7 +152,7 @@ export default {
         chips() {
             let chips = [];
 
-            if (this.originalConfig !== null) {
+            if (this.originalConfig != null) {
                 for (let binaryFeatureName of this.systemFeatures.binaryFeatures) {
                     if (this.originalConfig[binaryFeatureName] === true && this.config[binaryFeatureName] === false) {
                         chips.push({featureName: binaryFeatureName, type: 'removed'});
@@ -95,6 +184,31 @@ export default {
 
             return chips;
         }
+    },
+
+    methods: {
+        toggleFeatureList(event) {
+            this.unselectedFeatures = [];
+            for (let featureName of this.systemFeatures.binaryFeatures) {
+                if (!this.config[featureName]) {
+                    this.unselectedFeatures.push({feature: featureName});
+                }
+            }
+            this.$refs.op.toggle(event);
+        },
+        hideFeatureList() {
+            this.featureFilter=null;
+            this.$refs.op.hide();
+        },
+        onFiltered(filteredItems) {
+            // Trigger pagination to update the number of buttons/pages due to filtering
+            this.totalRows = filteredItems.length
+            this.currentPage = 1
+        },
+        addFeatureToConfig(item) {
+            this.$emit('add-feature', item.feature);
+            this.hideFeatureList();
+        },
     }
 
 }

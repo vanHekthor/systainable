@@ -97,13 +97,13 @@ import OptimizationModal from "./components/OptimizationModal";
 import Dropdown from "primevue/dropdown";
 
 import requestMixin from "./mixins/requestMixin";
-import configManagerMixin from "./mixins/configManagementMixin";
+import configManagementMixin from "./mixins/configManagementMixin";
 import uiLogicMixin from "./mixins/uiLogicMixin";
 
 export default {
     name: 'App',
     title: 'Systainable',
-    mixins: [requestMixin, configManagerMixin, uiLogicMixin],
+    mixins: [requestMixin, configManagementMixin, uiLogicMixin],
     components: {
         ConfigArea,
         ChartArea,
