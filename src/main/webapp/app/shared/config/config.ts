@@ -44,9 +44,11 @@ import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
 import { faCompass } from '@fortawesome/free-solid-svg-icons/faCompass';
 import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
 import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
+import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 import { faEyeSlash } from '@fortawesome/free-solid-svg-icons/faEyeSlash';
 import { faFileExport } from '@fortawesome/free-solid-svg-icons/faFileExport';
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons/faFileUpload';
+import { faMicroscope } from '@fortawesome/free-solid-svg-icons/faMicroscope';
 import { faMinus } from '@fortawesome/free-solid-svg-icons/faMinus';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 
@@ -132,9 +134,11 @@ export function initFortAwesome(vue) {
     faCompass,
     faCopy,
     faEdit,
+    faEllipsisV,
     faEyeSlash,
     faFileExport,
     faFileUpload,
+    faMicroscope,
     faMinus,
     faPlus
   );

@@ -54,10 +54,10 @@
                                                   @click.stop="toggle($event, index)">
                                             <font-awesome-icon icon="plus" :style="{ color: '#6c757d' }" fixed-width/>
                                         </b-button>
-                                        <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" boundary="viewport" no-caret
+                                        <b-dropdown class="p-0 no-outline" toggle-class="p-1 no-outline" variant="link" boundary="viewport" no-caret
                                                     @toggle="untoggle()">
                                             <template #button-content>
-                                                <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
+                                                <font-awesome-icon icon="ellipsis-v" :style="{ color: '#6c757d' }" fixed-width/>
                                             </template>
                                             <b-dropdown-item-button @click="$emit('duplicate-config',index)">
                                                 <font-awesome-icon icon="copy" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
