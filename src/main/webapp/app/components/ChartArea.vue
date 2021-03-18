@@ -23,20 +23,20 @@
                             </div>
                             <div v-else><h5 class="p-m-0">{{chartData.datasets[0].label}}</h5></div>
                             <div class="d-inline-flex">
-                                <b-button v-b-popover.hover.left="'show details'" class="p-1" variant="link"
+                                <b-button v-b-popover.hover.left="'show details'" class="p-1 text-secondary" variant="link"
                                           @click="$emit('click-lens', chartData.datasets[0].label)">
-                                    <font-awesome-icon icon="search" :style="{ color: '#6c757d' }" fixed-width/>
+                                    <font-awesome-icon icon="microscope" fixed-width/>
                                 </b-button>
-                                <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" right no-caret>
+                                <b-dropdown class="no-outline" toggle-class="p-1 no-outline text-secondary" variant="link" right no-caret>
                                     <template #button-content>
-                                        <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
+                                        <font-awesome-icon icon="ellipsis-v" fixed-width/>
                                     </template>
                                     <b-dropdown-item-button @click="$emit('click-optimize', '', chartData.datasets[0].label)">
-                                        <font-awesome-icon icon="compass" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                                        <font-awesome-icon icon="compass" class="mr-1 text-secondary" fixed-width/>
                                         optimize
                                     </b-dropdown-item-button>
                                     <b-dropdown-item-button @click="$emit('click-near-optimum', '', chartData.datasets[0].label, true)">
-                                        <font-awesome-icon icon="chart-line" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
+                                        <font-awesome-icon icon="chart-line" class="mr-1 text-secondary" fixed-width/>
                                         near-optimum
                                     </b-dropdown-item-button>
                                 </b-dropdown>

@@ -11,6 +11,7 @@
                         :items="generatedConfigItems"
                         :fields="generateFields"
                         :no-border-collapse="noCollapse"
+                        sort-icon-left
                     >
                     </b-table>
                 </b-col>
