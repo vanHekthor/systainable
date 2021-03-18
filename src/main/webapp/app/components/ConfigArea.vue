@@ -2,7 +2,7 @@
     <div class="mb-3">
         <Panel v-if="softSystemLoaded">
             <template #header>
-                <div class="panel-header d-flex justify-content-center flex-wrap" style="width: 100%">
+                <div class="panel-header d-flex justify-content-between flex-wrap" style="width: 100%">
                     <div class="d-flex align-items-center flex-wrap">
                         <b-button class="mr-1" variant="link" @click="collapse"><font-awesome-icon :icon="visible ? 'chevron-up' : 'chevron-down'" class="text-secondary"/></b-button>
                         <h5 class="p-mb-0 p-mr-2">Configurations</h5>
@@ -53,10 +53,10 @@
                                                   @click.stop="toggle($event, index)">
                                             <font-awesome-icon icon="plus" :style="{ color: '#6c757d' }" fixed-width/>
                                         </b-button>
-                                        <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" boundary="viewport" no-caret
+                                        <b-dropdown class="p-0 no-outline" toggle-class="p-1 no-outline" variant="link" boundary="viewport" no-caret
                                                     @toggle="hideFeatureList()">
                                             <template #button-content>
-                                                <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
+                                                <font-awesome-icon icon="ellipsis-v" :style="{ color: '#6c757d' }" fixed-width/>
                                             </template>
                                             <b-dropdown-item-button @click="$emit('duplicate-config',index)">
                                                 <font-awesome-icon icon="copy" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>

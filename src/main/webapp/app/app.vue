@@ -67,7 +67,7 @@
         <OptimizationModal
             :global-optimization = "globalOptimization"
             :display-optimization-modal.sync="displayOptimizationModal"
-            :selected-optimization-config-name.sync="selectedOptimizationConfigName"
+            :selected-unoptimized-config-name.sync="selectedUnoptimizedConfigName"
             :selected-optimization-prop-name.sync="selectedOptimizationPropName"
             :config-names="configurations.map(config => { return config.name })"
             :prop-names="Object.keys(systemProperties)"
@@ -100,6 +100,8 @@ import requestMixin from "./mixins/requestMixin";
 import configManagementMixin from "./mixins/configManagementMixin";
 import uiLogicMixin from "./mixins/uiLogicMixin";
 
+import { maxLinearSteps, maxExponentialSteps } from "./js_modules/util/maxStepsUtil";
+
 export default {
     name: 'App',
     title: 'Systainable',
@@ -122,8 +124,28 @@ export default {
 
     computed: {
         maxOptimizationDistance: function() {
-            if (this.softSystemLoaded) {
-                return this.systemFeatures.binaryFeatures.length;
+            if (this.softSystemLoaded && this.systemFeatures != null && this.selectedUnoptimizedConfig != null) {
+                let maxSteps = 0;
+
+                for (const [key, numericFeatureObject] of Object.entries(this.systemFeatures.numericFeatures)) {
+
+                    let numericValue = this.selectedUnoptimizedConfig[key];
+
+                    if (numericFeatureObject.stepFunction.split(' ')[1] === '+') {
+                        maxSteps = maxLinearSteps(
+                            numericValue, numericFeatureObject.min, numericFeatureObject.max, parseInt(numericFeatureObject.stepFunction.split(' ')[2])
+                        );
+                        console.log(key + `-maxSteps: ${maxSteps}`);
+
+                    } else if (numericFeatureObject.stepFunction.split(' ')[1] === '*') {
+                        maxSteps = maxExponentialSteps(
+                            numericValue, numericFeatureObject.min, numericFeatureObject.max, parseInt(numericFeatureObject.stepFunction.split(' ')[2])
+                        );
+                        console.log(key + `-maxSteps: ${maxSteps}`);
+                    }
+                }
+                return Math.max(this.systemFeatures.binaryFeatures.length, maxSteps);
+
             } else {
                 return 1;
             }
