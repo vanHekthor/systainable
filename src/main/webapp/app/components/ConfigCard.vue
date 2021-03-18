@@ -1,5 +1,5 @@
 <template>
-    <div class="shadow-sm mr-0"
+    <div :class="editable ? 'config-area-card mr-0' : 'dialog-config-card shadow-sm mr-0'"
          style="width: 18rem;">
         <div class="config-card-header p-1">
             <div class="d-flex align-items-center justify-content-between">
@@ -215,7 +215,16 @@ export default {
 </script>
 
 <style scoped>
-    .config-card-header{
+    .config-area-card {
+        border-right: 1px solid #e3e3e3;
+        border-bottom: 1px solid #e3e3e3;
+    }
+
+    .dialog-config-card {
+        border: 1px solid #f5f5f5;
+    }
+
+    .config-card-header {
         background-color: #f8f9fa;
         border-bottom: 1px solid #e3e3e3;
     }
@@ -244,5 +253,9 @@ export default {
     .modified-chip {
         background: #7d00c1;
         color: #fff;
+    }
+    .no-outline:focus,.no-outline:active {
+        outline: none !important;
+        box-shadow: none !important;
     }
 </style>
