@@ -157,9 +157,9 @@ export default {
             if (this.softSystemHasChanged()) {
                 this.resetUI();
                 await this.requestSystemAttributes(event);
-                this.resetPropertyVisibility();
                 this.deleteAllConfigs();
                 await this.addInitialConfig();
+                this.setupUI();
             }
         },
 
