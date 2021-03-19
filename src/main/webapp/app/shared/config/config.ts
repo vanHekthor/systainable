@@ -72,23 +72,6 @@ export function initVueApp(vue) {
   vue.use(Vue2Filters);
   setupAxiosInterceptors(() => console.log('Unauthorized!'));
   filters.initFilters();
-
-  // custom directives
-  vue.directive('click-outside', {
-    bind(el, binding, vnode) {
-      el.clickOutsideEvent = function checkClick(event) {
-        // check if click was outside the el and its children
-        if (!(el === event.target || el.contains(event.target))) {
-          // if it was, call method provided in attribute value
-          vnode.context[binding.expression](event);
-        }
-      };
-      document.body.addEventListener('click', el.clickOutsideEvent);
-    },
-    unbind(el) {
-      document.body.removeEventListener('click', el.clickOutsideEvent);
-    },
-  });
 }
 
 export function initFortAwesome(vue) {
