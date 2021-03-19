@@ -115,6 +115,41 @@
                         </template>
                     </Column>
                 </DataTable>
+                <b-table class="p-1" style="white-space: nowrap" :items="configs" :fields="configTableFields" head-variant="light" responsive >
+                    <template v-for="header in configTableFields" #[`head(${header})`]="data">
+                        {{ header }}
+                    </template>
+                    <template #cell(name)="cellData"> {{ cellData.value }} </template>
+                    <template v-for="field in configTableFields" #[`cell(${field})`]="cellData">
+                        <template v-if="field === 'name'">{{ cellData.value }}</template>
+                        <div v-else-if="typeof cellData.item[field] === 'boolean'"><b-form-checkbox v-model="cellData.item[field]"></b-form-checkbox></div>
+                        <CustomSpinButton
+                            v-else-if="typeof cellData.item[field] === 'number'"
+                            :value="cellData.item[field]"
+                            :value.sync="cellData.item[field]"
+                            :step-function="systemFeatures.numericFeatures[field].stepFunction"
+                            :min="systemFeatures.numericFeatures[field].min"
+                            :max="systemFeatures.numericFeatures[field].max"
+                        />
+                    </template>
+
+<!--                    <template v-for="field in editableFields" v-slot:[`cell(${field.key})`]=" data ">
+                        <template>{{ data }}</template>
+                    </template>
+                    <template v-slot:cell(actions)="{ item }">
+                        <b-button-group v-if="userRow && userRow.id === item.id">
+                            <b-button variant="success" @click="saveEdit">
+                                Save
+                            </b-button>
+                            <b-button variant="danger" @click="resetEdit">
+                                Cancel
+                            </b-button>
+                        </b-button-group>
+                        <b-button v-else variant="primary" @click="editUser(item)">
+                            Edit
+                        </b-button>
+                    </template>-->
+                </b-table>
                 <div class="panel-footer d-flex justify-content-center">
                     <b-button :disabled="configurations.length < 1" variant="primary"
                               @click="$emit('submit-configs')">
@@ -182,6 +217,20 @@ export default {
             totalRows: 1,
             currentPage: 1,
             exportData: [],
+
+            userRow: null,
+            fields: [
+                { key: "name" },
+                { key: "first_name", editable: true },
+                { key: "last_name", editable: true },
+                { key: "age", editable: true, type: "number", isNumber: true },
+                { key: "actions" }
+            ],
+            items: [
+                { id: 1, first_name: "Mikkel", last_name: "Hansen", age: 56 },
+                { id: 2, first_name: "Mads", last_name: "Mikkelsen", age: 39 },
+                { id: 3, first_name: "Anders", last_name: "Matthesen", age: 42 }
+            ]
         }
     },
 
@@ -199,6 +248,20 @@ export default {
                 "configurations"
             ]
         ),
+
+        editableFields() {
+            return this.fields.filter((field) => field.editable);
+        },
+
+        configTableItems() {
+            let items = [...this.configs];
+            items.forEach(function(obj) { delete obj.properties; delete obj.dissectedProperties });
+            return items;
+        },
+
+        configTableFields() {
+            return ['name'].concat(this.systemFeatures.binaryFeatures, Object.keys(this.systemFeatures.numericFeatures));
+        }
     },
 
     methods: {
@@ -220,6 +283,30 @@ export default {
                 variant: variant,
                 solid: true
             })
+        },
+        editUser(user) {
+            let doEdit = true;
+            if (
+                this.userRow &&
+                !confirm(
+                    "You have unsaved changes, are you sure you want to continue?"
+                )
+            ) {
+                doEdit = false;
+            }
+
+            if (doEdit) {
+                this.userRow = { ...user };
+            }
+        },
+        saveEdit() {
+            let user = this.items.find((u) => u.id === this.userRow.id);
+            Object.assign(user, this.userRow);
+
+            this.resetEdit();
+        },
+        resetEdit() {
+            this.userRow = null;
         }
 
     },
@@ -254,7 +341,11 @@ export default {
         display: none;
     }
 
-    .table tr, .table td {
+    .table td {
+        vertical-align: middle !important;
+    }
+
+    .config-card-header tr, .config-card-header td {
         padding: 0.25rem 1.5rem !important;
     }
 
