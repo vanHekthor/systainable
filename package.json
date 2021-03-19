@@ -22,6 +22,7 @@
     "primeicons": "^4.1.0",
     "primevue": "^2.4.0",
     "swagger-ui-dist": "3.25.4",
+    "v-click-outside": "^3.1.2",
     "vue": "2.6.11",
     "vue-chartjs": "^3.5.1",
     "vue-class-component": "7.2.3",

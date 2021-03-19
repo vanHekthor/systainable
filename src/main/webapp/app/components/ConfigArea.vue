@@ -1,6 +1,6 @@
 <template>
     <div class="mb-3">
-        <Panel v-if="softSystemLoaded">
+        <b-card v-if="softSystemLoaded" header-class="p-2" no-body>
             <template #header>
                 <div class="panel-header d-flex justify-content-between flex-wrap" style="width: 100%">
                     <div class="d-flex align-items-center flex-wrap">
@@ -115,17 +115,33 @@
                         </template>
                     </Column>
                 </DataTable>
-                <b-table class="p-1" style="white-space: nowrap" :items="configs" :fields="configTableFields" head-variant="light" responsive >
+                <b-table style="white-space: nowrap" :items="configs" :fields="configTableFields" head-variant="light" responsive hover>
                     <template v-for="header in configTableFields" #[`head(${header})`]="data">
                         {{ header }}
                     </template>
                     <template v-for="field in configTableFields" #[`cell(${field})`]="cellData">
                         <template v-if="field === 'name'">
-                            <div v-click-outside="onClickOutside" class="p-2" @click.stop="onClick">
+                            <div class="p-2" @click.stop="onClick">
                                 <div v-if="!editVisible">
                                     {{ cellData.value }}
                                 </div>
-                                <input v-else-if="editVisible" v-model="cellData.item.name"/>
+                                <div v-else v-click-outside="onClickOutside">
+                                    <b-form-input class="mb-1" style="min-width: 12rem" v-model="cellData.item.name"/>
+                                    <div>
+                                        <b-button class="m-0" variant="info" size="sm"
+                                                  @click="$emit('duplicate-config', cellData.index)">
+                                            <font-awesome-icon icon="copy" class="" fixed-width/>
+                                        </b-button>
+                                        <b-button class="m-0" variant="danger" size="sm"
+                                                  @click="$emit('del-config', cellData.index)">
+                                            <font-awesome-icon icon="times" class="" fixed-width/>
+                                        </b-button>
+                                        <b-button class="m-0" variant="success" size="sm"
+                                                  @click="$emit('click-optimize', cellData.value)">
+                                            <font-awesome-icon icon="compass" class="" fixed-width/>
+                                        </b-button>
+                                    </div>
+                                </div>
                             </div>
                         </template>
                         <div v-else-if="typeof cellData.item[field] === 'boolean'"><b-form-checkbox v-model="cellData.item[field]"></b-form-checkbox></div>
@@ -163,13 +179,13 @@
                     </b-button>
                 </div>
             </b-collapse>
-        </Panel>
-        <Panel v-else>
+        </b-card>
+        <b-card v-else>
             <template class="p-p-0" #header>
                 <h5 class="p-m-0">Empty</h5>
             </template>
             Please select a software system.
-        </Panel>
+        </b-card>
     </div>
 </template>
 
@@ -327,17 +343,13 @@ export default {
 <style scoped>
 
     .panel-header {
-        margin-top: -0.5rem;
-        margin-bottom: -0.5rem;
     }
 
     .panel-content {
-        margin: -1rem -1rem 0 -1rem;
         padding-bottom: 0.5em;
     }
 
     .panel-footer {
-        margin: 0 -0.5rem -0.5rem -0.5rem;
     }
 
 </style>

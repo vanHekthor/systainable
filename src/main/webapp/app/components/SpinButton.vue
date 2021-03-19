@@ -131,14 +131,13 @@ export default {
         box-shadow: none !important;
     }
     .spinbutton-container {
-        min-width: 6rem !important;
         display: flex;
+        align-items: center;
     }
     .value-display {
-        flex-grow: 1;
         display: flex;
+        min-width: 3rem !important;
         justify-content: center;
-        align-items: center;
     }
     .step-down {
         width: 1.75rem;

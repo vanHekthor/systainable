@@ -41,6 +41,8 @@ import { BDropdown } from 'bootstrap-vue';
 import { BDropdownItemButton } from 'bootstrap-vue';
 import { BFormGroup } from 'bootstrap-vue';
 
+import vClickOutside from 'v-click-outside';
+
 import titleMixin from './mixins/titleMixin';
 
 /* tslint:disable */
@@ -52,6 +54,8 @@ Vue.config.productionTip = false;
 config.initVueApp(Vue);
 config.initFortAwesome(Vue);
 bootstrapVueConfig.initBootstrapVue(Vue);
+Vue.use(vClickOutside);
+
 Vue.use(Vue2Filters);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('jhi-item-count', JhiItemCountComponent);
