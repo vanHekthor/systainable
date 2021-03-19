@@ -35,10 +35,9 @@
                             @row-clicked="addFeatureToConfig"
                         ></b-table>
                     </b-dropdown>
-                    <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" boundary="window" no-caret
-                                >
+                    <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" boundary="window" no-caret>
                         <template #button-content>
-                            <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
+                            <font-awesome-icon icon="ellipsis-v" :style="{ color: '#6c757d' }" fixed-width/>
                         </template>
                         <b-dropdown-item-button @click="$emit('duplicate-config')">
                             <font-awesome-icon icon="copy" class="mr-1" :style="{ color: '#6c757d' }" fixed-width/>
@@ -100,27 +99,6 @@
         </div>
         <div class="config-card-footer d-flex justify-content-center">
         </div>
-<!--        <OverlayPanel class="no-shadow" ref="op" v-click-outside="hideFeatureList" :dismissable="true" @blur="hideFeatureList">
-            <b-input-group size="sm">
-                <b-form-input
-                    id="filter-input"
-                    v-model="featureFilter"
-                    type="search"
-                    placeholder="Type to Search"
-                    class="mx-2 mb-2"
-                ></b-form-input>
-            </b-input-group>
-            <b-table class="m-0"
-                     borderless
-                     hover
-                     :items="unselectedFeatures"
-                     thead-class="hidden-header"
-                     :filter="featureFilter"
-                     :filter-included-fields="featureFilterOn"
-                     @filtered="onFiltered"
-                     @row-clicked="addFeatureToConfig"
-            ></b-table>
-        </OverlayPanel>-->
     </div>
 </template>
 
@@ -292,5 +270,10 @@ export default {
     .no-outline:focus,.no-outline:active {
         outline: none !important;
         box-shadow: none !important;
+    }
+</style>
+<style>
+    .config-card-header tr, .config-card-header td {
+        padding: 0.25rem 1.5rem !important;
     }
 </style>

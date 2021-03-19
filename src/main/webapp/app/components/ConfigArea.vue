@@ -1,5 +1,5 @@
 <template>
-    <div class="mb-3">
+    <div class="config-area mb-3">
         <b-card v-if="softSystemLoaded" header-class="p-2" no-body>
             <template #header>
                 <div class="d-flex justify-content-between flex-wrap" style="width: 100%">
@@ -36,9 +36,10 @@
                 </div>
             </template>
             <b-collapse id="collapse-configs" v-model="visible">
-                <div :class= "selectedViewOption === 'simple' ? 'd-flex' : 'd-none'"
-                     style="overflow-x: auto;">
-                    <div :class="selectedViewOption === 'simple' ? 'd-flex' : 'd-none'">
+                <div :class= "selectedViewOption === 'simple' ? 'config-area-content d-flex mb-1' : 'd-none'"
+                     style="overflow-x: auto;"
+                >
+                    <div class="config-row d-flex">
                         <template v-for="(config, index) in configurations">
                             <ConfigCard
                                 :config="config"
@@ -54,70 +55,13 @@
                         </template>
                     </div>
                 </div>
-                <DataTable v-show="selectedViewOption === 'extended'"
-                           class="p-datatable editable-cells-table"
-                           :rowHover="true"
-                           :autoLayout="true"
-                           :value="configurations"
-                           editMode="cell">
-                    <Column field="name"
-                            header="name"
-                            key="name">
-                        <template #body="slotProps">
-                            {{slotProps.data['name']}}
-                        </template>
-                        <template #editor="slotProps">
-                            <div class="align-items-center">
-                                <InputText v-model="slotProps.data['name']"
-                                           class="p-inputtext-sm mr-1 my-1" />
-                                <div>
-                                    <b-button class="m-0" variant="info" size="sm"
-                                              @click="$emit('duplicate-config', slotProps.index)">
-                                        <font-awesome-icon icon="copy" class="" fixed-width/>
-                                    </b-button>
-                                    <b-button class="m-0" variant="danger" size="sm"
-                                              @click="$emit('del-config', slotProps.index)">
-                                        <font-awesome-icon icon="times" class="" fixed-width/>
-                                    </b-button>
-                                    <b-button class="m-0" variant="success" size="sm"
-                                              @click="$emit('click-optimize', slotProps.data['name'])">
-                                        <font-awesome-icon icon="compass" class="" fixed-width/>
-                                    </b-button>
-                                </div>
-                            </div>
-                        </template>
-                    </Column>
-                    <Column v-for="feature of systemFeatures.binaryFeatures"
-                            :field="feature"
-                            :header="feature"
-                            :key="feature">
-                        <template #body="slotProps">
-                            <label class="m-0">
-                                <input type="checkbox" :checked="slotProps.data[feature]"
-                                       @change="$emit('update-feature', slotProps.index, feature, !slotProps.data[feature])"/>
-                            </label>
-                        </template>
-                    </Column>
-                    <Column v-for="feature of Object.keys(systemFeatures.numericFeatures)"
-                            :field="feature"
-                            :header="feature"
-                            :key="feature">
-                        <template #body="slotProps">
-                            <label>
-                                <CustomSpinButton
-                                    :value="slotProps.data[feature]"
-                                    :value.sync="slotProps.data[feature]"
-                                    :step-function="systemFeatures.numericFeatures[feature].stepFunction"
-                                    :min="systemFeatures.numericFeatures[feature].min"
-                                    :max="systemFeatures.numericFeatures[feature].max"
-                                />
-                            </label>
-                        </template>
-                    </Column>
-                </DataTable>
-                <b-table style="white-space: nowrap" :items="configs" :fields="configTableFields" head-variant="light" responsive hover>
+                <b-table
+                    v-show="selectedViewOption === 'extended'" :items="configs" :fields="configTableFields"
+                    class="mb-1" thead-class="header-light"
+                    style="white-space: nowrap" responsive hover
+                >
                     <template v-for="header in configTableFields" #[`head(${header})`]="data">
-                        {{ header }}
+                        <h6 class="mb-0">{{ header }}</h6>
                     </template>
                     <template v-for="field in configTableFields" #[`cell(${field})`]="cellData">
                         <template v-if="field === 'name'">
@@ -155,7 +99,7 @@
                         />
                     </template>
                 </b-table>
-                <div class="panel-footer d-flex justify-content-center">
+                <div class="config-area-footer mb-1 d-flex justify-content-center">
                     <b-button :disabled="configurations.length < 1" variant="primary"
                               @click="$emit('submit-configs')">
                         Submit
@@ -173,11 +117,7 @@
 </template>
 
 <script>
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import InputText from 'primevue/inputtext';
 import SelectButton from 'primevue/selectbutton';
-import ScrollPanel from 'primevue/scrollpanel';
 
 import ConfigCard from "./ConfigCard";
 import Chip from './Chip';
@@ -186,19 +126,12 @@ import ImportDropdownItem from "./ImportDropdownItem";
 import CustomSpinButton  from "./SpinButton";
 import EditCell from "./EditCell";
 
-import configManagementMixin from "../mixins/configManagementMixin";
-
 import { mapFields, mapMultiRowFields } from "vuex-map-fields";
 
 export default {
     name: "ConfigArea",
-    mixins: [configManagementMixin],
     components: {
-        DataTable,
-        Column,
-        InputText,
         SelectButton,
-        ScrollPanel,
         ConfigCard,
         Chip,
         ExportButton,
@@ -220,21 +153,6 @@ export default {
             totalRows: 1,
             currentPage: 1,
             exportData: [],
-
-            editVisible: false,
-            userRow: null,
-            fields: [
-                { key: "name" },
-                { key: "first_name", editable: true },
-                { key: "last_name", editable: true },
-                { key: "age", editable: true, type: "number", isNumber: true },
-                { key: "actions" }
-            ],
-            items: [
-                { id: 1, first_name: "Mikkel", last_name: "Hansen", age: 56 },
-                { id: 2, first_name: "Mads", last_name: "Mikkelsen", age: 39 },
-                { id: 3, first_name: "Anders", last_name: "Matthesen", age: 42 }
-            ]
         }
     },
 
@@ -279,7 +197,6 @@ export default {
 </style>
 
 <style>
-
     .dropdown:active .dropdown:focus .dropdown-menu .dropdown-item {
         outline: none;
         box-shadow: none;
@@ -288,12 +205,18 @@ export default {
         display: none;
     }
 
+    .header-light {
+        background-color: #f8f9fa !important;
+    }
+
     .table td {
         vertical-align: middle !important;
     }
 
-    .config-card-header tr, .config-card-header td {
-        padding: 0.25rem 1.5rem !important;
+    .config-area th {
+        border-bottom: 0 !important;
+        border-top: 0 !important;
+        padding: 0.875rem !important;
     }
 
 </style>

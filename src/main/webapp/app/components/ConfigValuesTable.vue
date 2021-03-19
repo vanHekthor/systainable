@@ -1,6 +1,6 @@
 <template>
     <div style="max-height: 16rem; overflow-y: auto">
-        <b-table class="shadow-sm" :fields="fields" :items="items" head-variant="light" small hover>
+        <b-table class="shadow-sm" :fields="fields" :items="items" thead-class="header-light" small hover>
             <template #cell(value)="data">
                 <template v-if="typeof data.value === 'object'">
                     {{ data.value.propValue }}<!--
@@ -118,5 +118,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

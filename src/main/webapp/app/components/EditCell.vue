@@ -1,6 +1,6 @@
 <template>
     <div @click="onClick">
-        <div v-if="!editMode" class="p-2" style="cursor: pointer">
+        <div v-if="!editMode" style="cursor: pointer">
             <slot></slot>
         </div>
         <div v-else v-click-outside="onOutsideClick">
