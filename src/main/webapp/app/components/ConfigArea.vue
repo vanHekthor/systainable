@@ -36,10 +36,9 @@
                 </div>
             </template>
             <b-collapse id="collapse-configs" v-model="visible">
-                <div v-if="selectedViewOption==='simple'"
-                     class="panel-content d-flex"
+                <div :class= "selectedViewOption === 'simple' ? 'panel-content d-flex' : 'd-none'"
                      style="overflow-x: auto;">
-                    <div class="d-flex">
+                    <div :class="selectedViewOption === 'simple' ? 'd-flex' : 'd-none'">
                         <template v-for="(config, index) in configurations">
                             <ConfigCard
                                 :config="config"
@@ -55,7 +54,7 @@
                         </template>
                     </div>
                 </div>
-                <DataTable v-if="selectedViewOption==='extended'"
+                <DataTable v-show="selectedViewOption === 'extended'"
                            class="p-datatable editable-cells-table panel-content"
                            :rowHover="true"
                            :autoLayout="true"
