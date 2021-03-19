@@ -5,12 +5,36 @@
             <div class="d-flex align-items-center justify-content-between">
                 <h6 class="my-0 ml-3">{{config.name}}</h6>
                 <div v-if="editable">
-                    <b-button class="p-1 no-outline" variant="link"
-                              @click.stop="toggleFeatureList($event)">
-                        <font-awesome-icon icon="plus" :style="{ color: '#6c757d' }" fixed-width/>
-                    </b-button>
-                    <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" boundary="viewport" no-caret
-                                @toggle="hideFeatureList">
+                    <b-dropdown
+                        class="no-outline" toggle-class="p-1 no-outline" ref="dropdown-feature-list"
+                        variant="link" boundary="window" no-caret :disabled="unselectedFeatures.length === 0"
+                    >
+                        <template #button-content>
+                            <font-awesome-icon icon="plus" :style="{ color: '#6c757d' }" fixed-width/>
+                        </template>
+                        <b-input-group size="sm">
+                            <b-form-input
+                                id="filter-input"
+                                v-model="featureFilter"
+                                type="search"
+                                placeholder="Type to Search"
+                                class="mx-2 mb-2"
+                            ></b-form-input>
+                        </b-input-group>
+                        <b-table
+                            class="m-0"
+                            borderless
+                            hover
+                            :items="toggleFeatureList()"
+                            thead-class="hidden-header"
+                            :filter="featureFilter"
+                            :filter-included-fields="featureFilterOn"
+                            @filtered="onFiltered"
+                            @row-clicked="addFeatureToConfig"
+                        ></b-table>
+                    </b-dropdown>
+                    <b-dropdown class="no-outline" toggle-class="p-1 no-outline" variant="link" boundary="window" no-caret
+                                >
                         <template #button-content>
                             <font-awesome-icon icon="cog" :style="{ color: '#6c757d' }" fixed-width/>
                         </template>
@@ -74,7 +98,7 @@
         </div>
         <div class="config-card-footer d-flex justify-content-center">
         </div>
-        <OverlayPanel class="no-shadow" ref="op" v-click-outside="hideFeatureList">
+<!--        <OverlayPanel class="no-shadow" ref="op" v-click-outside="hideFeatureList" :dismissable="true" @blur="hideFeatureList">
             <b-input-group size="sm">
                 <b-form-input
                     id="filter-input"
@@ -94,14 +118,13 @@
                      @filtered="onFiltered"
                      @row-clicked="addFeatureToConfig"
             ></b-table>
-        </OverlayPanel>
+        </OverlayPanel>-->
     </div>
 </template>
 
 <script>
 import Chip from './Chip';
 import CustomSpinButton  from "./SpinButton";
-import OverlayPanel from 'primevue/overlaypanel';
 
 
 export default {
@@ -110,7 +133,6 @@ export default {
     components: {
         Chip,
         CustomSpinButton,
-        OverlayPanel
     },
 
     props: {
@@ -137,7 +159,6 @@ export default {
     data() {
         return {
             renamedConfigString: '',
-            unselectedFeatures: [],
             featureFilter: null,
             featureFilterOn: [],
         }
@@ -183,22 +204,34 @@ export default {
             }
 
             return chips;
+        },
+
+        unselectedFeatures() {
+            let unselectedFeatures = [];
+            for (let featureName of this.systemFeatures.binaryFeatures) {
+                if (!this.config[featureName]) {
+                    unselectedFeatures.push({ feature: featureName });
+                }
+            }
+
+            return unselectedFeatures;
         }
     },
 
     methods: {
         toggleFeatureList(event) {
-            this.unselectedFeatures = [];
+            let unselectedFeatures = [];
             for (let featureName of this.systemFeatures.binaryFeatures) {
                 if (!this.config[featureName]) {
-                    this.unselectedFeatures.push({feature: featureName});
+                    unselectedFeatures.push({ feature: featureName });
                 }
             }
-            this.$refs.op.toggle(event);
+
+            return unselectedFeatures;
         },
         hideFeatureList() {
             this.featureFilter=null;
-            this.$refs.op.hide();
+            this.$refs['dropdown-feature-list'].hide();
         },
         onFiltered(filteredItems) {
             // Trigger pagination to update the number of buttons/pages due to filtering

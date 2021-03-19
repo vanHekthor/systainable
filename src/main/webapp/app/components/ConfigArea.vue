@@ -130,27 +130,6 @@
             </template>
             Please select a software system.
         </Panel>
-        <OverlayPanel class="no-shadow" ref="op" v-click-outside="hideFeatureList">
-            <b-input-group size="sm">
-                <b-form-input
-                    id="filter-input"
-                    v-model="featureFilter"
-                    type="search"
-                    placeholder="Type to Search"
-                    class="mx-2 mb-2"
-                ></b-form-input>
-            </b-input-group>
-            <b-table class="m-0"
-                     borderless
-                     hover
-                     :items="unselectedFeatures"
-                     thead-class="hidden-header"
-                     :filter="featureFilter"
-                     :filter-included-fields="featureFilterOn"
-                     @filtered="onFiltered"
-                     @row-clicked="addFeatureToConfig"
-            ></b-table>
-        </OverlayPanel>
     </div>
 </template>
 
@@ -201,12 +180,8 @@ export default {
             options: ['simple', 'extended'],
             renamedConfigString: '',
             visible: true,
-            configIndex: 0,
-            unselectedFeatures: [],
             totalRows: 1,
             currentPage: 1,
-            featureFilter: null,
-            featureFilterOn: [],
             exportData: [],
         }
     },
@@ -230,29 +205,6 @@ export default {
     methods: {
         collapse() {
             this.visible = !this.visible;
-        },
-        toggle(event, index) {
-            this.configIndex = index;
-            this.unselectedFeatures = [];
-            for (let featureName of this.systemFeatures.binaryFeatures) {
-                if (!this.configurations[index][featureName]) {
-                    this.unselectedFeatures.push({feature: featureName});
-                }
-            }
-            this.$refs.op.toggle(event);
-        },
-        hideFeatureList() {
-            this.featureFilter=null;
-            this.$refs.op.hide();
-        },
-        onFiltered(filteredItems) {
-            // Trigger pagination to update the number of buttons/pages due to filtering
-            this.totalRows = filteredItems.length
-            this.currentPage = 1
-        },
-        addFeatureToConfig(item) {
-            this.$emit('update-feature', this.configIndex, item.feature, true);
-            this.hideFeatureList();
         },
         loadData(data) {
             this.$emit('load-data', data);
@@ -299,20 +251,6 @@ export default {
         outline: none;
         box-shadow: none;
     }
-
-    .p-overlaypanel {
-        box-shadow: none !important;
-        border: 1px rgba(0, 0, 0, 0.15) !important;
-        border-style: solid !important;
-        border-radius: 1px;
-        --overlayArrowLeft: none !important;
-        margin: 0.125rem;
-    }
-
-    .p-overlaypanel-content {
-        padding: 0.5rem 0 !important;
-    }
-
     .hidden-header {
         display: none;
     }
