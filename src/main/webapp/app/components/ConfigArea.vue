@@ -119,9 +119,15 @@
                     <template v-for="header in configTableFields" #[`head(${header})`]="data">
                         {{ header }}
                     </template>
-                    <template #cell(name)="cellData"> {{ cellData.value }} </template>
                     <template v-for="field in configTableFields" #[`cell(${field})`]="cellData">
-                        <template v-if="field === 'name'">{{ cellData.value }}</template>
+                        <template v-if="field === 'name'">
+                            <div v-click-outside="onClickOutside" class="p-2" @click.stop="onClick">
+                                <div v-if="!editVisible">
+                                    {{ cellData.value }}
+                                </div>
+                                <input v-else-if="editVisible" v-model="cellData.item.name"/>
+                            </div>
+                        </template>
                         <div v-else-if="typeof cellData.item[field] === 'boolean'"><b-form-checkbox v-model="cellData.item[field]"></b-form-checkbox></div>
                         <CustomSpinButton
                             v-else-if="typeof cellData.item[field] === 'number'"
@@ -218,6 +224,7 @@ export default {
             currentPage: 1,
             exportData: [],
 
+            editVisible: false,
             userRow: null,
             fields: [
                 { key: "name" },
@@ -249,10 +256,6 @@ export default {
             ]
         ),
 
-        editableFields() {
-            return this.fields.filter((field) => field.editable);
-        },
-
         configTableItems() {
             let items = [...this.configs];
             items.forEach(function(obj) { delete obj.properties; delete obj.dissectedProperties });
@@ -265,6 +268,14 @@ export default {
     },
 
     methods: {
+        onClick() {
+            console.log('CLick!');
+            this.editVisible = true;
+        },
+        onClickOutside() {
+            console.log('CLick outside!');
+            this.editVisible = false;
+        },
         collapse() {
             this.visible = !this.visible;
         },
