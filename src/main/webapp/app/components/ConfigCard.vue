@@ -76,7 +76,7 @@
                           class="added-chip m-1" :label="chip.featureName"/>
                     <template v-if="chip.type === 'numeric-default'">
                         <Chip :id="`numeric-chip-${config.name}-${chip.featureName}`" class="numeric-chip m-1" :label="chip.featureName + ': ' + config[chip.featureName]"/>
-                        <b-popover
+                        <b-popover v-if="editable"
                             :target="`numeric-chip-${config.name}-${chip.featureName}`"
                             :title="chip.featureName"
                             triggers="hover"
@@ -219,7 +219,7 @@ export default {
     },
 
     methods: {
-        toggleFeatureList(event) {
+        toggleFeatureList() {
             let unselectedFeatures = [];
             for (let featureName of this.systemFeatures.binaryFeatures) {
                 if (!this.config[featureName]) {
