@@ -3,7 +3,9 @@
          style="width: 18rem;">
         <div class="config-card-header p-1">
             <div class="d-flex align-items-center justify-content-between">
-                <h6 class="my-0 ml-3">{{config.name}}</h6>
+                <h6 class="p-my-0 py-1 p-ml-3" style="max-width: 12rem; overflow-x: auto">
+                    {{config.name}}
+                </h6>
                 <div v-if="editable">
                     <b-dropdown
                         class="no-outline" toggle-class="p-1 no-outline" ref="dropdown-feature-list"
