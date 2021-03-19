@@ -2,7 +2,7 @@
     <div class="mb-3">
         <b-card v-if="softSystemLoaded" header-class="p-2" no-body>
             <template #header>
-                <div class="panel-header d-flex justify-content-between flex-wrap" style="width: 100%">
+                <div class="d-flex justify-content-between flex-wrap" style="width: 100%">
                     <div class="d-flex align-items-center flex-wrap">
                         <b-button class="mr-1" variant="link" @click="collapse"><font-awesome-icon :icon="visible ? 'chevron-up' : 'chevron-down'" class="text-secondary"/></b-button>
                         <h5 class="p-mb-0 p-mr-2">Configurations</h5>
@@ -36,7 +36,7 @@
                 </div>
             </template>
             <b-collapse id="collapse-configs" v-model="visible">
-                <div :class= "selectedViewOption === 'simple' ? 'panel-content d-flex' : 'd-none'"
+                <div :class= "selectedViewOption === 'simple' ? 'd-flex' : 'd-none'"
                      style="overflow-x: auto;">
                     <div :class="selectedViewOption === 'simple' ? 'd-flex' : 'd-none'">
                         <template v-for="(config, index) in configurations">
@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 <DataTable v-show="selectedViewOption === 'extended'"
-                           class="p-datatable editable-cells-table panel-content"
+                           class="p-datatable editable-cells-table"
                            :rowHover="true"
                            :autoLayout="true"
                            :value="configurations"
@@ -276,17 +276,6 @@ export default {
 </script>
 
 <style scoped>
-
-    .panel-header {
-    }
-
-    .panel-content {
-        padding-bottom: 0.5em;
-    }
-
-    .panel-footer {
-    }
-
 </style>
 
 <style>

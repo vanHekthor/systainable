@@ -3,7 +3,7 @@
         <slot>
             <img :src="image" v-if="image">
             <span :class="iconClass" v-else-if="icon"></span>
-            <span @click="$emit('chip-clicked')" style="cursor:pointer">
+            <span @click="$emit('chip-clicked')">
                 <div class="p-chip-text" v-if="label">
                      {{label}}
                 </div>

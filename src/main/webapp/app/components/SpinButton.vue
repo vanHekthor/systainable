@@ -6,8 +6,7 @@
                 <font-awesome-icon icon="minus" :style="{ color: '#9d9ea2' }" fixed-width/>
             </b-button>
         </div>
-        <div class="value-display"
-             @click="increase">
+        <div class="value-display">
             <div>{{value}}</div>
         </div>
         <div class="step-up">
