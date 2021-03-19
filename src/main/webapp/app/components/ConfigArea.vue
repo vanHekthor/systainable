@@ -121,30 +121,30 @@
                     </template>
                     <template v-for="field in configTableFields" #[`cell(${field})`]="cellData">
                         <template v-if="field === 'name'">
-                            <div class="p-2" @click.stop="onClick">
-                                <div v-if="!editVisible">
-                                    {{ cellData.value }}
-                                </div>
-                                <div v-else v-click-outside="onClickOutside">
-                                    <b-form-input class="mb-1" style="min-width: 12rem" v-model="cellData.item.name"/>
+                            <EditCell>
+                                {{ cellData.value }}
+                                <template #edit>
+                                    <b-form-input class="mb-1" style="min-width: 12rem" v-model="cellData.item.name" maxlength="24"/>
                                     <div>
                                         <b-button class="m-0" variant="info" size="sm"
                                                   @click="$emit('duplicate-config', cellData.index)">
                                             <font-awesome-icon icon="copy" class="" fixed-width/>
                                         </b-button>
-                                        <b-button class="m-0" variant="danger" size="sm"
-                                                  @click="$emit('del-config', cellData.index)">
-                                            <font-awesome-icon icon="times" class="" fixed-width/>
-                                        </b-button>
                                         <b-button class="m-0" variant="success" size="sm"
                                                   @click="$emit('click-optimize', cellData.value)">
                                             <font-awesome-icon icon="compass" class="" fixed-width/>
                                         </b-button>
+                                        <b-button class="m-0" variant="danger" size="sm"
+                                                  @click="$emit('del-config', cellData.index)">
+                                            <font-awesome-icon icon="times" class="" fixed-width/>
+                                        </b-button>
                                     </div>
-                                </div>
-                            </div>
+                                </template>
+                            </EditCell>
                         </template>
-                        <div v-else-if="typeof cellData.item[field] === 'boolean'"><b-form-checkbox v-model="cellData.item[field]"></b-form-checkbox></div>
+                        <div v-else-if="typeof cellData.item[field] === 'boolean'">
+                            <b-form-checkbox v-model="cellData.item[field]"></b-form-checkbox>
+                        </div>
                         <CustomSpinButton
                             v-else-if="typeof cellData.item[field] === 'number'"
                             :value="cellData.item[field]"
@@ -154,23 +154,6 @@
                             :max="systemFeatures.numericFeatures[field].max"
                         />
                     </template>
-
-<!--                    <template v-for="field in editableFields" v-slot:[`cell(${field.key})`]=" data ">
-                        <template>{{ data }}</template>
-                    </template>
-                    <template v-slot:cell(actions)="{ item }">
-                        <b-button-group v-if="userRow && userRow.id === item.id">
-                            <b-button variant="success" @click="saveEdit">
-                                Save
-                            </b-button>
-                            <b-button variant="danger" @click="resetEdit">
-                                Cancel
-                            </b-button>
-                        </b-button-group>
-                        <b-button v-else variant="primary" @click="editUser(item)">
-                            Edit
-                        </b-button>
-                    </template>-->
                 </b-table>
                 <div class="panel-footer d-flex justify-content-center">
                     <b-button :disabled="configurations.length < 1" variant="primary"
@@ -193,16 +176,15 @@
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
-import Panel from 'primevue/panel';
 import SelectButton from 'primevue/selectbutton';
 import ScrollPanel from 'primevue/scrollpanel';
-import OverlayPanel from 'primevue/overlaypanel';
 
 import ConfigCard from "./ConfigCard";
 import Chip from './Chip';
 import ExportButton from "./ExportButton";
 import ImportDropdownItem from "./ImportDropdownItem";
 import CustomSpinButton  from "./SpinButton";
+import EditCell from "./EditCell";
 
 import configManagementMixin from "../mixins/configManagementMixin";
 
@@ -215,15 +197,14 @@ export default {
         DataTable,
         Column,
         InputText,
-        Panel,
         SelectButton,
         ScrollPanel,
-        OverlayPanel,
         ConfigCard,
         Chip,
         ExportButton,
         ImportDropdownItem,
-        CustomSpinButton
+        CustomSpinButton,
+        EditCell
     },
     props: [
         "systemName",
@@ -272,26 +253,12 @@ export default {
             ]
         ),
 
-        configTableItems() {
-            let items = [...this.configs];
-            items.forEach(function(obj) { delete obj.properties; delete obj.dissectedProperties });
-            return items;
-        },
-
         configTableFields() {
             return ['name'].concat(this.systemFeatures.binaryFeatures, Object.keys(this.systemFeatures.numericFeatures));
         }
     },
 
     methods: {
-        onClick() {
-            console.log('CLick!');
-            this.editVisible = true;
-        },
-        onClickOutside() {
-            console.log('CLick outside!');
-            this.editVisible = false;
-        },
         collapse() {
             this.visible = !this.visible;
         },
@@ -304,38 +271,6 @@ export default {
 
             this.exportData = exportData;
         },
-        makeToast(variant = null) {
-            this.$bvToast.toast('Function is not implemented yet.', {
-                title: 'Unsupported function',
-                variant: variant,
-                solid: true
-            })
-        },
-        editUser(user) {
-            let doEdit = true;
-            if (
-                this.userRow &&
-                !confirm(
-                    "You have unsaved changes, are you sure you want to continue?"
-                )
-            ) {
-                doEdit = false;
-            }
-
-            if (doEdit) {
-                this.userRow = { ...user };
-            }
-        },
-        saveEdit() {
-            let user = this.items.find((u) => u.id === this.userRow.id);
-            Object.assign(user, this.userRow);
-
-            this.resetEdit();
-        },
-        resetEdit() {
-            this.userRow = null;
-        }
-
     },
 }
 </script>
