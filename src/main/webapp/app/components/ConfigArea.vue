@@ -14,7 +14,7 @@
                         <div class="mr-2">
                             <b-dropdown v-if="softSystemLoaded"
                                         right split variant="success"
-                                        @click="$emit('get-config-example')">
+                                        @click="$emit('get-initial-config')">
                                 <template #button-content>
                                     <font-awesome-icon class="mr-1" icon="plus" fixed-width/>Add
                                 </template>
@@ -28,8 +28,8 @@
                                     :fileCheck="true" @load-data="loadData"
                                 />
                                 <b-dropdown-divider></b-dropdown-divider>
-                                <b-dropdown-item-button @click="triggerExport">
-                                    <font-awesome-icon icon="trash" class="mr-1 text-secondary" fixed-width/>Delete all
+                                <b-dropdown-item-button @click="deleteAllConfigs">
+                                    <font-awesome-icon icon="trash" class="mr-1 text-secondary" fixed-width/>Delete All
                                 </b-dropdown-item-button>
                                 <b-dropdown-divider></b-dropdown-divider>
                                 <b-dropdown-item-button @click="$emit('click-optimize')">
@@ -72,23 +72,23 @@
                      style="overflow-x: auto;"
                 >
                     <div class="config-row d-flex">
-                        <template v-for="(config, index) in configurations">
+                        <template v-for="(config, index) in configsMutationField">
                             <ConfigCard
                                 :config="config"
                                 :system-features="systemFeatures"
                                 editable
-                                @duplicate-config="$emit('duplicate-config', index)"
-                                @del-config="$emit('del-config', index)"
+                                @duplicate-config="duplicateConfig(index)"
+                                @del-config="deleteConfig(index)"
                                 @click-optimize="$emit('click-optimize', config.name, '')"
-                                @update-config-name="$emit('update-config-name', index, $event)"
-                                @add-feature="$emit('update-feature', index, $event, true)"
-                                @remove-feature="$emit('update-feature', index, $event, false)"
+                                @update-config-name="updateConfigName(index, $event)"
+                                @add-feature="updateFeature(index, $event, true)"
+                                @remove-feature="updateFeature(index, $event, false)"
                             />
                         </template>
                     </div>
                 </div>
                 <b-table
-                    v-show="selectedViewOption === 'extended'" :items="configs" :fields="configTableFields"
+                    v-show="selectedViewOption === 'extended'" :items="configurations" :fields="configTableFields"
                     class="mb-1" thead-class="header-light"
                     style="white-space: nowrap" responsive hover
                 >
@@ -103,7 +103,7 @@
                                     <b-form-input class="mb-1" style="min-width: 12rem" v-model="cellData.item.name" maxlength="24"/>
                                     <div>
                                         <b-button class="m-0" variant="info" size="sm"
-                                                  @click="$emit('duplicate-config', cellData.index)">
+                                                  @click="duplicateConfig(cellData.index)">
                                             <font-awesome-icon icon="copy" class="" fixed-width/>
                                         </b-button>
                                         <b-button class="m-0" variant="success" size="sm"
@@ -111,7 +111,7 @@
                                             <font-awesome-icon icon="compass" class="" fixed-width/>
                                         </b-button>
                                         <b-button class="m-0" variant="danger" size="sm"
-                                                  @click="$emit('del-config', cellData.index)">
+                                                  @click="deleteConfig(cellData.index)">
                                             <font-awesome-icon icon="times" class="" fixed-width/>
                                         </b-button>
                                     </div>
@@ -140,8 +140,8 @@
             </b-collapse>
         </b-card>
         <b-card v-else>
-            <template class="p-p-0" #header>
-                <h5 class="p-m-0">Empty</h5>
+            <template class="p-0" #header>
+                <h5 class="m-0">Empty</h5>
             </template>
             Please select a software system.
         </b-card>
@@ -155,11 +155,12 @@ import ExportButton from "./ExportButton";
 import ImportDropdownItem from "./ImportDropdownItem";
 import CustomSpinButton  from "./SpinButton";
 import EditCell from "./EditCell";
-
+import configManagementMixin from "../mixins/configManagementMixin"
 import { mapFields, mapMultiRowFields } from "vuex-map-fields";
 
 export default {
     name: "ConfigArea",
+    mixins: [configManagementMixin],
     components: {
         ConfigCard,
         Chip,
@@ -189,15 +190,14 @@ export default {
         ...mapFields(
             'configurationStore',
             {
-                systemFeatures: 'systemFeatures',
-                configs: 'configurations'
+                systemFeatures: 'systemFeatures'
             }
         ),
         ...mapMultiRowFields(
             'configurationStore',
-            [
-                "configurations"
-            ]
+            {
+                configsMutationField: "configurations"
+            }
         ),
 
         configTableFields() {
@@ -210,10 +210,10 @@ export default {
             this.visible = !this.visible;
         },
         loadData(data) {
-            this.$emit('load-data', data);
+            this.loadConfigs(data);
         },
         generateExportData() {
-            let exportData = [...this.configs];
+            let exportData = [...this.configurations];
             exportData.forEach(function(obj) { delete obj.properties; delete obj.dissectedProperties });
 
             this.exportData = exportData;
