@@ -53,6 +53,7 @@ import { faFileUpload } from '@fortawesome/free-solid-svg-icons/faFileUpload';
 import { faMicroscope } from '@fortawesome/free-solid-svg-icons/faMicroscope';
 import { faMinus } from '@fortawesome/free-solid-svg-icons/faMinus';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faTable } from '@fortawesome/free-solid-svg-icons/faTable';
 
 import VueCookie from 'vue-cookie';
 import Vuelidate from 'vuelidate';
@@ -127,7 +128,8 @@ export function initFortAwesome(vue) {
     faFileUpload,
     faMicroscope,
     faMinus,
-    faPlus
+    faPlus,
+    faTable
   );
 }
 

@@ -4,19 +4,34 @@
             <template #header>
                 <div class="d-flex justify-content-between flex-wrap" style="width: 100%">
                     <div class="d-flex align-items-center flex-wrap">
-                        <b-button class="mr-1" variant="link" @click="collapse"><font-awesome-icon :icon="visible ? 'chevron-up' : 'chevron-down'" class="text-secondary"/></b-button>
-                        <h5 class="p-mb-0 p-mr-2">Configurations</h5>
-                        <div class="p-mr-2">
+                        <b-button class="mr-0 mr-sm-1" variant="link" @click="collapse">
+                            <font-awesome-icon :icon="visible ? 'chevron-up' : 'chevron-down'" class="text-secondary"/>
+                        </b-button>
+                        <h5 class="mb-0 mr-2">
+                            <span class="d-none d-sm-block">Configurations</span>
+                            <span class="d-block d-sm-none">Configs</span>
+                        </h5>
+                        <div class="mr-2">
                             <b-dropdown v-if="softSystemLoaded"
                                         right split variant="success"
                                         @click="$emit('get-config-example')">
                                 <template #button-content>
                                     <font-awesome-icon class="mr-1" icon="plus" fixed-width/>Add
                                 </template>
-                                <ImportDropdownItem :systemName="systemName"
-                                                    :binaryFeatures="systemFeatures.binaryFeatures"
-                                                    :numericFeatures="Object.keys(systemFeatures.numericFeatures)"
-                                                    :fileCheck="true" @load-data="loadData"/>
+                                <b-dropdown-item-button @click="triggerExport" class="d-block d-sm-none">
+                                    <font-awesome-icon icon="file-export" class="mr-1 text-secondary" fixed-width/>Export
+                                </b-dropdown-item-button>
+                                <ImportDropdownItem
+                                    :systemName="systemName"
+                                    :binaryFeatures="systemFeatures.binaryFeatures"
+                                    :numericFeatures="Object.keys(systemFeatures.numericFeatures)"
+                                    :fileCheck="true" @load-data="loadData"
+                                />
+                                <b-dropdown-divider></b-dropdown-divider>
+                                <b-dropdown-item-button @click="triggerExport">
+                                    <font-awesome-icon icon="trash" class="mr-1 text-secondary" fixed-width/>Delete all
+                                </b-dropdown-item-button>
+                                <b-dropdown-divider></b-dropdown-divider>
                                 <b-dropdown-item-button @click="$emit('click-optimize')">
                                     <font-awesome-icon icon="compass" class="mr-1 text-secondary" fixed-width/>Optimize
                                 </b-dropdown-item-button>
@@ -25,14 +40,31 @@
                                 </b-dropdown-item-button>
                             </b-dropdown>
                         </div>
-                        <div class="p-mr-2">
+                        <div class="mr-2">
                             <ExportButton
-                                label="Export" :systemName="systemName" :data="exportData"
-                                @click="generateExportData">
+                                class="d-none d-sm-block"
+                                ref="export"
+                                :systemName="systemName" :data="exportData"
+                                @click="generateExportData"
+                            >
+                                Export
                             </ExportButton>
                         </div>
                     </div>
-                    <div class="p-ml-auto p-mt-2"><SelectButton v-model="selectedViewOption" :options="options"/></div>
+                    <div class="d-flex align-items-center align-content-end">
+                        <b-form-group class="d-none d-sm-block m-1" v-slot="{ ariaDescribedby }">
+                            <b-form-radio-group
+                                v-model="selectedViewOption"
+                                :options="options"
+                                :aria-describedby="ariaDescribedby"
+                                button-variant="outline-primary"
+                                buttons
+                            ></b-form-radio-group>
+                        </b-form-group>
+                        <b-form-checkbox class="d-block d-sm-none ml-2 my-1" @change="toggleExtendedView" :checked="selectedViewOption === 'extended'" name="check-button" switch>
+                            <font-awesome-icon icon="table" class="text-secondary" fixed-width/>
+                        </b-form-checkbox>
+                    </div>
                 </div>
             </template>
             <b-collapse id="collapse-configs" v-model="visible">
@@ -117,8 +149,6 @@
 </template>
 
 <script>
-import SelectButton from 'primevue/selectbutton';
-
 import ConfigCard from "./ConfigCard";
 import Chip from './Chip';
 import ExportButton from "./ExportButton";
@@ -131,7 +161,6 @@ import { mapFields, mapMultiRowFields } from "vuex-map-fields";
 export default {
     name: "ConfigArea",
     components: {
-        SelectButton,
         ConfigCard,
         Chip,
         ExportButton,
@@ -189,6 +218,17 @@ export default {
 
             this.exportData = exportData;
         },
+        triggerExport() {
+            // shady way to trigger event of nested component i.e. the b-button click in ExportButton.vue
+            this.$refs.export.$refs.button.click();
+        },
+        toggleExtendedView(isVisible) {
+            if (isVisible) {
+                this.selectedViewOption = 'extended';
+            } else {
+                this.selectedViewOption = 'simple';
+            }
+        }
     },
 }
 </script>
