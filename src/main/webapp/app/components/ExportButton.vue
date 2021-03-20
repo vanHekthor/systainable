@@ -1,8 +1,10 @@
 <template>
     <div>
-        <b-button @click="$emit('click')" v-b-modal.filename-modal variant="outline-primary">
-            <font-awesome-icon icon="file-export" fixed-width/>
-            {{label}}
+        <b-button ref="button" @click="$emit('click')" v-b-modal.filename-modal variant="outline-primary">
+            <div>
+                <font-awesome-icon icon="file-export"/>
+                <slot>{{label}}</slot>
+            </div>
         </b-button>
         <b-modal id="filename-modal" centered title="Enter a filename"
                  @ok="handleDownload">
@@ -19,7 +21,7 @@ export default {
         label: {
             type: String,
             required: false,
-            default: "Export",
+            default: "",
         },
         systemName: {
             type: String,

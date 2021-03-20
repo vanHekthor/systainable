@@ -27,6 +27,7 @@ import {
 
   // added
   BDropdownDivider,
+  BFormRadioGroup,
   FormSelectPlugin,
   FormSpinbuttonPlugin,
   CardPlugin,
@@ -67,7 +68,7 @@ export function initBootstrapVue(vue) {
 
   // added
   vue.component('b-dropdown-divider', BDropdownDivider);
-
+  vue.component('b-form-radio-group', BFormRadioGroup);
   vue.use(FormSpinbuttonPlugin);
   vue.use(FormSelectPlugin);
   vue.use(CardPlugin);
