@@ -62,10 +62,16 @@ export default {
 
     deleteConfig(index) {
       this.deleteConfigFromStore(index);
+      if (this.configurations.length < 1) {
+        this.$store.commit('uiLogicStore/updateField', { path: 'chartsDrawn', value: false });
+      }
     },
 
     deleteAllConfigs() {
       this.configurations = [];
+      if (this.configurations.length < 1) {
+        this.$store.commit('uiLogicStore/updateField', { path: 'chartsDrawn', value: false });
+      }
     },
 
     duplicateConfig(index) {

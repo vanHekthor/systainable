@@ -14,13 +14,8 @@
             <ConfigArea
                 :systemName="selectedSoftSystem"
                 :softSystemLoaded="softSystemLoaded"
-                @update-feature="updateFeature"
-                @update-config-name="updateConfigName"
-                @del-config="startConfigDeletion"
                 @submit-configs="submitConfigs"
-                @get-config-example="addInitialConfig"
-                @load-data="loadConfigs"
-                @duplicate-config="duplicateConfig"
+                @get-initial-config="addInitialConfig"
                 @click-optimize="startConfigOptimization"
                 @click-near-optimum="startConfigOptimization"
             />
@@ -52,7 +47,7 @@
                 {{ invalidConfig.name + ' is invalid'}}
             </template>
             <h6>Suggestion:</h6>
-            <div class="p-d-flex p-jc-center p-ai-center" style="overflow-x: auto">
+            <div class="d-flex justify-content-center align-items-center" style="overflow-x: auto">
                 <ConfigCard class="m-2"
                             :systemFeatures="systemFeatures"
                             :config="invalidConfig"/>
@@ -165,14 +160,6 @@ export default {
 
         addInitialConfig: async function() {
             this.addConfig(await this.requestInitConfig());
-        },
-
-        startConfigDeletion(index) {
-            this.deleteConfig(index);
-
-            if (this.configurations.length < 1) {
-                this.eraseCharts();
-            }
         },
 
         submitConfigs: async function() {
