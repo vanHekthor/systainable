@@ -1,6 +1,7 @@
 <p align="center">
-    <img src="https://user-images.githubusercontent.com/35042166/222794394-a3adc7f5-b7c4-4b39-a1d9-1a9eeb7bf9f5.png" alt="systainable logo"><br/>
-    Green Configuration Dashboard
+    <a href="https://systainable.herokuapp.com/"><img src="https://user-images.githubusercontent.com/35042166/222794394-a3adc7f5-b7c4-4b39-a1d9-1a9eeb7bf9f5.png" alt="systainable logo"></a><br/>
+    Green Configuration Dashboard <br/>
+    Check it out <a href="https://systainable.herokuapp.com/">here.</a>
 </p>
 
 ## Overview
