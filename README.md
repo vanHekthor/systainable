@@ -12,22 +12,26 @@ Systainable is a web dashboard for comparing software configurations in mutltipl
 
 ### Define configurations
 
-Add, remove or modify options. Add, import or export configurations.<br/>
+Add, remove or modify options. Add, import or export configurations.
+
 ![image](https://user-images.githubusercontent.com/35042166/222795904-254d35d2-2f6e-44d6-87cf-31a8b2038baf.png)
 
 ### Compare properties
 
-Get a quick overview of each configuration's effect on the software properties.<br/>
+Get a quick overview of each configuration's effect on the software properties.
+
 ![image](https://user-images.githubusercontent.com/35042166/222796567-977a8764-d058-447f-87b9-c217332b2370.png)
 
 ### Analyze in-depth
 
-Find out which configuration options or interactions have the biggest effect on the overall performance of the software.<br/>
+Find out which configuration options or interactions have the biggest effect on the overall performance of the software.
+
 ![image](https://user-images.githubusercontent.com/35042166/222796760-289f1854-cfa7-404f-bef8-e082b6f80ace.png)
 
 ### Optimize configurations
 
-Let systainable automatically refine a configuration and check out the improvements in the optimized config preview.<br/>
+Let systainable automatically refine a configuration and check out the improvements in the optimized config preview.
+
 ![image](https://user-images.githubusercontent.com/35042166/222797198-e5878677-8f93-4942-8141-5692677393b6.png)
 
 ## Development
