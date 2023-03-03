@@ -5,7 +5,8 @@
 
 ## Overview
 
-Systainable is a web dashboard for comparing software configurations in mutltiple metrics (performance, energy consumption and memory usage, etc.). It is especially intended for finding greener more environmentally friendly configurations.<br/>
+Systainable is a web dashboard for comparing software configurations in mutltiple metrics (performance, energy consumption and memory usage, etc.). It is especially intended for finding greener more environmentally friendly configurations.
+
 ![image](https://user-images.githubusercontent.com/35042166/222795608-f3be00c0-5b3c-4174-a627-59a82e10ff3b.png)
 
 ## Features
