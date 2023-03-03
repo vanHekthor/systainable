@@ -1,8 +1,38 @@
-# test
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/35042166/222794394-a3adc7f5-b7c4-4b39-a1d9-1a9eeb7bf9f5.png" alt="systainable logo"><br/>
+    Green Configuration Dashboard
+</p>
 
-This application was generated using JHipster 6.10.3, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v6.10.3](https://www.jhipster.tech/documentation-archive/v6.10.3).
+## Overview
+
+Systainable is a web dashboard for comparing software configurations in mutltiple metrics (performance, energy consumption and memory usage, etc.). It is especially intended for finding greener more environmentally friendly configurations.<br/>
+![image](https://user-images.githubusercontent.com/35042166/222795608-f3be00c0-5b3c-4174-a627-59a82e10ff3b.png)
+
+## Features
+
+### Define configurations
+
+Add, remove or modify options. Add, import or export configurations.<br/>
+![image](https://user-images.githubusercontent.com/35042166/222795904-254d35d2-2f6e-44d6-87cf-31a8b2038baf.png)
+
+### Compare properties
+
+Get a quick overview of each configuration's effect on the software properties.<br/>
+![image](https://user-images.githubusercontent.com/35042166/222796567-977a8764-d058-447f-87b9-c217332b2370.png)
+
+### Analyze in-depth
+
+Find out which configuration options or interactions have the biggest effect on the overall performance of the software.<br/>
+![image](https://user-images.githubusercontent.com/35042166/222796760-289f1854-cfa7-404f-bef8-e082b6f80ace.png)
+
+### Optimize configurations
+
+Let systainable automatically refine a configuration and check out the improvements in the optimized config preview.<br/>
+![image](https://user-images.githubusercontent.com/35042166/222797198-e5878677-8f93-4942-8141-5692677393b6.png)
 
 ## Development
+
+This application was generated using JHipster 6.10.3, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v6.10.3](https://www.jhipster.tech/documentation-archive/v6.10.3).
 
 Before you can build this project, you must install and configure the following dependencies on your machine:
 
